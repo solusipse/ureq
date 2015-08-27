@@ -36,12 +36,14 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     return 0;
 }
 
-void ureq_serve(char *url, char *(func)(), int method ) {
+void ureq_serve(char *url, char *(func)(), char *method ) {
     struct Page page;
     page.url = url;
     page.func = func;
+    page.method = method;
 
-    pages = (struct Page *) realloc(pages, pageCount++ * sizeof(struct Page) + 1);
+    // TODO: fix memory problems below (minimalize memory footprint)
+    pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
     pages[pageCount-1] = page;
 }
 
@@ -52,20 +54,24 @@ void ureq_send(char *r) {
 void ureq_run( struct HttpRequest *req ) {
     int i;
     for (i = 0; i < pageCount; i++) {
-        if ( strcmp(req->url, pages[i].url) == 0 ) {
+        if ( strcmp(req->url, pages[i].url) != 0 )
+            return;
+        if ( strcmp(req->type, pages[i].method) != 0 )
+            return;
 
-            char *html = pages[i].func();
-            char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
+        printf("%s\n", req->type);
+        char *html = pages[i].func();
+        char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
-            char *buf = malloc(strlen(header) + strlen(html) + 2);
-            buf[0] = '\0';
-            
-            strcat(buf, header);
-            strcat(buf, html);
+        char *buf = malloc(strlen(header) + strlen(html) + 2);
+        buf[0] = '\0';
+        
+        strcat(buf, header);
+        strcat(buf, html);
 
-            ureq_send(buf);
-            free(buf);
-        }
+        ureq_send(buf);
+        free(buf);
+
     }
     // else: 404
 }

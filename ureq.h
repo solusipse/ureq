@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define GET 0
-#define POST 1
+#define GET "GET"
+#define POST "POST"
 
 struct HttpRequest {
     char *type;
@@ -18,7 +18,7 @@ struct HttpRequest {
 struct Page {
     char *url;
     char *(*func)();
-    // TODO: method
+    char *method;
 };
 
 struct Page *pages = NULL;
@@ -32,7 +32,7 @@ char *ureq_get_header(char *r);
 void ureq_init();
 void ureq_send(char *r);
 void ureq_run(struct HttpRequest *req);
-void ureq_serve(char *url, char *(func)(), int method );
+void ureq_serve(char *url, char *(func)(), char *method );
 
 
 #endif

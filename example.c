@@ -46,13 +46,16 @@ int main() {
     ureq_serve("/", s_home, GET);
     ureq_serve("/on", s_on, GET);
     ureq_serve("/off", s_off, POST);
-
     /*
     void ureq_run(struct HttpRequest *req);
     Use ureq_run everytime you get a request.
     */
 
     ureq_run(&req);
+
+    /*
+    When you're done, use ureq_close.
+    */
 
     ureq_close();
 
