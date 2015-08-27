@@ -32,3 +32,4 @@
 *.dSYM/
 
 ureq
+.DS_Store
