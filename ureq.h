@@ -13,6 +13,7 @@ struct HttpRequest {
     char *type;
     char *url;
     char *version;
+    char *data;
 };
 
 struct Page {
@@ -32,7 +33,7 @@ char *ureq_get_header(char *r);
 void ureq_init();
 void ureq_send(char *r);
 void ureq_run(struct HttpRequest *req);
-void ureq_serve(char *url, char *(func)(), char *method );
+void ureq_serve(char *url, char *(func)(char *), char *method );
 
 
 #endif

@@ -33,10 +33,12 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     if (header != NULL)
         return 1;
 
+    req->data = r;
+
     return 0;
 }
 
-void ureq_serve(char *url, char *(func)(), char *method ) {
+void ureq_serve(char *url, char *(func)(char *), char *method ) {
     struct Page page;
     page.url = url;
     page.func = func;
@@ -59,7 +61,7 @@ void ureq_run( struct HttpRequest *req ) {
         if ( strcmp(req->type, pages[i].method) != 0 )
             continue;
         
-        char *html = pages[i].func();
+        char *html = pages[i].func(req->data);
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
         char *buf = malloc(strlen(header) + strlen(html) + 2);
