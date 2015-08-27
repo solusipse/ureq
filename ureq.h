@@ -8,6 +8,7 @@
 
 #define GET "GET"
 #define POST "POST"
+#define ALL "ALL"
 
 struct HttpRequest {
     char *type;

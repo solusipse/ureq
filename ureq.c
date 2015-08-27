@@ -45,6 +45,7 @@ void ureq_serve(char *url, char *(func)(char *), char *method ) {
     page.method = method;
 
     // TODO: fix memory problems below (minimalize memory footprint)
+    //       (malloc every element separately)
     pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
     pages[pageCount-1] = page;
 }
@@ -58,8 +59,12 @@ void ureq_run( struct HttpRequest *req ) {
     for (i = 0; i < pageCount; i++) {
         if ( strcmp(req->url, pages[i].url) != 0 )
             continue;
-        if ( strcmp(req->type, pages[i].method) != 0 )
-            continue;
+        
+        // If request type is ALL, corresponding function is always called
+        // no matter which method client has used.
+        if ( strcmp(ALL, pages[i].method) != 0 )
+            if ( strcmp(req->type, pages[i].method) != 0 )
+                continue;
         
         char *html = pages[i].func(req->data);
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";

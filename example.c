@@ -41,6 +41,14 @@ char *s_off() {
     return "off";
 }
 
+char *s_gettest() {
+    return "off";
+}
+
+char *s_all() {
+    return "all";
+}
+
 /* --------------------------------^ PAGES ^-------------------------------- */
 
 int main() {
@@ -62,6 +70,8 @@ int main() {
     ureq_serve("/", s_home, GET);
     ureq_serve("/on", s_on, GET);
     ureq_serve("/off", s_off, POST);
+    ureq_serve("/?test=ok", s_gettest, GET);
+    ureq_serve("/all", s_all, ALL);
 
     /*
     void ureq_run(struct HttpRequest *req);
