@@ -14,13 +14,11 @@ char *s_home() {
 }
 
 char *s_on() {
-    printf("on\n");
-    return "abc";
+    return "on";
 }
 
 char *s_off() {
-    printf("off\n");
-    return "abc";
+    return "off";
 }
 
 /* --------------------------------^ PAGES ^-------------------------------- */

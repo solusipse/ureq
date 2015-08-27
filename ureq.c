@@ -55,11 +55,10 @@ void ureq_run( struct HttpRequest *req ) {
     int i;
     for (i = 0; i < pageCount; i++) {
         if ( strcmp(req->url, pages[i].url) != 0 )
-            return;
+            continue;
         if ( strcmp(req->type, pages[i].method) != 0 )
-            return;
-
-        printf("%s\n", req->type);
+            continue;
+        
         char *html = pages[i].func();
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
