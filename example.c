@@ -49,9 +49,16 @@ char *s_all() {
     return "all";
 }
 
+char *s_post(char *request) {
+    ureq_get_post_data(request);
+    return "post";
+}
+
 /* --------------------------------^ PAGES ^-------------------------------- */
 
 int main() {
+
+    // TODO: minimalize number of functions needed to use library
 
     /*
     That's an example request
@@ -72,6 +79,7 @@ int main() {
     ureq_serve("/off", s_off, POST);
     ureq_serve("/?test=ok", s_gettest, GET);
     ureq_serve("/all", s_all, ALL);
+    ureq_serve("/post", s_post, POST);
 
     /*
     void ureq_run(struct HttpRequest *req);

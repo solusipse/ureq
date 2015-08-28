@@ -39,6 +39,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
 }
 
 void ureq_serve(char *url, char *(func)(char *), char *method ) {
+    // TODO: parse get parameters
     struct Page page;
     page.url = url;
     page.func = func;
@@ -59,7 +60,7 @@ void ureq_run( struct HttpRequest *req ) {
     for (i = 0; i < pageCount; i++) {
         if ( strcmp(req->url, pages[i].url) != 0 )
             continue;
-        
+
         // If request type is ALL, corresponding function is always called
         // no matter which method client has used.
         if ( strcmp(ALL, pages[i].method) != 0 )
@@ -80,6 +81,16 @@ void ureq_run( struct HttpRequest *req ) {
 
     }
     // else: 404
+}
+
+char *ureq_get_post_data(char *r) {
+    // TODO: write this one actually
+    char *data = malloc(strlen(r));
+    strcpy(data, r);
+    data = strtok(data, "\n\n");
+    data = strtok(data, "\n\n");
+
+    return data;
 }
 
 void ureq_close() {
