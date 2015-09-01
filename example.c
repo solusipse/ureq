@@ -80,29 +80,20 @@ int main() {
     That's an example request
     */
     
-    
+    /*
     char request[] = "POST /post HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n\n"
                      "test=1&test2=2&test3=3\n";
-    
+    */
 
-    /*
+    
     char request[] = "GET /param?test=ok&test2=2ok HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
-    */
+    
 
     struct HttpRequest req;
     if ( ureq_parse_header(request, &req) != 0 )
         return 1;
-
-    
-    printf("%s\n", req.type);
-    /*
-    printf("%s\n", req.url);
-    printf("%s\n", req.version);
-    printf("%s\n", req.data);
-    */
-    //printf("%s\n", req.params);
 
     /* 
     void ureq_serve(char *url, char *(func)(), int method );

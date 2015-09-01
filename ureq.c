@@ -87,7 +87,6 @@ void ureq_run( struct HttpRequest *req ) {
         // no matter which method client has used.
         if ( strcmp(ALL, pages[i].method) != 0 )
             if ( strcmp(req->type, pages[i].method) != 0 ) {
-                printf("%s\n%s\n", req->type, pages[i].method);
                 continue;
             }
 
@@ -174,9 +173,11 @@ void ureq_remove_parameters(char *b, char *u) {
 }
 
 void ureq_get_parameters(char *b, char *u) {
-    strcpy(b, u);
+    strncpy(b, u, strlen(u));
     b = strtok(b, "?");
-    b = strtok(NULL, "\n");
+    char *buf;
+    buf = strtok(NULL, "\n");
+    strcpy(b, buf);
 }
 
 void ureq_close( struct HttpRequest *req ) {
