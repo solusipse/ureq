@@ -51,12 +51,11 @@ char *s_all() {
 
 char *s_post(char *request) {
     char *data = ureq_get_post_arguments(request);
-    char *arg = ureq_get_argument_value(data, "test3");
+    char *arg = ureq_get_argument_value(data, "test2");
 
-    printf("%s\n", arg);
-
-    free(data);
-    free(arg);
+    if ( strcmp( arg, "2" ) == 0 ) {
+        printf("OK!\n");
+    }
 
     return "OK";
 }

@@ -85,8 +85,6 @@ void ureq_run( struct HttpRequest *req ) {
 }
 
 char *ureq_get_post_arguments(char *r) {
-    // remember to free what's returned!
-
     char *data = malloc(strlen(r) + 1);
     char *out = malloc(strlen(r) + 1);
     strcpy(data, r);
@@ -95,13 +93,12 @@ char *ureq_get_post_arguments(char *r) {
         strcpy(out, buf);
     }
     free(data);
+    free(out);
 
     return out;
 }
 
 char *ureq_get_argument_value(char *r, char *arg) {
-    // remember to free what's returned!
-
     char *data = malloc(strlen(r) + 1);
     char *out = malloc(strlen(r) + 1);
     strcpy(data, r);
@@ -118,8 +115,12 @@ char *ureq_get_argument_value(char *r, char *arg) {
         if ( strcmp(buf, arg) == 0 ) {
             strcpy(out, sptr);
         }
+        else {
+            out[0] = '\0';
+        }
     }
     free(data);
+    free(out);
 
     return out;
 }
