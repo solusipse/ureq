@@ -34,7 +34,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req);
 
 void ureq_get_header(char *h, char *r);
 char *ureq_get_post_arguments(char *r);
-char *ureq_remove_parameters(char *u);
+void ureq_remove_parameters(char *b, char *u);
 void ureq_get_parameters(char *b, char *u);
 
 void ureq_send(char *r);

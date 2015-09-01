@@ -14,30 +14,42 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     b = strtok(header, " ");
     free(header);
 
-    if ( strncmp(b, "GET", strlen(b) + 8) && strncmp(b, "POST", strlen(b) + 8) )
+    if ( strncmp(b, "GET", strlen(b) + 8) && strncmp(b, "POST", strlen(b) + 8) ) {
+        free(b);
         return 1;
+    }
     req->type = malloc( strlen(b) + 1 );
+    req->type[0] = '\0';
     strncat(req->type, b, strlen(b));
 
     b = strtok(NULL, " ");
     req->url = malloc( strlen(b) + 1 );
+    req->url[0] = '\0';
     strncat(req->url, b, strlen(b));
 
     b = strtok(NULL, " ");
-    if ( strncmp(b, "HTTP/1.1", strlen(b) + 8) && strncmp(b, "HTTP/1.0", strlen(b) + 8) )
+    if ( strncmp(b, "HTTP/1.1", strlen(b) + 8) && strncmp(b, "HTTP/1.0", strlen(b) + 8) ) {
+        free(b);
         return 1;
+    }
     req->version = malloc( strlen(b) + 1 );
+    req->version[0] = '\0';
     strncat(req->version, b, strlen(b));
 
     b = strtok(NULL, " ");
-    if (b != NULL)
+    if (b != NULL) {
+        free(b);
         return 1;
+    }
+
+    free(b);
 
     req->data = malloc( strlen(r) + 1 );
+    req->data[0] = '\0';
     strncat(req->data, r, strlen(r));
 
     req->params = NULL;
-    free(b);
+    
 
     return 0;
 }
@@ -48,8 +60,6 @@ void ureq_serve(char *url, char *(func)(char *), char *method ) {
     page.func = func;
     page.method = method;
 
-    // TODO: fix memory problems below (minimalize memory footprint)
-    //       (malloc every element separately)
     pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
     pages[pageCount-1] = page;
 }
@@ -62,16 +72,24 @@ void ureq_run( struct HttpRequest *req ) {
     
     int i;
     for (i = 0; i < pageCount; i++) {
-        char *plain_url = ureq_remove_parameters(req->url);
+        char *plain_url = malloc( strlen(req->url) + 1 );
 
-        if ( strcmp(plain_url, pages[i].url) != 0 )
+        ureq_remove_parameters(plain_url, req->url);
+
+        if ( strcmp(plain_url, pages[i].url) != 0 ) {
+            free(plain_url);
             continue;
+        }
+
+        free(plain_url);
 
         // If request type is ALL, corresponding function is always called
         // no matter which method client has used.
         if ( strcmp(ALL, pages[i].method) != 0 )
-            if ( strcmp(req->type, pages[i].method) != 0 )
+            if ( strcmp(req->type, pages[i].method) != 0 ) {
+                printf("%s\n%s\n", req->type, pages[i].method);
                 continue;
+            }
 
         char *html = NULL;
 
@@ -83,7 +101,8 @@ void ureq_run( struct HttpRequest *req ) {
                 char *b = malloc(strlen(par) + strlen(req->data) + 2);
                 strcat(b, par);
                 strcat(b, req->data);
-                html = pages[i].func( par );
+                html = pages[i].func( b );
+                free(b);
             } else {
                 html = pages[i].func( req->data );
             }
@@ -91,8 +110,8 @@ void ureq_run( struct HttpRequest *req ) {
             html = pages[i].func( par );
         }
 
+        free(par);
 
-            
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
         // malloc -> calloc
@@ -104,7 +123,6 @@ void ureq_run( struct HttpRequest *req ) {
 
         ureq_send(buf);
         free(buf);
-        free(par);
 
     }
     
@@ -150,10 +168,9 @@ char *ureq_get_argument_value(char *r, char *arg) {
     return out;
 }
 
-char *ureq_remove_parameters(char *u) {
-    char buf[128];
-    strcpy(buf, u);
-    return strtok(buf, "?");
+void ureq_remove_parameters(char *b, char *u) {
+    strcpy(b, u);
+    b = strtok(b, "?");
 }
 
 void ureq_get_parameters(char *b, char *u) {
@@ -168,8 +185,6 @@ void ureq_close( struct HttpRequest *req ) {
     free(req->version);
     free(req->data);
 
-    if (req->params != NULL)
-        free(req->params);
 
     free(pages);
 }
