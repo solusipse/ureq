@@ -58,7 +58,9 @@ void ureq_send(char *r) {
 void ureq_run( struct HttpRequest *req ) {
     int i;
     for (i = 0; i < pageCount; i++) {
-        if ( strcmp(req->url, pages[i].url) != 0 )
+        char *plain_url = ureq_remove_parameters( req->url );
+
+        if ( strcmp(plain_url, pages[i].url) != 0 )
             continue;
 
         // If request type is ALL, corresponding function is always called
@@ -66,8 +68,24 @@ void ureq_run( struct HttpRequest *req ) {
         if ( strcmp(ALL, pages[i].method) != 0 )
             if ( strcmp(req->type, pages[i].method) != 0 )
                 continue;
-        
-        char *html = pages[i].func(req->data);
+
+        char *html = NULL;
+
+        if ( strcmp (POST, req->type ) == 0 ) {
+            char *par = ureq_get_parameters( req->url );
+            if (par != NULL) {
+                char *b = malloc(strlen(par) + strlen(req->data) + 2);
+                strcat(b, par);
+                strcat(b, req->data);
+                html = pages[i].func( par );
+                free(b);
+            } else {
+                html = pages[i].func( req->data );
+            }
+        } else {
+            html = pages[i].func( ureq_get_parameters( req->url ) );
+        }
+            
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
         // malloc -> calloc
@@ -123,6 +141,20 @@ char *ureq_get_argument_value(char *r, char *arg) {
     free(out);
 
     return out;
+}
+
+char *ureq_remove_parameters(char *u) {
+    char buf[128];
+    strcpy(buf, u);
+    return strtok(buf, "?");
+}
+
+char *ureq_get_parameters(char *u) {
+    char *buf = malloc(strlen(u) + 1);
+    strcpy(buf, u);
+    buf = strtok(buf, "?");
+    buf = strtok(NULL, "\n");
+    return buf;
 }
 
 void ureq_close() {

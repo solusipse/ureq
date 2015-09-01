@@ -15,6 +15,7 @@ struct HttpRequest {
     char *url;
     char *version;
     char *data;
+    char *params;
 };
 
 struct Page {
@@ -31,6 +32,8 @@ int ureq_parse_header(char *r, struct HttpRequest *req);
 
 char *ureq_get_header(char *r);
 char *ureq_get_post_arguments(char *r);
+char *ureq_remove_parameters(char *u);
+char *ureq_get_parameters(char *u);
 
 void ureq_send(char *r);
 void ureq_run(struct HttpRequest *req);

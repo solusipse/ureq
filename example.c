@@ -51,6 +51,7 @@ char *s_all() {
 
 char *s_post(char *request) {
     char *data = ureq_get_post_arguments(request);
+    printf("%s\n", data);
     char *arg = ureq_get_argument_value(data, "test2");
 
     if ( strcmp( arg, "2" ) == 0 ) {
@@ -58,6 +59,13 @@ char *s_post(char *request) {
     }
 
     return "OK";
+}
+
+char *s_getpar(char *r) {
+
+    printf("%s\n", r);
+
+    return "GET";
 }
 
 /* --------------------------------^ PAGES ^-------------------------------- */
@@ -69,10 +77,16 @@ int main() {
     /*
     That's an example request
     */
+    
     char request[] = "POST /post HTTP/1.1\n"
-                     "Host: 127.0.0.1:80\n"
-                     "blebleble\n\n\n"
-                     "test=1&test2=2&test3=3";
+                     "Host: 127.0.0.1:80\n\n"
+                     "test=1&test2=2&test3=3\n";
+    
+
+    /*
+    char request[] = "GET /param?test=ok&test2=2ok HTTP/1.1\n"
+                     "Host: 127.0.0.1:80\n";
+    */
 
     struct HttpRequest req;
     if ( ureq_parse_header(request, &req) != 0 )
@@ -88,6 +102,7 @@ int main() {
     ureq_serve("/?test=ok", s_gettest, GET);
     ureq_serve("/all", s_all, ALL);
     ureq_serve("/post", s_post, POST);
+    ureq_serve("/param", s_getpar, GET);
 
     /*
     void ureq_run(struct HttpRequest *req);
