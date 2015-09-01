@@ -54,7 +54,7 @@ void perform_connection(int connection_socket, int listen_socket, struct sockadd
 }
 
 int main(int argc, char **argv) {
-    int listen_socket, connection_socket, address_lenght, optval = 1;
+    int listen_socket, connection_socket = 0, address_lenght, optval = 1;
     struct sockaddr_in server_address, client_address;
 
     listen_socket = create_socket();
