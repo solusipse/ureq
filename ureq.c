@@ -1,45 +1,48 @@
 #include "ureq.h"
 
-char *ureq_get_header(char *r) {
-    char *buf = malloc(strlen(r) + 1);
-    strcpy(buf, r);
-    free(buf);
-    return strtok(buf, "\n");
+void ureq_get_header(char *h, char *r) {
+    strncat(h, r, strlen(r));
+    h = strtok(h, "\n");
 }
 
 int ureq_parse_header(char *r, struct HttpRequest *req) {
 
-    char *header = ureq_get_header(r);
+    char *header = malloc( strlen(r) + 1 );
+    char *b = malloc( strlen(r) + 1);
 
-    if (header == NULL)
+    ureq_get_header(header, r);
+    b = strtok(header, " ");
+    free(header);
+
+    if ( strncmp(b, "GET", strlen(b) + 8) && strncmp(b, "POST", strlen(b) + 8) )
+        return 1;
+    req->type = malloc( strlen(b) + 1 );
+    strncat(req->type, b, strlen(b));
+
+    b = strtok(NULL, " ");
+    req->url = malloc( strlen(b) + 1 );
+    strncat(req->url, b, strlen(b));
+
+    b = strtok(NULL, " ");
+    if ( strncmp(b, "HTTP/1.1", strlen(b) + 8) && strncmp(b, "HTTP/1.0", strlen(b) + 8) )
+        return 1;
+    req->version = malloc( strlen(b) + 1 );
+    strncat(req->version, b, strlen(b));
+
+    b = strtok(NULL, " ");
+    if (b != NULL)
         return 1;
 
-    header = strtok(header, " ");
+    req->data = malloc( strlen(r) + 1 );
+    strncat(req->data, r, strlen(r));
 
-    if ( strncmp(header, "GET", strlen(header) + 8) && strncmp(header, "POST", strlen(header) + 8) )
-        return 1;
-    req->type = header;
-
-    header = strtok(NULL, " ");
-    req->url = header;
-
-    header = strtok(NULL, " ");
-    if ( strncmp(header, "HTTP/1.1", strlen(header) + 8) && strncmp(header, "HTTP/1.0", strlen(header) + 8) )
-        return 1;
-    req->version = header;
-
-    header = strtok(NULL, " ");
-    
-    if (header != NULL)
-        return 1;
-
-    req->data = r;
+    req->params = NULL;
+    free(b);
 
     return 0;
 }
 
 void ureq_serve(char *url, char *(func)(char *), char *method ) {
-    // TODO: parse get parameters
     struct Page page;
     page.url = url;
     page.func = func;
@@ -56,9 +59,10 @@ void ureq_send(char *r) {
 }
 
 void ureq_run( struct HttpRequest *req ) {
+    
     int i;
     for (i = 0; i < pageCount; i++) {
-        char *plain_url = ureq_remove_parameters( req->url );
+        char *plain_url = ureq_remove_parameters(req->url);
 
         if ( strcmp(plain_url, pages[i].url) != 0 )
             continue;
@@ -71,20 +75,23 @@ void ureq_run( struct HttpRequest *req ) {
 
         char *html = NULL;
 
+        char *par = malloc( strlen(req->url) );
+        ureq_get_parameters( par, req->url );
+
         if ( strcmp (POST, req->type ) == 0 ) {
-            char *par = ureq_get_parameters( req->url );
             if (par != NULL) {
                 char *b = malloc(strlen(par) + strlen(req->data) + 2);
                 strcat(b, par);
                 strcat(b, req->data);
                 html = pages[i].func( par );
-                free(b);
             } else {
                 html = pages[i].func( req->data );
             }
         } else {
-            html = pages[i].func( ureq_get_parameters( req->url ) );
+            html = pages[i].func( par );
         }
+
+
             
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
@@ -97,8 +104,10 @@ void ureq_run( struct HttpRequest *req ) {
 
         ureq_send(buf);
         free(buf);
+        free(par);
 
     }
+    
     // else: 404
 }
 
@@ -111,7 +120,6 @@ char *ureq_get_post_arguments(char *r) {
         strcpy(out, buf);
     }
     free(data);
-    free(out);
 
     return out;
 }
@@ -138,7 +146,6 @@ char *ureq_get_argument_value(char *r, char *arg) {
         }
     }
     free(data);
-    free(out);
 
     return out;
 }
@@ -149,14 +156,20 @@ char *ureq_remove_parameters(char *u) {
     return strtok(buf, "?");
 }
 
-char *ureq_get_parameters(char *u) {
-    char *buf = malloc(strlen(u) + 1);
-    strcpy(buf, u);
-    buf = strtok(buf, "?");
-    buf = strtok(NULL, "\n");
-    return buf;
+void ureq_get_parameters(char *b, char *u) {
+    strcpy(b, u);
+    b = strtok(b, "?");
+    b = strtok(NULL, "\n");
 }
 
-void ureq_close() {
+void ureq_close( struct HttpRequest *req ) {
+    free(req->type);
+    free(req->url);
+    free(req->version);
+    free(req->data);
+
+    if (req->params != NULL)
+        free(req->params);
+
     free(pages);
 }
