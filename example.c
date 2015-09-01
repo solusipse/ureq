@@ -50,8 +50,15 @@ char *s_all() {
 }
 
 char *s_post(char *request) {
-    ureq_get_post_data(request);
-    return "post";
+    char *data = ureq_get_post_arguments(request);
+    char *arg = ureq_get_argument_value(data, "test3");
+
+    printf("%s\n", arg);
+
+    free(data);
+    free(arg);
+
+    return "OK";
 }
 
 /* --------------------------------^ PAGES ^-------------------------------- */
@@ -63,8 +70,10 @@ int main() {
     /*
     That's an example request
     */
-    char request[] = "GET / HTTP/1.1\n"
-                     "Host: 127.0.0.1:80\n";
+    char request[] = "POST /post HTTP/1.1\n"
+                     "Host: 127.0.0.1:80\n"
+                     "blebleble\n\n\n"
+                     "test=1&test2=2&test3=3";
 
     struct HttpRequest req;
     if ( ureq_parse_header(request, &req) != 0 )

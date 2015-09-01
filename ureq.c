@@ -70,6 +70,7 @@ void ureq_run( struct HttpRequest *req ) {
         char *html = pages[i].func(req->data);
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
+        // malloc -> calloc
         char *buf = malloc(strlen(header) + strlen(html) + 2);
         buf[0] = '\0';
         
@@ -83,14 +84,44 @@ void ureq_run( struct HttpRequest *req ) {
     // else: 404
 }
 
-char *ureq_get_post_data(char *r) {
-    // TODO: write this one actually
-    char *data = malloc(strlen(r));
-    strcpy(data, r);
-    data = strtok(data, "\n\n");
-    data = strtok(data, "\n\n");
+char *ureq_get_post_arguments(char *r) {
+    // remember to free what's returned!
 
-    return data;
+    char *data = malloc(strlen(r) + 1);
+    char *out = malloc(strlen(r) + 1);
+    strcpy(data, r);
+
+    for (char *buf = strtok(data,"\n"); buf != NULL; buf = strtok(NULL, "\n")) {
+        strcpy(out, buf);
+    }
+    free(data);
+
+    return out;
+}
+
+char *ureq_get_argument_value(char *r, char *arg) {
+    // remember to free what's returned!
+
+    char *data = malloc(strlen(r) + 1);
+    char *out = malloc(strlen(r) + 1);
+    strcpy(data, r);
+
+    for (char *buf = strtok(data,"&"); buf != NULL; buf = strtok(NULL, "&")) {
+
+        if (strstr(buf, arg) == NULL)
+            continue;
+
+        char *sptr = NULL;
+
+        buf = strtok_r(buf, "=", &sptr);
+
+        if ( strcmp(buf, arg) == 0 ) {
+            strcpy(out, sptr);
+        }
+    }
+    free(data);
+
+    return out;
 }
 
 void ureq_close() {
