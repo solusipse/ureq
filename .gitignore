@@ -32,4 +32,6 @@
 *.dSYM/
 
 ureq
+server
+example
 .DS_Store
