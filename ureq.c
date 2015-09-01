@@ -96,17 +96,24 @@ void ureq_run( struct HttpRequest *req ) {
         ureq_get_parameters( par, req->url );
 
         if ( strcmp (POST, req->type ) == 0 ) {
-            if (par != NULL) {
+            if (par != NULL && strcmp(par, req->url) != 0) {
                 char *b = malloc(strlen(par) + strlen(req->data) + 2);
-                strcat(b, par);
-                strcat(b, req->data);
+                // last character is newline which we want to remove
+                strncat(b, req->data, strlen(req->data) - 1);
+                strncat(b, "&", 1);
+                strncat(b, par, strlen(par));
                 html = pages[i].func( b );
                 free(b);
             } else {
                 html = pages[i].func( req->data );
             }
         } else {
-            html = pages[i].func( par );
+            char *b = malloc(strlen(par) + strlen(req->data) + 2);
+            strncat(b, req->data, strlen(req->data));
+            strncat(b, "\n", 1);
+            strncat(b, par, strlen(par));
+            html = pages[i].func( b );
+            free(b);
         }
 
         free(par);
@@ -128,10 +135,10 @@ void ureq_run( struct HttpRequest *req ) {
     // else: 404
 }
 
-char *ureq_get_post_arguments(char *r) {
+char *ureq_get_params(char *r) {
     char *data = malloc(strlen(r) + 1);
     char *out = malloc(strlen(r) + 1);
-    strcpy(data, r);
+    strncat(data, r, strlen(r));
 
     for (char *buf = strtok(data,"\n"); buf != NULL; buf = strtok(NULL, "\n")) {
         strcpy(out, buf);
@@ -141,7 +148,7 @@ char *ureq_get_post_arguments(char *r) {
     return out;
 }
 
-char *ureq_get_argument_value(char *r, char *arg) {
+char *ureq_get_param_value(char *r, char *arg) {
     char *data = malloc(strlen(r) + 1);
     char *out = malloc(strlen(r) + 1);
     strcpy(data, r);
@@ -173,10 +180,11 @@ void ureq_remove_parameters(char *b, char *u) {
 }
 
 void ureq_get_parameters(char *b, char *u) {
+    if (strchr(u, '?') == NULL )
+        return;
     strncpy(b, u, strlen(u));
     b = strtok(b, "?");
-    char *buf;
-    buf = strtok(NULL, "\n");
+    char *buf = strtok(NULL, "\n");
     strcpy(b, buf);
 }
 

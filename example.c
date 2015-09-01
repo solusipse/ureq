@@ -49,23 +49,32 @@ char *s_all() {
     return "all";
 }
 
-char *s_post(char *request) {
-    /*
-    char *data = ureq_get_post_arguments(request);
-    printf("%s\n", data);
-    char *arg = ureq_get_argument_value(data, "test2");
+char *s_post(char *r) {
+
+    char *data = ureq_get_params(r);
+    char *arg = ureq_get_param_value(data, "test2");
 
     if ( strcmp( arg, "2" ) == 0 ) {
         printf("OK!\n");
     }
-    */
+    
+    free(data);
+    free(arg);
 
     return "OK";
 }
 
 char *s_getpar(char *r) {
 
-    printf("%s\n", r);
+    char *data = ureq_get_params(r);
+    char *arg = ureq_get_param_value(data, "test2");
+
+    if ( strcmp( arg, "2ok" ) == 0 ) {
+        printf("OK!\n");
+    }
+    
+    free(data);
+    free(arg);
 
     return "GETpar";
 }
@@ -81,7 +90,7 @@ int main() {
     */
     
     /*
-    char request[] = "POST /post HTTP/1.1\n"
+    char request[] = "POST /post?thisis=test HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n\n"
                      "test=1&test2=2&test3=3\n";
     */
