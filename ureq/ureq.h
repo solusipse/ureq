@@ -36,7 +36,7 @@ void ureq_remove_parameters(char *b, char *u);
 void ureq_get_parameters(char *b, char *u);
 
 void ureq_send(char *r);
-void ureq_run(struct HttpRequest *req);
+char *ureq_run(struct HttpRequest *req);
 void ureq_serve(char *url, char *(func)(char *), char *method );
 
 

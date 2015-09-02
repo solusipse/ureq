@@ -8,14 +8,16 @@ void ureq_get_header(char *h, char *r) {
 int ureq_parse_header(char *r, struct HttpRequest *req) {
 
     char *header = malloc( strlen(r) + 1 );
-    char *b = malloc( strlen(r) + 1);
+    header[0] = '\0';
+    char *b = NULL;
 
     ureq_get_header(header, r);
     b = strtok(header, " ");
     free(header);
 
+    printf("%s\n", b);
+
     if ( strncmp(b, "GET", strlen(b) + 8) && strncmp(b, "POST", strlen(b) + 8) ) {
-        free(b);
         return 1;
     }
     req->type = malloc( strlen(b) + 1 );
@@ -28,8 +30,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     strncat(req->url, b, strlen(b));
 
     b = strtok(NULL, " ");
-    if ( strncmp(b, "HTTP/1.1", strlen(b) + 8) && strncmp(b, "HTTP/1.0", strlen(b) + 8) ) {
-        free(b);
+    if ( strncmp(b, "HTTP/1.1", 8) && strncmp(b, "HTTP/1.0", 8) ) {
         return 1;
     }
     req->version = malloc( strlen(b) + 1 );
@@ -38,18 +39,14 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
 
     b = strtok(NULL, " ");
     if (b != NULL) {
-        free(b);
         return 1;
     }
-
-    free(b);
 
     req->data = malloc( strlen(r) + 1 );
     req->data[0] = '\0';
     strncat(req->data, r, strlen(r));
 
     req->params = NULL;
-    
 
     return 0;
 }
@@ -68,7 +65,7 @@ void ureq_send(char *r) {
     printf("%s\n", r);
 }
 
-void ureq_run( struct HttpRequest *req ) {
+char *ureq_run( struct HttpRequest *req ) {
     
     int i;
     for (i = 0; i < pageCount; i++) {
@@ -127,12 +124,11 @@ void ureq_run( struct HttpRequest *req ) {
         strcat(buf, header);
         strcat(buf, html);
 
-        ureq_send(buf);
-        free(buf);
+        return buf;
 
     }
     
-    // else: 404
+    return "404";
 }
 
 char *ureq_get_params(char *r) {
