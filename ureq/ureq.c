@@ -1,8 +1,10 @@
 #include "ureq.h"
 
 void ureq_get_header(char *h, char *r) {
-    strncat(h, r, strlen(r));
-    h = strtok(h, "\n");
+    char *p = NULL;
+    strncpy(h, r, strlen(r));
+    char *b = strtok_r(h, "\n", &p);
+    strncpy(h, b, strlen(b));
 }
 
 int ureq_parse_header(char *r, struct HttpRequest *req) {
@@ -13,9 +15,8 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
 
     ureq_get_header(header, r);
     b = strtok(header, " ");
-    free(header);
-
-    if ( strncmp(b, "GET", 3) && strncmp(b, "POST", 4) ) {
+    if (( strncmp(GET, b, 3) != 0 )&&(strncmp(b, POST, 4) != 0 ))  {
+        free(header);
         return 1;
     }
     req->type = malloc( strlen(b) + 1 );
@@ -45,6 +46,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     strncat(req->data, r, strlen(r));
 
     req->params = NULL;
+    free(header);
 
     return 0;
 }

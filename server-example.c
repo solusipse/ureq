@@ -105,7 +105,8 @@ Add some urls to be served here.
 */
 
 char *s_home(char *request) {
-    printf("%s\n", request);
+    //printf("%s\n", request);
+    printf("home!\n");
     return "home";
 }
 
@@ -135,6 +136,7 @@ void server(char *buffer, int socket) {
     struct HttpRequest req;
     if ( ureq_parse_header(buffer, &req) != 0 ) {
         char *e = "Wrong request!\n";
+        //printf("%s\n", buffer);
         printf("%s", e);
         write(socket, e, strlen(e));
         return;
