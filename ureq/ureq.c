@@ -15,9 +15,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     b = strtok(header, " ");
     free(header);
 
-    printf("%s\n", b);
-
-    if ( strncmp(b, "GET", strlen(b) + 8) && strncmp(b, "POST", strlen(b) + 8) ) {
+    if ( strncmp(b, "GET", 3) && strncmp(b, "POST", 4) ) {
         return 1;
     }
     req->type = malloc( strlen(b) + 1 );
@@ -30,7 +28,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     strncat(req->url, b, strlen(b));
 
     b = strtok(NULL, " ");
-    if ( strncmp(b, "HTTP/1.1", 8) && strncmp(b, "HTTP/1.0", 8) ) {
+    if ( strncmp(b, "HTTP/1.", 7) != 0 ) {
         return 1;
     }
     req->version = malloc( strlen(b) + 1 );
@@ -189,7 +187,8 @@ void ureq_close( struct HttpRequest *req ) {
     free(req->url);
     free(req->version);
     free(req->data);
+}
 
-
+void ureq_finish() {
     free(pages);
 }

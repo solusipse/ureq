@@ -145,5 +145,7 @@ void server(char *buffer, int socket) {
 
     write(socket, "ok", strlen("ok"));
 
+    free(r);
+
     ureq_close(&req);
 }

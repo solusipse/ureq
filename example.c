@@ -55,7 +55,7 @@ char *s_post(char *r) {
     char *arg = ureq_get_param_value(data, "test2");
 
     if ( strcmp( arg, "2" ) == 0 ) {
-        printf("OK!\n");
+        printf("POST OK!\n");
     }
     
     free(data);
@@ -85,6 +85,18 @@ int main() {
 
     // TODO: minimalize number of functions needed to use library
 
+    /* 
+    void ureq_serve(char *url, char *(func)(), int method );
+    Bind functions to urls. Pass url, function name and method.
+    */
+    ureq_serve("/", s_home, GET);
+    ureq_serve("/on", s_on, GET);
+    ureq_serve("/off", s_off, POST);
+    ureq_serve("/?test=ok", s_gettest, GET);
+    ureq_serve("/all", s_all, ALL);
+    ureq_serve("/post", s_post, POST);
+    ureq_serve("/param", s_getpar, GET);
+
     /*
     That's an example request
     */
@@ -99,33 +111,43 @@ int main() {
     char request[] = "GET /param?test=ok&test2=2ok HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
-
     struct HttpRequest req;
     if ( ureq_parse_header(request, &req) != 0 )
         return 1;
-
-    /* 
-    void ureq_serve(char *url, char *(func)(), int method );
-    Bind functions to urls. Pass url, function name and method.
-    */
-    ureq_serve("/", s_home, GET);
-    ureq_serve("/on", s_on, GET);
-    ureq_serve("/off", s_off, POST);
-    ureq_serve("/?test=ok", s_gettest, GET);
-    ureq_serve("/all", s_all, ALL);
-    ureq_serve("/post", s_post, POST);
-    ureq_serve("/param", s_getpar, GET);
 
     /*
     void ureq_run(struct HttpRequest *req);
     Use ureq_run everytime you get a request.
     */
-    ureq_run(&req);
+    // TODO: maybe move response inside req struct?
+    char *r = ureq_run(&req);
 
+    printf("%s\n", r);
+    free(r);
     /*
     When you're done, use ureq_close.
     */
     ureq_close(&req);
+
+    // ========================================================================
+    // Second request
+
+    char request2[] = "POST /post?thisis=test HTTP/1.1\n"
+                     "Host: 127.0.0.1:80\n\n"
+                     "test=1&test2=2&test3=3\n";
+    
+    struct HttpRequest req2;
+    if ( ureq_parse_header(request2, &req2) != 0 )
+        return 1;
+
+    char *r2 = ureq_run(&req2);
+
+    printf("%s\n", r2);
+    free(r2);
+
+    ureq_close(&req2);
+
+    ureq_finish();
 
     return 0;
 }
