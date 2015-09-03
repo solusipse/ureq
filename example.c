@@ -112,30 +112,20 @@ int main() {
                      "Host: 127.0.0.1:80\n";
     
     struct HttpRequest req;
-    if ( ureq_parse_header(request, &req) != 0 )
-        return 1;
-
-    /*
-    void ureq_run(struct HttpRequest *req);
-    Use ureq_run everytime you get a request.
-    */
-    // TODO: maybe move response inside req struct?
-    char *r = ureq_run(&req);
-
-    printf("%s\n", r);
-    free(r);
-    /*
-    When you're done, use ureq_close.
-    */
+    ureq_run(&req, request);
+    printf("%s\n", req.response);
     ureq_close(&req);
 
     // ========================================================================
     // Second request
 
+    /*
+
     char request2[] = "POST /post?thisis=test HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n\n"
                      "test=1&test2=2&test3=3\n";
     
+    // TODO: move ureq_parse_header inside ureq_run, save response to request struct
     struct HttpRequest req2;
     if ( ureq_parse_header(request2, &req2) != 0 )
         return 1;
@@ -146,6 +136,7 @@ int main() {
     free(r2);
 
     ureq_close(&req2);
+    */
 
     ureq_finish();
 

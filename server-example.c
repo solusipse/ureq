@@ -90,24 +90,15 @@ void bind_to_port(int listen_socket, struct sockaddr_in server_address) {
 
 
 /*
-
+-------------------------------------------------------------------------------
 Above that line is just simple and dirty tcp server.
 Interesting part begins here.
-
-*/
-
-
-
-/*
-
-Add some urls to be served here.
-
 */
 
 char *s_home(char *request) {
     //printf("%s\n", request);
     printf("home!\n");
-    return "home";
+    return "<h1>home</h1>";
 }
 
 char *s_test() {
@@ -121,7 +112,7 @@ int main_b() {
     */
 
     ureq_serve("/", s_home, GET);
-    ureq_serve("/test", s_home, GET);
+    ureq_serve("/test", s_test, GET);
 
     return 0;
 }
@@ -133,21 +124,13 @@ void server(char *buffer, int socket) {
     a client.
     */
 
+
     struct HttpRequest req;
-    if ( ureq_parse_header(buffer, &req) != 0 ) {
-        char *e = "Wrong request!\n";
-        //printf("%s\n", buffer);
-        printf("%s", e);
-        write(socket, e, strlen(e));
-        return;
-    }
+    ureq_run(&req, buffer);
+    printf("%s\n", req.response);
 
-    printf("Request correct!\n");
-    char *r = ureq_run(&req);
-
-    write(socket, "ok", strlen("ok"));
-
-    free(r);
+    write(socket, req.response, strlen(req.response));
 
     ureq_close(&req);
+
 }

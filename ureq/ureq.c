@@ -7,7 +7,7 @@ void ureq_get_header(char *h, char *r) {
     strncpy(h, b, strlen(b));
 }
 
-int ureq_parse_header(char *r, struct HttpRequest *req) {
+int ureq_parse_header(struct HttpRequest *req, char *r) {
 
     char *header = malloc( strlen(r) + 1 );
     header[0] = '\0';
@@ -46,6 +46,7 @@ int ureq_parse_header(char *r, struct HttpRequest *req) {
     strncat(req->data, r, strlen(r));
 
     req->params = NULL;
+    req->response = NULL;
     free(header);
 
     return 0;
@@ -65,10 +66,14 @@ void ureq_send(char *r) {
     printf("%s\n", r);
 }
 
-char *ureq_run( struct HttpRequest *req ) {
+void ureq_run( struct HttpRequest *req, char *r ) {
     
-    int i;
-    for (i = 0; i < pageCount; i++) {
+    int h = ureq_parse_header(req, r);
+
+    printf("Header status: %d\n", h);
+    if (h != 0) return;
+
+    for (int i = 0; i < pageCount; i++) {
         char *plain_url = malloc( strlen(req->url) + 1 );
 
         ureq_remove_parameters(plain_url, req->url);
@@ -118,17 +123,22 @@ char *ureq_run( struct HttpRequest *req ) {
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
         // malloc -> calloc
-        char *buf = malloc(strlen(header) + strlen(html) + 2);
+        char *buf = malloc(strlen(header) + strlen(html) + 1);
         buf[0] = '\0';
         
-        strcat(buf, header);
-        strcat(buf, html);
+        strncat(buf, header, strlen(header));
+        strncat(buf, html, strlen(html));
 
-        return buf;
+        req->response = malloc( strlen(buf) + 1 );
+        req->response[0] = '\0';
+
+        strncat(req->response, buf, strlen(buf));
+        free(buf);
+        //return buf;
 
     }
     
-    return "404";
+    //return "404";
 }
 
 char *ureq_get_params(char *r) {
@@ -189,6 +199,13 @@ void ureq_close( struct HttpRequest *req ) {
     free(req->url);
     free(req->version);
     free(req->data);
+    if (req->params != NULL)
+        free(req->params);
+    if (req->response != NULL)
+        free(req->response);
+
+    // TODO: free req->response and req->params
+    //       make mechanism for checking if were allocated
 }
 
 void ureq_finish() {
