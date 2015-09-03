@@ -66,12 +66,10 @@ void ureq_send(char *r) {
     printf("%s\n", r);
 }
 
-void ureq_run( struct HttpRequest *req, char *r ) {
+int ureq_run( struct HttpRequest *req, char *r ) {
     
     int h = ureq_parse_header(req, r);
-
-    printf("Header status: %d\n", h);
-    if (h != 0) return;
+    if (h != 0) return -1;
 
     for (int i = 0; i < pageCount; i++) {
         char *plain_url = malloc( strlen(req->url) + 1 );
@@ -134,11 +132,13 @@ void ureq_run( struct HttpRequest *req, char *r ) {
 
         strncat(req->response, buf, strlen(buf));
         free(buf);
-        //return buf;
+        return 200;
 
     }
-    
-    //return "404";
+    req->response = malloc( 4 );
+    req->response[0] = '\0';
+    strncat(req->response, "404", 3);
+    return 404;
 }
 
 char *ureq_get_params(char *r) {

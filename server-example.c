@@ -119,18 +119,19 @@ int main_b() {
 
 void server(char *buffer, int socket) {
     /*
-    That's an example server application. First, parse request, then
-    call ureq_run with it everytime server gets valid data from
-    a client.
+    That's a basic example. First, create a struct of HttpRequest type.
+    Then pass it to ureq_run function with http request.
+    If request is not valid, it'll return -1. Otherwise, you'll get
+    a corresponding response code (200 or 404 are supported at the moment).
     */
 
-
     struct HttpRequest req;
-    ureq_run(&req, buffer);
+    if (ureq_run(&req, buffer) == -1)
+        return;
+
     printf("%s\n", req.response);
-
     write(socket, req.response, strlen(req.response));
-
     ureq_close(&req);
+
 
 }
