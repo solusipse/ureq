@@ -135,7 +135,7 @@ int ureq_run( struct HttpRequest *req, char *r ) {
                 html = pages[i].func( req->data );
             }
         } else {
-            char *b = malloc(strlen(par) + strlen(req->data) + 2);
+            char *b = malloc(strlen(par) + strlen(req->data) + 1);
             strncat(b, req->data, strlen(req->data));
             strncat(b, "\n", 1);
             strncat(b, par, strlen(par));
