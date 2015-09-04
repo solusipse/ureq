@@ -32,9 +32,11 @@ SOFTWARE.
 #include <stdlib.h>
 #include <unistd.h>
 
-#define GET "GET"
-#define POST "POST"
-#define ALL "ALL"
+#define GET 	"GET"
+#define POST 	"POST"
+#define ALL 	"ALL"
+#define PUT 	"PUT"
+#define DELETE	"DELETE"
 
 struct HttpRequest {
     char *type;
@@ -55,17 +57,17 @@ struct Page *pages = NULL;
 int pageCount = 0;
 
 
-int ureq_parse_header(struct HttpRequest *req, char *r);
-
 void ureq_get_header(char *h, char *r);
-char *ureq_get_params(char *r);
 void ureq_remove_parameters(char *b, char *u);
 void ureq_get_parameters(char *b, char *u);
 
 void ureq_send(char *r);
-int ureq_run(struct HttpRequest *req, char *r);
 void ureq_serve(char *url, char *(func)(char *), char *method );
 
+char *ureq_get_params(char *r);
+
+int ureq_run(struct HttpRequest *req, char *r);
+int ureq_parse_header(struct HttpRequest *req, char *r);
 
 
 #endif

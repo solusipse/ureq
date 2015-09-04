@@ -122,6 +122,8 @@ int ureq_run( struct HttpRequest *req, char *r ) {
         char *par = malloc( strlen(req->url) );
         ureq_get_parameters( par, req->url );
 
+        // TODO: pass whole request to func
+
         if ( strcmp (POST, req->type ) == 0 ) {
             if (par != NULL && strcmp(par, req->url) != 0) {
                 char *b = malloc(strlen(par) + strlen(req->data) + 1);
@@ -166,6 +168,8 @@ int ureq_run( struct HttpRequest *req, char *r ) {
     req->response[0] = '\0';
     strncat(req->response, "404", 3);
     return 404;
+    // TODO: if there is no requested url, check for file in filesystem
+    //       (future feature)
 }
 
 char *ureq_get_params(char *r) {
