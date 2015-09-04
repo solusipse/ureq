@@ -122,7 +122,7 @@ Above that line is just simple and dirty tcp server.
 Interesting part begins here.
 */
 
-char *s_home(char *request) {
+char *s_home(HttpRequest *r) {
     return "<h1>home</h1>";
 }
 

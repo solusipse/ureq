@@ -78,7 +78,7 @@ int ureq_parse_header(struct HttpRequest *req, char *r) {
     return 0;
 }
 
-void ureq_serve(char *url, char *(func)(char *), char *method ) {
+void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     struct Page page;
     page.url = url;
     page.func = func;
@@ -86,10 +86,6 @@ void ureq_serve(char *url, char *(func)(char *), char *method ) {
 
     pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
     pages[pageCount-1] = page;
-}
-
-void ureq_send(char *r) {
-    printf("%s\n", r);
 }
 
 int ureq_run( struct HttpRequest *req, char *r ) {
@@ -131,17 +127,17 @@ int ureq_run( struct HttpRequest *req, char *r ) {
                 strncat(b, req->data, strlen(req->data) - 1);
                 strncat(b, "&", 1);
                 strncat(b, par, strlen(par));
-                html = pages[i].func( b );
+                html = pages[i].func( req );
                 free(b);
             } else {
-                html = pages[i].func( req->data );
+                html = pages[i].func( req );
             }
         } else {
             char *b = malloc(strlen(par) + strlen(req->data) + 1);
             strncat(b, req->data, strlen(req->data));
             strncat(b, "\n", 1);
             strncat(b, par, strlen(par));
-            html = pages[i].func( b );
+            html = pages[i].func( req );
             free(b);
         }
 

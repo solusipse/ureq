@@ -56,7 +56,7 @@ char *s_home(char *request) {
 
 // TODO: add a functionality of returning custom headers
 
-char *s_home(char *request) {
+char *s_home() {
     return "home";
 }
 
@@ -68,8 +68,8 @@ char *s_all() {
     return "all";
 }
 
-char *s_post(char *r) {
-
+char *s_post(HttpRequest *r) {
+    /*
     char *data = ureq_get_params(r);
     char *arg = ureq_get_param_value(data, "test2");
 
@@ -79,12 +79,13 @@ char *s_post(char *r) {
     
     free(data);
     free(arg);
+    */
 
     return "OK";
 }
 
-char *s_getpar(char *r) {
-
+char *s_getpar(HttpRequest *r) {
+    /*
     char *data = ureq_get_params(r);
     char *arg = ureq_get_param_value(data, "test2");
 
@@ -94,7 +95,7 @@ char *s_getpar(char *r) {
     
     free(data);
     free(arg);
-
+    */
     return "GETpar";
 }
 
@@ -123,7 +124,7 @@ int main() {
     Before doing anything, initialize HttpRequest struct. Then call ureq_run
     with it as the first argument. Pass there also an incoming request.
     */
-    struct HttpRequest req;
+    HttpRequest req;
     /*
     ureq_run returns some codes, for example 200 or 404. If it returns -1,
     it means that the request was incorrect.

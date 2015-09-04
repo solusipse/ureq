@@ -38,14 +38,14 @@ SOFTWARE.
 #define PUT 	"PUT"
 #define DELETE	"DELETE"
 
-struct HttpRequest {
+typedef struct HttpRequest {
     char *type;
     char *url;
     char *version;
     char *data;
     char *params;
     char *response;
-};
+} HttpRequest;
 
 struct Page {
     char *url;
@@ -60,9 +60,7 @@ int pageCount = 0;
 void ureq_get_header(char *h, char *r);
 void ureq_remove_parameters(char *b, char *u);
 void ureq_get_parameters(char *b, char *u);
-
-void ureq_send(char *r);
-void ureq_serve(char *url, char *(func)(char *), char *method );
+void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
 char *ureq_get_params(char *r);
 
