@@ -37,6 +37,7 @@ SOFTWARE.
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #include "ureq/ureq.c"
 
@@ -122,8 +123,6 @@ Interesting part begins here.
 */
 
 char *s_home(char *request) {
-    //printf("%s\n", request);
-    printf("home!\n");
     return "<h1>home</h1>";
 }
 
@@ -151,11 +150,16 @@ void server(char *buffer, int socket) {
     a corresponding response code (200 or 404 are supported at the moment).
     */
 
+    clock_t start = clock();
     struct HttpRequest req;
-    if (ureq_run(&req, buffer) == -1)
+    int s = ureq_run(&req, buffer);
+    if (s == -1)
         return;
 
-    printf("%s\n", req.response);
+    clock_t end = clock();
+    float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+
+    printf("Requested: %s (%s). Response: %d. It took: %f s.\n", req.url, req.type, s, seconds);
     write(socket, req.response, strlen(req.response));
     ureq_close(&req);
 
