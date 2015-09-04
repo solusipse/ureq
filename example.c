@@ -1,3 +1,29 @@
+/*
+https://github.com/solusipse/ureq
+
+The MIT License (MIT)
+
+Copyright (c) 2015 solusipse
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include "ureq/ureq.c"
 
 /* --------------------------------v PAGES v-------------------------------- */
@@ -28,20 +54,13 @@ char *s_home(char *request) {
 
 /* --------------------------------v PAGES v-------------------------------- */
 
+// TODO: add a functionality of returning custom headers
+
 char *s_home(char *request) {
-    printf("%s\n", request);
     return "home";
 }
 
-char *s_on() {
-    return "on";
-}
-
-char *s_off() {
-    return "off";
-}
-
-char *s_gettest() {
+char *s_param() {
     return "off";
 }
 
@@ -83,61 +102,44 @@ char *s_getpar(char *r) {
 
 int main() {
 
-    // TODO: minimalize number of functions needed to use library
-
-    /* 
-    void ureq_serve(char *url, char *(func)(), int method );
-    Bind functions to urls. Pass url, function name and method.
+    /*
+    Before doing anything, set some urls to be dispatched when connection
+    will come. First, set url, then corresponding function, then method
+    that will be connected to that url.
     */
+
     ureq_serve("/", s_home, GET);
-    ureq_serve("/on", s_on, GET);
-    ureq_serve("/off", s_off, POST);
-    ureq_serve("/?test=ok", s_gettest, GET);
+    ureq_serve("/param", s_param, GET);
     ureq_serve("/all", s_all, ALL);
     ureq_serve("/post", s_post, POST);
-    ureq_serve("/param", s_getpar, GET);
 
     /*
-    That's an example request
+    That's just an example request.
     */
-    
-    /*
-    char request[] = "POST /post?thisis=test HTTP/1.1\n"
-                     "Host: 127.0.0.1:80\n\n"
-                     "test=1&test2=2&test3=3\n";
-    */
-
-    
     char request[] = "GET /param?test=ok&test2=2ok HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
-    struct HttpRequest req;
-    ureq_run(&req, request);
-    printf("%s\n", req.response);
-    ureq_close(&req);
-
-    // ========================================================================
-    // Second request
-
     /*
-
-    char request2[] = "POST /post?thisis=test HTTP/1.1\n"
-                     "Host: 127.0.0.1:80\n\n"
-                     "test=1&test2=2&test3=3\n";
-    
-    // TODO: move ureq_parse_header inside ureq_run, save response to request struct
-    struct HttpRequest req2;
-    if ( ureq_parse_header(request2, &req2) != 0 )
-        return 1;
-
-    char *r2 = ureq_run(&req2);
-
-    printf("%s\n", r2);
-    free(r2);
-
-    ureq_close(&req2);
+    Before doing anything, initialize HttpRequest struct. Then call ureq_run
+    with it as the first argument. Pass there also an incoming request.
     */
-
+    struct HttpRequest req;
+    /*
+    ureq_run returns some codes, for example 200 or 404. If it returns -1,
+    it means that the request was incorrect.
+    */
+    ureq_run(&req, request);
+    /*
+    Do something with generated response.
+    */
+    printf("%s\n", req.response);
+    /*
+    When you're done with this particular request, remember to call ureq_close.
+    */
+    ureq_close(&req);
+    /*
+    When you're done with everything, call ureq_finish.
+    */
     ureq_finish();
 
     return 0;

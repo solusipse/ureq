@@ -1,3 +1,33 @@
+/*
+https://github.com/solusipse/ureq
+
+The MIT License (MIT)
+
+Copyright (c) 2015 solusipse
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/*
+                        SCROLL DOWN FOR ACTUAL EXAMPLE!
+*/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -32,8 +62,6 @@ void get_client_address(struct sockaddr_in client_address) {
     printf("Client: %s (%s)\n", hostaddrp, hostp->h_name);
 }
 
-
-
 void perform_connection(int connection_socket, int listen_socket, struct sockaddr_in client_address, unsigned int address_lenght) {
     char buffer[BUFSIZE];
     connection_socket = accept(listen_socket, (struct sockaddr *) &client_address, &address_lenght);
@@ -47,17 +75,13 @@ void perform_connection(int connection_socket, int listen_socket, struct sockadd
 
 int main(int argc, char **argv) {
     main_b();
-
     int listen_socket, connection_socket = 0, address_lenght, optval = 1;
     struct sockaddr_in server_address, client_address;
-
     listen_socket = create_socket();
     setsockopt(listen_socket, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
-
     server_address = set_address(server_address);
     bind_to_port(listen_socket, server_address);
     address_lenght = sizeof(client_address);
-
     while (1) perform_connection(connection_socket, listen_socket, client_address, address_lenght);
 }
 
@@ -90,6 +114,8 @@ void bind_to_port(int listen_socket, struct sockaddr_in server_address) {
 
 
 /*
+                            ACTUAL EXAMPLE STARTS HERE
+                        see example.c for more explainations
 -------------------------------------------------------------------------------
 Above that line is just simple and dirty tcp server.
 Interesting part begins here.
@@ -132,6 +158,5 @@ void server(char *buffer, int socket) {
     printf("%s\n", req.response);
     write(socket, req.response, strlen(req.response));
     ureq_close(&req);
-
 
 }
