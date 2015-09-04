@@ -17,6 +17,25 @@ ureq_serve("/post", s_post, POST);
 ```
 How does it work? **When there's a request for an url** (`/`, `/all`, `/post`), **with corresponding method** (`GET`, `ALL`, `POST`), **ureq calls the corresponding function** (`s_home()`, `s_all()`, `s_post()`). What's `ALL` method? It calls a function connected to the url, no matter which type of method was used.
 
+But wait, how should such function look like? The only requirement is that **it has to return a string (e.g. html code)**. For example:
+
+```
+char *some_function() {
+    return "<h1>Some text!</h1>";
+}
+```
+
+You want a **custom response** or **deal with request on your own**? No problem:
+
+```
+char *the_other_function(struct HttpRequest *r) {
+    r->response = "HTTP/1.1 302 Found\nLocation: /\n";
+    return "<h1>Some text!</h1>";
+}
+```
+
+Keep in mind that adding argument to function definition is **not obligatory**.
+
 **We connected some urls to functions**, what's next?
 
 We have to **create a structure** that holds all the data. Simply put such line in your program:
