@@ -42,9 +42,10 @@ typedef struct HttpRequest {
     char *type;
     char *url;
     char *version;
-    char *data;
+    char *message;
     char *params;
     char *response;
+    char *body;
 } HttpRequest;
 
 struct Page {
@@ -59,7 +60,7 @@ int pageCount = 0;
 
 void ureq_get_header(char *h, char *r);
 void ureq_remove_parameters(char *b, char *u);
-void ureq_get_parameters(char *b, char *u);
+void ureq_get_query(char *b, char *u);
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
 char *ureq_get_params(char *r);

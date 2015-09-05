@@ -39,6 +39,7 @@ int ureq_parse_header(struct HttpRequest *req, char *r) {
     header[0] = '\0';
     char *b = NULL;
 
+    // TODO: wrk causes segfault here, need to check that
     ureq_get_header(header, r);
     b = strtok(header, " ");
     if (( strncmp(GET, b, 3) != 0 )&&(strncmp(b, POST, 4) != 0 ))  {
@@ -50,6 +51,10 @@ int ureq_parse_header(struct HttpRequest *req, char *r) {
     strncat(req->type, b, strlen(b));
 
     b = strtok(NULL, " ");
+    if (b == NULL) {
+        return 1;
+    }
+
     req->url = malloc( strlen(b) + 1 );
     req->url[0] = '\0';
     strncat(req->url, b, strlen(b));
@@ -67,12 +72,13 @@ int ureq_parse_header(struct HttpRequest *req, char *r) {
         return 1;
     }
 
-    req->data = malloc( strlen(r) + 1 );
-    req->data[0] = '\0';
-    strncat(req->data, r, strlen(r));
+    req->message = malloc( strlen(r) + 1 );
+    req->message[0] = '\0';
+    strncat(req->message, r, strlen(r));
 
     req->params = NULL;
     req->response = NULL;
+    req->body = NULL;
     free(header);
 
     return 0;
@@ -95,10 +101,17 @@ int ureq_run( struct HttpRequest *req, char *r ) {
     if (h != 0) return -1;
 
     for (int i = 0; i < pageCount; i++) {
+        /*
+        This loop iterates through a pages list and compares
+        urls and methods to requested ones. If there's a match,
+        it calls a corresponding function and saves http
+        response to req.response.
+        */
         char *plain_url = malloc( strlen(req->url) + 1 );
 
         ureq_remove_parameters(plain_url, req->url);
 
+        // If there's no match between this, skip to next iteration.
         if ( strcmp(plain_url, pages[i].url) != 0 ) {
             free(plain_url);
             continue;
@@ -106,42 +119,28 @@ int ureq_run( struct HttpRequest *req, char *r ) {
 
         free(plain_url);
 
-        // If request type is ALL, corresponding function is always called
-        // no matter which method client has used.
+        // If request type is ALL, corresponding function is always called,
+        // no matter which method type was used.
         if ( strcmp(ALL, pages[i].method) != 0 )
+            // If there's no match between an url and method, skip
+            // to next iteration.
             if ( strcmp(req->type, pages[i].method) != 0 ) {
                 continue;
             }
 
         char *html = NULL;
 
-        char *par = malloc( strlen(req->url) );
-        ureq_get_parameters( par, req->url );
+        req->params = malloc( strlen(req->url) + 1 );
+        req->params[0] = '\0';
 
-        // TODO: pass whole request to func
+        ureq_get_query( req->params, req->url );
 
         if ( strcmp (POST, req->type ) == 0 ) {
-            if (par != NULL && strcmp(par, req->url) != 0) {
-                char *b = malloc(strlen(par) + strlen(req->data) + 1);
-                // last character is newline which we want to remove
-                strncat(b, req->data, strlen(req->data) - 1);
-                strncat(b, "&", 1);
-                strncat(b, par, strlen(par));
-                html = pages[i].func( req );
-                free(b);
-            } else {
-                html = pages[i].func( req );
-            }
-        } else {
-            char *b = malloc(strlen(par) + strlen(req->data) + 1);
-            strncat(b, req->data, strlen(req->data));
-            strncat(b, "\n", 1);
-            strncat(b, par, strlen(par));
-            html = pages[i].func( req );
-            free(b);
+            req->body = malloc( strlen(req->message) + 1 );
+            req->body = ureq_get_params(req->message);
         }
 
-        free(par);
+        html = pages[i].func( req );
 
         char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
 
@@ -212,7 +211,7 @@ void ureq_remove_parameters(char *b, char *u) {
     b = strtok(b, "?");
 }
 
-void ureq_get_parameters(char *b, char *u) {
+void ureq_get_query(char *b, char *u) {
     if (strchr(u, '?') == NULL )
         return;
     strncpy(b, u, strlen(u));
@@ -225,11 +224,13 @@ void ureq_close( struct HttpRequest *req ) {
     free(req->type);
     free(req->url);
     free(req->version);
-    free(req->data);
+    free(req->message);
     if (req->params != NULL)
         free(req->params);
     if (req->response != NULL)
         free(req->response);
+    if (req->body != NULL)
+        free(req->body);
 
     // TODO: free req->response and req->params
     //       make mechanism for checking if were allocated

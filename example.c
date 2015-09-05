@@ -60,7 +60,8 @@ char *s_home() {
     return "home";
 }
 
-char *s_param() {
+char *s_param(HttpRequest *r) {
+    printf("%s\n", r->params);
     return "off";
 }
 
@@ -69,6 +70,8 @@ char *s_all() {
 }
 
 char *s_post(HttpRequest *r) {
+    printf("%s\n", r->params);
+    printf("%s\n", r->body);
     /*
     char *data = ureq_get_params(r);
     char *arg = ureq_get_param_value(data, "test2");
@@ -117,7 +120,7 @@ int main() {
     /*
     That's just an example request.
     */
-    char request[] = "GET /param?test=ok&test2=2ok HTTP/1.1\n"
+    char request[] = "GET /param?test=ok HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     /*
@@ -133,7 +136,7 @@ int main() {
     /*
     Do something with generated response.
     */
-    printf("%s\n", req.response);
+    //printf("%s\n", req.response);
     /*
     When you're done with this particular request, remember to call ureq_close.
     */
