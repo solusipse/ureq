@@ -79,6 +79,7 @@ int ureq_parse_header(struct HttpRequest *req, char *r) {
     req->params = NULL;
     req->response = NULL;
     req->body = NULL;
+    req->responseCode = 0;
     free(header);
 
     return 0;
@@ -142,9 +143,11 @@ int ureq_run( struct HttpRequest *req, char *r ) {
 
         html = pages[i].func( req );
 
-        char *header = "HTTP/1.1 200 OK\nContent-Type: text/html\n\n";
+        if (req->responseCode == 0)
+            req->responseCode = 200;
 
-        // malloc -> calloc
+        char *header = ureq_generate_response_header(req);
+
         char *buf = malloc(strlen(header) + strlen(html) + 1);
         buf[0] = '\0';
         
@@ -156,7 +159,9 @@ int ureq_run( struct HttpRequest *req, char *r ) {
 
         strncat(req->response, buf, strlen(buf));
         free(buf);
-        return 200;
+
+        // TODO: return code from request struct
+        return req->responseCode;
 
     }
     req->response = malloc( 4 );
@@ -165,6 +170,19 @@ int ureq_run( struct HttpRequest *req, char *r ) {
     return 404;
     // TODO: if there is no requested url, check for file in filesystem
     //       (future feature)
+}
+
+char *ureq_generate_response_header(HttpRequest *r) {
+    // TODO: make this dynamic
+    // TODO: use different content types
+    // TODO: map request code to request description
+    // TODO: don't do above if one of these were already set
+    static char h[128] = "HTTP/1.1";
+    char c[6] = "\0";
+    snprintf(c, 6, " %d ", r->responseCode);
+    strncat(h, c, strlen(c));
+    strncat(h, "OK\nContent-Type: text/html\n\n", 30);
+    return h;
 }
 
 char *ureq_get_params(char *r) {
@@ -231,9 +249,7 @@ void ureq_close( struct HttpRequest *req ) {
         free(req->response);
     if (req->body != NULL)
         free(req->body);
-
-    // TODO: free req->response and req->params
-    //       make mechanism for checking if were allocated
+    req->responseCode = 0;
 }
 
 void ureq_finish() {

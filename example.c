@@ -62,6 +62,7 @@ char *s_home() {
 
 char *s_param(HttpRequest *r) {
     printf("%s\n", r->params);
+    //r->code = "302 Found\nLocation: /";
     return "off";
 }
 
@@ -72,16 +73,15 @@ char *s_all() {
 char *s_post(HttpRequest *r) {
     printf("%s\n", r->params);
     printf("%s\n", r->body);
+
     /*
-    char *data = ureq_get_params(r);
-    char *arg = ureq_get_param_value(data, "test2");
+    char *arg = ureq_get_param_value(r->params, "test2");
 
     if ( strcmp( arg, "2" ) == 0 ) {
         printf("POST OK!\n");
     }
-    
-    free(data);
-    free(arg);
+
+    //free(arg);
     */
 
     return "OK";
@@ -136,7 +136,7 @@ int main() {
     /*
     Do something with generated response.
     */
-    //printf("%s\n", req.response);
+    printf("%s\n", req.response);
     /*
     When you're done with this particular request, remember to call ureq_close.
     */

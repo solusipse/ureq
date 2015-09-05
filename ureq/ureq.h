@@ -46,6 +46,9 @@ typedef struct HttpRequest {
     char *params;
     char *response;
     char *body;
+
+    int  responseCode;
+    char *responseHeader;
 } HttpRequest;
 
 struct Page {
@@ -53,6 +56,7 @@ struct Page {
     char *(*func)();
     char *method;
 };
+
 
 struct Page *pages = NULL;
 int pageCount = 0;
@@ -64,6 +68,7 @@ void ureq_get_query(char *b, char *u);
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
 char *ureq_get_params(char *r);
+char *ureq_generate_response_header(HttpRequest *r);
 
 int ureq_run(struct HttpRequest *req, char *r);
 int ureq_parse_header(struct HttpRequest *req, char *r);
