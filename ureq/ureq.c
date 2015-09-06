@@ -198,12 +198,8 @@ char *ureq_generate_response_header(HttpRequest *r) {
     size_t hlen = strlen(HTTP_V) + 4 + /*todo:content-type*/ 30 + /*spaces*/ 10 + 5;
     char *h = malloc( hlen );
     char *desc = ureq_get_code_description(r->responseCode);
-    if (r->responseHeaders == NULL) {
-        if (r->mime == NULL)
-            r->responseHeaders = "Content-Type: text/html";
-        else
-            r->responseHeaders = r->mime;
-    }
+    if (r->responseHeaders == NULL)
+        r->responseHeaders = "Content-Type: text/html";
     // TODO: move Content-Type to r->responseHeaders, put there all additional headers
     snprintf(h, hlen, "%s %d %s\r\n%s\r\n\r\n", HTTP_V, r->responseCode, desc, r->responseHeaders);
     
