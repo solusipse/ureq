@@ -130,6 +130,12 @@ char *s_test() {
     return "test";
 }
 
+char *s_redirect_to_test(HttpRequest *r) {
+    r->responseCode = 302;
+    r->responseHeaders = "Location: /test";
+    return "";
+}
+
 int main_b() {
     /*
     That's a part of example main function. Declare urls to be served
@@ -138,6 +144,7 @@ int main_b() {
 
     ureq_serve("/", s_home, GET);
     ureq_serve("/test", s_test, GET);
+    ureq_serve("/redirect", s_redirect_to_test, GET);
 
     return 0;
 }
