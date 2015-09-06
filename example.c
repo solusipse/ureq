@@ -62,7 +62,8 @@ char *s_home() {
 
 char *s_param(HttpRequest *r) {
     printf("%s\n", r->params);
-    //r->code = "302 Found\nLocation: /";
+    r->responseCode = 302;
+    // TODO: r->responseHeaders
     return "off";
 }
 

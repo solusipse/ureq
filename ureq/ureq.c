@@ -143,33 +143,30 @@ int ureq_run( struct HttpRequest *req, char *r ) {
 
         html = pages[i].func( req );
 
+        // Generate response header
         if (req->responseCode == 0)
             req->responseCode = 200;
 
         char *header = ureq_generate_response_header(req);
 
-        char *buf = malloc(strlen(header) + strlen(html) + 1);
-        buf[0] = '\0';
-        
-        strncat(buf, header, strlen(header));
-        strncat(buf, html, strlen(html));
-
-        req->response = malloc( strlen(buf) + 1 );
+        // Generate content
+        req->response = malloc(strlen(header) + strlen(html) + 1);
         req->response[0] = '\0';
 
-        strncat(req->response, buf, strlen(buf));
-        free(buf);
+        strncat(req->response, header, strlen(header));
+        strncat(req->response, html, strlen(html));
 
-        // TODO: return code from request struct
+        free(header);
+
         return req->responseCode;
 
     }
     req->response = malloc( 4 );
     req->response[0] = '\0';
     strncat(req->response, "404", 3);
-    return 404;
     // TODO: if there is no requested url, check for file in filesystem
     //       (future feature)
+    return 404;
 }
 
 char *ureq_get_code_description(int c) {
@@ -187,15 +184,14 @@ char *ureq_get_code_description(int c) {
 }
 
 char *ureq_generate_response_header(HttpRequest *r) {
-    // TODO: make this dynamic
     // TODO: use different content types
-    // TODO: map request code to request description
     // TODO: don't do above if one of these were already set
-    static char h[128] = "HTTP/1.1";
-    char c[6] = "\0";
-    snprintf(c, 6, " %d ", r->responseCode);
-    strncat(h, c, strlen(c));
-    strncat(h, "OK\nContent-Type: text/html\n\n", 30);
+    size_t hlen = strlen(HTTP_V) + 4 + /*todo:content-type*/ 30 + /*spaces*/ 10 + 5;
+    char *h = malloc( hlen );
+    char *desc = ureq_get_code_description(r->responseCode);
+    // TODO: move Content-Type to r->responseHeaders, put there all additional headers
+    snprintf(h, hlen, "%s %d %s\nContent-Type: text/html\n\n", HTTP_V, r->responseCode, desc);
+    
     return h;
 }
 

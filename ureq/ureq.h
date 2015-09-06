@@ -37,6 +37,7 @@ SOFTWARE.
 #define ALL 	"ALL"
 #define PUT 	"PUT"
 #define DELETE	"DELETE"
+#define HTTP_V  "HTTP/1.1"
 
 typedef struct HttpRequest {
     char *type;
@@ -44,11 +45,13 @@ typedef struct HttpRequest {
     char *version;
     char *message;
     char *params;
-    char *response;
     char *body;
 
+    char *response;
+
     int  responseCode;
-    char *responseHeader;
+    char *responseDescription;
+    char *responseHeaders;
     char *mime;
 } HttpRequest;
 
