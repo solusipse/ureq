@@ -62,6 +62,7 @@ char *s_home() {
 
 char *s_param(HttpRequest *r) {
     printf("%s\n", r->params);
+    //r->mime = "Content-Type: text/plain";
     // TODO: r->responseHeaders
     return "off";
 }
