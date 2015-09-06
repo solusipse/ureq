@@ -172,6 +172,20 @@ int ureq_run( struct HttpRequest *req, char *r ) {
     //       (future feature)
 }
 
+char *ureq_get_code_description(int c) {
+    if (c == 200) return "OK";
+    if (c == 302) return "Found";
+    if (c == 400) return "Bad Request";
+    if (c == 401) return "Unauthorized";
+    if (c == 403) return "Forbidden";
+    if (c == 404) return "Not Found";
+    if (c == 408) return "Request Timeout";
+    if (c == 500) return "Internal Error";
+    if (c == 503) return "Service Temporarily Overloaded";
+
+    return "Not Implemented";
+}
+
 char *ureq_generate_response_header(HttpRequest *r) {
     // TODO: make this dynamic
     // TODO: use different content types

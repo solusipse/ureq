@@ -49,6 +49,7 @@ typedef struct HttpRequest {
 
     int  responseCode;
     char *responseHeader;
+    char *mime;
 } HttpRequest;
 
 struct Page {
