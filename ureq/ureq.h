@@ -69,6 +69,7 @@ int pageCount = 0;
 void ureq_get_header(char *h, char *r);
 void ureq_remove_parameters(char *b, char *u);
 void ureq_get_query(char *b, char *u);
+void ureq_generate_response(HttpRequest *r, char *html);
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
 char *ureq_get_params(char *r);
