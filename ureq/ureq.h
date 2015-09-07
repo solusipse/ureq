@@ -62,21 +62,25 @@ struct Page {
 };
 
 
-struct Page *pages = NULL;
-int pageCount = 0;
+static struct Page *pages = NULL;
+static int pageCount = 0;
 
 
-void ureq_get_header(char *h, char *r);
-void ureq_remove_parameters(char *b, char *u);
-void ureq_get_query(char *b, char *u);
-void ureq_generate_response(HttpRequest *r, char *html);
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
-char *ureq_get_params(char *r);
-char *ureq_generate_response_header(HttpRequest *r);
+void ureq_close( struct HttpRequest *req );
+void ureq_finish();
 
 int ureq_run(struct HttpRequest *req, char *r);
 int ureq_parse_header(struct HttpRequest *req, char *r);
 
+
+static void ureq_get_header(char *h, char *r);
+static void ureq_remove_parameters(char *b, char *u);
+static void ureq_get_query(char *b, char *u);
+static void ureq_generate_response(HttpRequest *r, char *html);
+
+static char *ureq_get_params(char *r);
+static char *ureq_generate_response_header(HttpRequest *r);
 
 #endif

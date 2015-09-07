@@ -62,7 +62,9 @@ char *s_home() {
 
 char *s_param(HttpRequest *r) {
     printf("%s\n", r->params);
-    // TODO: r->responseHeaders
+    //r->responseCode = 302;
+    //r->responseHeaders = "Location: /test";
+    //r->mime = "text/plain";
     return "off";
 }
 

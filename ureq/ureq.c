@@ -26,7 +26,7 @@ SOFTWARE.
 
 #include "ureq.h"
 
-void ureq_get_header(char *h, char *r) {
+static void ureq_get_header(char *h, char *r) {
     char *p = NULL;
     strncpy(h, r, strlen(r));
     char *b = strtok_r(h, "\n", &p);
@@ -82,6 +82,7 @@ int ureq_parse_header(struct HttpRequest *req, char *r) {
 
     req->responseCode = 0;
     req->responseHeaders = NULL;
+    req->mime = NULL;
     free(header);
 
     return 0;
@@ -167,7 +168,7 @@ int ureq_run( struct HttpRequest *req, char *r ) {
     return req->responseCode;
 }
 
-void ureq_generate_response(HttpRequest *r, char *html) {
+static void ureq_generate_response(HttpRequest *r, char *html) {
     char *header = ureq_generate_response_header(r);
     r->response = malloc(strlen(header) + strlen(html) + 1);
     r->response[0] = '\0';
@@ -178,7 +179,7 @@ void ureq_generate_response(HttpRequest *r, char *html) {
     free(header);
 }
 
-char *ureq_get_code_description(int c) {
+static char *ureq_get_code_description(int c) {
     if (c == 200) return "OK";
     if (c == 302) return "Found";
     if (c == 400) return "Bad Request";
@@ -192,21 +193,64 @@ char *ureq_get_code_description(int c) {
     return "Not Implemented";
 }
 
-char *ureq_generate_response_header(HttpRequest *r) {
-    // TODO: use different content types
-    // TODO: don't do above if one of these were already set
-    size_t hlen = strlen(HTTP_V) + 4 + /*todo:content-type*/ 30 + /*spaces*/ 10 + 5;
-    char *h = malloc( hlen );
-    char *desc = ureq_get_code_description(r->responseCode);
+static char *ureq_generate_response_header(HttpRequest *r) {
+    char *ct = "Content-Type: ";
+    // If user hasn't set any header parameters, set mime to default
+    if (r->mime == NULL) {
+        if ( r->responseCode == 200 || r->responseCode == 404 )
+            r->mime = "text/html";
+
+        if (r->responseHeaders != NULL) {
+            char *bb = malloc( strlen(r->responseHeaders) + 1 );
+            strncat( bb, r->responseHeaders, strlen(r->responseHeaders) );
+            r->responseHeaders = NULL;
+            r->responseHeaders = malloc( strlen(bb) + 1 );
+            strncat( r->responseHeaders, bb, strlen(bb) );
+            if (r->mime != NULL) {
+                strncat( r->responseHeaders, "\r\n", 2 );
+            }
+            free(bb);
+        }
+    }
+
+    if (r->mime != NULL) {
+        char *br = malloc( strlen(r->mime) + strlen(ct) + 1 );
+        strncat( br, ct, strlen(ct) );
+        strncat( br, r->mime, strlen(r->mime) );
+
+        if (r->responseHeaders != NULL) {
+            char *bb = malloc( strlen(r->responseHeaders) + 1 );
+            strncat(bb, r->responseHeaders, strlen(r->responseHeaders) );
+            r->responseHeaders = NULL;
+            r->responseHeaders = malloc( strlen(br) + strlen(bb) + 3 );
+            strncat( r->responseHeaders, br, strlen(br) );
+            strncat( r->responseHeaders, "\r\n", 2 );
+            strncat( r->responseHeaders, bb, strlen(bb) );
+
+            free(bb);
+        } else {
+            r->responseHeaders = malloc( strlen(br) + 1 );
+            strncat( r->responseHeaders, br, strlen(br) );
+        }
+        strncat( r->responseHeaders, "\r\n", 2 );
+        free(br);
+    }
+
     if (r->responseHeaders == NULL)
-        r->responseHeaders = "Content-Type: text/html";
-    // TODO: move Content-Type to r->responseHeaders, put there all additional headers
-    snprintf(h, hlen, "%s %d %s\r\n%s\r\n\r\n", HTTP_V, r->responseCode, desc, r->responseHeaders);
+        r->responseHeaders = "";
+
+    char *desc = ureq_get_code_description(r->responseCode);
+
+    size_t hlen = strlen(HTTP_V) + 4 /*response code*/ + strlen(desc) + \
+                  strlen(r->responseHeaders) + 8/*spaces,specialchars*/;
+
+    char *h = malloc( hlen + 1 );
+    snprintf(h, hlen, "%s %d %s\r\n%s\r\n", HTTP_V, r->responseCode, desc, r->responseHeaders);
     
     return h;
 }
 
-char *ureq_get_params(char *r) {
+static char *ureq_get_params(char *r) {
     char *data = malloc(strlen(r) + 1);
     char *out = malloc(strlen(r) + 1);
     strncat(data, r, strlen(r));
@@ -245,12 +289,12 @@ char *ureq_get_param_value(char *r, char *arg) {
     return out;
 }
 
-void ureq_remove_parameters(char *b, char *u) {
+static void ureq_remove_parameters(char *b, char *u) {
     strcpy(b, u);
     b = strtok(b, "?");
 }
 
-void ureq_get_query(char *b, char *u) {
+static void ureq_get_query(char *b, char *u) {
     if (strchr(u, '?') == NULL )
         return;
     strncpy(b, u, strlen(u));
@@ -270,7 +314,13 @@ void ureq_close( struct HttpRequest *req ) {
         free(req->response);
     if (req->body != NULL)
         free(req->body);
+
     req->responseCode = 0;
+
+
+    if (req->responseHeaders != NULL)
+        if ( strlen(req->responseHeaders) > 0 )
+            free(req->responseHeaders);
 }
 
 void ureq_finish() {
