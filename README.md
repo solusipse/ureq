@@ -121,6 +121,8 @@ r->params
 - create error handling system for dynamic allocated objects (server should ignore requests when memory is short without crashing, return 503 when possible)
 - server should return 400 Bad Request instead of leaving this for user
 - detailed documentation
+- add macro for disabling dynamic memory allocation
+- make ureq compatibile with esp8266
 
 ## License
 See `LICENSE`.
