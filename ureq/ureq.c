@@ -33,7 +33,7 @@ static void ureq_get_header(char *h, char *r) {
     strncpy(h, b, strlen(b));
 }
 
-int ureq_parse_header(struct HttpRequest *req, char *r) {
+int ureq_parse_header(HttpRequest *req, char *r) {
 
     char *header = malloc( strlen(r) + 1 );
     header[0] = '\0';
@@ -98,7 +98,7 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     pages[pageCount-1] = page;
 }
 
-int ureq_run( struct HttpRequest *req, char *r ) {
+int ureq_run(HttpRequest *req, char *r ) {
     
     int h = ureq_parse_header(req, r);
     // TODO: response with code 400 (Bad Request)
@@ -296,7 +296,7 @@ static void ureq_get_query(char *b, char *u) {
     strcpy(b, buf);
 }
 
-void ureq_close( struct HttpRequest *req ) {
+void ureq_close( HttpRequest *req ) {
     free(req->type);
     free(req->url);
     free(req->version);
