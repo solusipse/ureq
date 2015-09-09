@@ -61,9 +61,18 @@ struct Page {
     char *method;
 };
 
+#ifndef ESP8266
 
-static struct Page *pages = NULL;
-static int pageCount = 0;
+    static struct Page *pages = NULL;
+    static int pageCount = 0;
+
+#else
+
+    static struct Page pages[16];
+    static int pageCount = 0;
+
+#endif
+
 
 
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );

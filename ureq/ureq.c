@@ -26,6 +26,31 @@ SOFTWARE.
 
 #include "ureq.h"
 
+
+#ifdef ESP8266
+// These are ESP8266 specific
+
+#include <mem.h>
+#include <osapi.h>
+
+#define realloc ureq_realloc
+#define malloc  ureq_malloc
+#define free    ureq_free
+
+#define printf(...) os_printf( __VA_ARGS__ )
+#define sprintf(...) os_sprintf( __VA_ARGS__ )
+
+char *ureq_malloc(size_t l) {
+    return (char *) os_malloc(l);
+}
+
+void ureq_free(void *p) {
+    // DO NOTHING, FREE IS BROKEN ON CURRENT ESP SDK
+}
+
+#endif
+
+
 static void ureq_get_header(char *h, char *r) {
     char *p = NULL;
     strncpy(h, r, strlen(r));
@@ -94,8 +119,13 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     page.func = func;
     page.method = method;
 
-    pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
-    pages[pageCount-1] = page;
+    #ifndef ESP8266
+        pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
+        pages[pageCount-1] = page;
+    #else
+        pages[pageCount++] = page;
+    #endif
+    
 }
 
 int ureq_run(HttpRequest *req, char *r ) {
@@ -104,7 +134,8 @@ int ureq_run(HttpRequest *req, char *r ) {
     // TODO: response with code 400 (Bad Request)
     if (h != 0) return -1;
 
-    for (int i = 0; i < pageCount; i++) {
+    int i;
+    for (i = 0; i < pageCount; i++) {
         /*
         This loop iterates through a pages list and compares
         urls and methods to requested ones. If there's a match,
@@ -164,11 +195,12 @@ int ureq_run(HttpRequest *req, char *r ) {
 
 static void ureq_generate_response(HttpRequest *r, char *html) {
     char *header = ureq_generate_response_header(r);
-    r->response = malloc(strlen(header) + strlen(html) + 1);
+    r->response = malloc(strlen(header) + strlen(html) + 3);
     r->response[0] = '\0';
 
     strncat(r->response, header, strlen(header));
     strncat(r->response, html, strlen(html));
+    strncat(r->response, "\r\n", 2);
 
     free(header);
 }
@@ -209,22 +241,22 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 
     if (r->mime != NULL) {
         char *br = malloc( strlen(r->mime) + strlen(ct) + 1 );
-        strncat( br, ct, strlen(ct) );
-        strncat( br, r->mime, strlen(r->mime) );
+        strcpy( br, ct );
+        strcat( br, r->mime );
 
         if (r->responseHeaders != NULL) {
             char *bb = malloc( strlen(r->responseHeaders) + 1 );
-            strncat(bb, r->responseHeaders, strlen(r->responseHeaders) );
+            strcpy(bb, r->responseHeaders );
             r->responseHeaders = NULL;
             r->responseHeaders = malloc( strlen(br) + strlen(bb) + 3 );
-            strncat( r->responseHeaders, br, strlen(br) );
+            strcpy( r->responseHeaders, br );
             strncat( r->responseHeaders, "\r\n", 2 );
             strncat( r->responseHeaders, bb, strlen(bb) );
 
             free(bb);
         } else {
-            r->responseHeaders = malloc( strlen(br) + 1 );
-            strncat( r->responseHeaders, br, strlen(br) );
+            r->responseHeaders = malloc( strlen(br) + 3 /* \r\n */ + 1 );
+            strcpy( r->responseHeaders, br );
         }
         strncat( r->responseHeaders, "\r\n", 2 );
         free(br);
@@ -239,7 +271,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
                   strlen(r->responseHeaders) + 8/*spaces,specialchars*/;
 
     char *h = malloc( hlen + 1 );
-    snprintf(h, hlen, "%s %d %s\r\n%s\r\n", HTTP_V, r->responseCode, desc, r->responseHeaders);
+    sprintf(h, "%s %d %s\r\n%s\r\n", HTTP_V, r->responseCode, desc, r->responseHeaders);
     
     return h;
 }
@@ -249,7 +281,8 @@ static char *ureq_get_params(char *r) {
     char *out = malloc(strlen(r) + 1);
     strncat(data, r, strlen(r));
 
-    for (char *buf = strtok(data,"\n"); buf != NULL; buf = strtok(NULL, "\n")) {
+    char *buf;
+    for (buf = strtok(data,"\n"); buf != NULL; buf = strtok(NULL, "\n")) {
         strcpy(out, buf);
     }
     free(data);
@@ -262,7 +295,8 @@ char *ureq_get_param_value(char *r, char *arg) {
     char *out = malloc(strlen(r) + 1);
     strcpy(data, r);
 
-    for (char *buf = strtok(data,"&"); buf != NULL; buf = strtok(NULL, "&")) {
+    char *buf;
+    for (buf = strtok(data,"&"); buf != NULL; buf = strtok(NULL, "&")) {
 
         if (strstr(buf, arg) == NULL)
             continue;
@@ -313,5 +347,7 @@ void ureq_close( HttpRequest *req ) {
 }
 
 void ureq_finish() {
+    #ifndef ESP8266
     free(pages);
+    #endif
 }
