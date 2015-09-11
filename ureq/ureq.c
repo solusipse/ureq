@@ -45,7 +45,10 @@ char *ureq_malloc(size_t l) {
 }
 
 void ureq_free(void *p) {
-    // DO NOTHING, FREE IS BROKEN ON CURRENT ESP SDK
+    if (p != NULL) {
+        os_free(p);
+        p = NULL;
+    }
 }
 
 #endif
