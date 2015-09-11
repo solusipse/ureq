@@ -241,13 +241,10 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 
         if (r->responseHeaders != NULL) {
             char *bb = malloc( strlen(r->responseHeaders) + 1 );
-            strncat( bb, r->responseHeaders, strlen(r->responseHeaders) );
+            strcpy( bb, r->responseHeaders );
             r->responseHeaders = NULL;
             r->responseHeaders = malloc( strlen(bb) + 1 );
-            strncat( r->responseHeaders, bb, strlen(bb) );
-            if (r->mime != NULL) {
-                strncat( r->responseHeaders, "\r\n", 2 );
-            }
+            strcpy( r->responseHeaders, bb );
             free(bb);
         }
     }
