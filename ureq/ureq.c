@@ -54,21 +54,28 @@ void ureq_free(void *p) {
 #endif
 
 
-static void ureq_get_header(char *h, char *r) {
+static int ureq_get_header(char *h, char *r) {
     char *p = NULL;
-    strncpy(h, r, strlen(r));
-    char *b = strtok_r(h, "\n", &p);
-    strncpy(h, b, strlen(b));
+    strcpy(h, r);
+
+    if ( strlen(r) <= 1 ) return 1;
+    char *b = strtok_r(h, "\r\n", &p);
+    if ( strlen(b) <= 1 ) return 1;
+
+    strcpy(h, b);
+    return 0;
 }
 
 int ureq_parse_header(HttpRequest *req, char *r) {
 
     char *header = malloc( strlen(r) + 1 );
-    header[0] = '\0';
     char *b = NULL;
 
-    // TODO: wrk causes segfault here, need to check that
-    ureq_get_header(header, r);
+    if ( ureq_get_header(header, r) != 0 ) {
+        free(header);
+        return 1;
+    }
+
     b = strtok(header, " ");
     if (( strncmp(GET, b, 3) != 0 )&&(strncmp(b, POST, 4) != 0 ))  {
         free(header);
@@ -80,6 +87,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
 
     b = strtok(NULL, " ");
     if (b == NULL) {
+        free(header);
         return 1;
     }
 
@@ -89,6 +97,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
 
     b = strtok(NULL, " ");
     if ( strncmp(b, "HTTP/1.", 7) != 0 ) {
+        free(header);
         return 1;
     }
     req->version = malloc( strlen(b) + 1 );
@@ -97,6 +106,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
 
     b = strtok(NULL, " ");
     if (b != NULL) {
+        free(header);
         return 1;
     }
 

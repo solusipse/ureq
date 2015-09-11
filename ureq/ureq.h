@@ -84,7 +84,7 @@ int ureq_run(struct HttpRequest *req, char *r);
 int ureq_parse_header(struct HttpRequest *req, char *r);
 
 
-static void ureq_get_header(char *h, char *r);
+static int  ureq_get_header(char *h, char *r);
 static void ureq_remove_parameters(char *b, char *u);
 static void ureq_get_query(char *b, char *u);
 static void ureq_generate_response(HttpRequest *r, char *html);
