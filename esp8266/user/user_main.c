@@ -53,9 +53,10 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     
     os_printf("%s\n", req.response);
 
-    //ureq_close(&req);
-
     espconn_sent(pespconn, req.response, strlen(req.response));
+
+    ureq_close(&req);
+    
     espconn_disconnect(pespconn);
 }
 
