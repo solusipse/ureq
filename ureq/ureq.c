@@ -70,13 +70,14 @@ int ureq_parse_header(HttpRequest *req, char *r) {
 
     char *header = malloc( strlen(r) + 1 );
     char *b = NULL;
+    char *bk = NULL;
 
     if ( ureq_get_header(header, r) != 0 ) {
         free(header);
         return 1;
     }
 
-    b = strtok(header, " ");
+    b = strtok_r(header, " ", &bk);
     if (( strncmp(GET, b, 3) != 0 )&&(strncmp(b, POST, 4) != 0 ))  {
         free(header);
         return 1;
@@ -85,7 +86,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     req->type[0] = '\0';
     strncat(req->type, b, strlen(b));
 
-    b = strtok(NULL, " ");
+    b = strtok_r(NULL, " ", &bk);
     if (b == NULL) {
         free(header);
         return 1;
@@ -95,7 +96,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     req->url[0] = '\0';
     strncat(req->url, b, strlen(b));
 
-    b = strtok(NULL, " ");
+    b = strtok_r(NULL, " ", &bk);
     if ( strncmp(b, "HTTP/1.", 7) != 0 ) {
         free(header);
         return 1;
@@ -104,7 +105,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     req->version[0] = '\0';
     strncat(req->version, b, strlen(b));
 
-    b = strtok(NULL, " ");
+    b = strtok_r(NULL, " ", &bk);
     if (b != NULL) {
         free(header);
         return 1;
@@ -291,8 +292,9 @@ static char *ureq_get_params(char *r) {
     char *out = malloc(strlen(r) + 1);
     strncat(data, r, strlen(r));
 
+    char *bk;
     char *buf;
-    for (buf = strtok(data,"\n"); buf != NULL; buf = strtok(NULL, "\n")) {
+    for (buf = strtok_r(data,"\n", &bk); buf != NULL; buf = strtok_r(NULL, "\n", &bk)) {
         strcpy(out, buf);
     }
     free(data);
@@ -305,8 +307,9 @@ char *ureq_get_param_value(char *r, char *arg) {
     char *out = malloc(strlen(r) + 1);
     strcpy(data, r);
 
+    char *bk;
     char *buf;
-    for (buf = strtok(data,"&"); buf != NULL; buf = strtok(NULL, "&")) {
+    for (buf = strtok_r(data,"&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
 
         if (strstr(buf, arg) == NULL)
             continue;
@@ -327,16 +330,18 @@ char *ureq_get_param_value(char *r, char *arg) {
 }
 
 static void ureq_remove_parameters(char *b, char *u) {
+    char *bk;
     strcpy(b, u);
-    b = strtok(b, "?");
+    b = strtok_r(b, "?", &bk);
 }
 
 static void ureq_get_query(char *b, char *u) {
     if (strchr(u, '?') == NULL )
         return;
+    char *bk;
     strncpy(b, u, strlen(u));
-    b = strtok(b, "?");
-    char *buf = strtok(NULL, "\n");
+    b = strtok_r(b, "?", &bk);
+    char *buf = strtok_r(NULL, "\n", &bk);
     strcpy(b, buf);
 }
 
