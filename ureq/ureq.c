@@ -53,6 +53,13 @@ void ureq_free(void *p) {
 
 #endif
 
+// TODO: remove later
+#define UREQ_USE_FILESYSTEM 1
+
+#if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+    #include "../filesystem/ureq_filesystem.h"
+#endif
+
 
 static int ureq_get_header(char *h, char *r) {
     char *p = NULL;
@@ -200,6 +207,12 @@ int ureq_run(HttpRequest *req, char *r ) {
 
     // TODO: if there is no requested url, check for file in filesystem
     //       (future feature)
+
+    #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+    // Look for requested file in the filesystem
+
+    
+    #endif
 
     req->responseCode = 404;
     ureq_generate_response(req, "404");
@@ -366,3 +379,10 @@ void ureq_finish() {
     free(pages);
     #endif
 }
+
+/*
+TODO: add methods for:
+    - minimal templating
+    - loading files from page functions
+    - setting custom mime-types (for bare files responses)
+*/

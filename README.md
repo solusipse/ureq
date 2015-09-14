@@ -119,8 +119,8 @@ r->params
 
 ## TODO
 - a filesystem
-- server should return 400 Bad Request instead of letting user dealing with wrong requests
-- detailed documentation
+- minimalistic templating system
+- server should return 400 Bad Request instead of letting user dealing with wrong requests (minor fix)
 
 ## License
 See `LICENSE`.
