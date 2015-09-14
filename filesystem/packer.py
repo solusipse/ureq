@@ -55,8 +55,11 @@ with open(output, "w") as fh:
         # filename
         fh.write( files[p][0] )
         # size
+        print(files[p][1])
+        files[p][1].byteswap()
         files[p][1].tofile(fh)
         # address
+        files[p][2].byteswap()
         files[p][2].tofile(fh)
 
     print("Header successfully saved to file!")
