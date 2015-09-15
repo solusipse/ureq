@@ -48,7 +48,7 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
 
     os_printf("Incoming connection\n");
 
-    ureq_fs_open();
+    ureq_fs_open("text.txt");
 
     HttpRequest req;
     ureq_run(&req, data);

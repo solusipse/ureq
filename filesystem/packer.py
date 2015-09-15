@@ -51,11 +51,12 @@ for h in files:
     last = h
 
 with open(output, "w") as fh:
+    # number of files
+    int32( len(files) ).tofile(fh)
     for p in files:
         # filename
         fh.write( files[p][0] )
         # size
-        print(files[p][1])
         files[p][1].byteswap()
         files[p][1].tofile(fh)
         # address
