@@ -25,6 +25,7 @@ if (len(sys.argv)) > 1:
 files = {}
 
 for f in os.listdir(source_dir):
+    print("Adding file: %s." % f)
     files[f] = []
 
     files[f].append( "{:<16}".format(f + '\0') )
@@ -38,12 +39,13 @@ header_size = 0
 
 # Estimate header size
 for h in files:
-    header_size += 16 * 8 + 32 * 2
+    #              1 char     2 ints
+    header_size += (1 * 16) + (4 * 2)
 
 for h in files:
-    address = header_size + 1
+    address = header_size
     try:
-        address += files[last][1] + 1
+        address += files[last][1]
     except NameError:
         pass
 
