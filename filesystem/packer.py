@@ -18,13 +18,11 @@ output = "output.image"
 import os, numpy, sys
 from numpy import int32
 
-if (len(sys.argv)) > 1:
-    os.system("esptool.py --port " + sys.argv[1] + " write_flash 0x12000 " + output)
-    sys.exit(0)
-
 files = {}
 
 for f in os.listdir(source_dir):
+    if f.startswith("."):
+        continue
     print("Adding file: %s." % f)
     files[f] = []
 
@@ -35,7 +33,8 @@ for f in os.listdir(source_dir):
         files[f].append( 0 )
         files[f].append( fh.read() )
 
-header_size = 0
+# 4 is size of int32_t containing number of files
+header_size = 4
 
 # Estimate header size
 for h in files:
@@ -75,3 +74,7 @@ with open(output, "a") as fh:
     print("Contents successfully saved to file")
 
 print("Image is ready! Saved to %s." % output)
+
+if (len(sys.argv)) > 1:
+    print("Uploading to device!")
+    os.system("esptool.py --port " + sys.argv[1] + " write_flash 0x12000 " + output)

@@ -32,11 +32,11 @@ static char *ureq_fs_read(int a, int s) {
     os_printf("3\n");
     */
 
-    char buf[4096];
+    char buf[256];
     os_memcpy(buf, pos, sizeof(buf));
 
     int i;
-    for (i=0;i<sizeof(buf);i++) {
+    for (i=0;i<s;i++) {
         printf("%c", buf[i]);
     }
     printf("\n");
