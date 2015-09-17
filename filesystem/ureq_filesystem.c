@@ -5,32 +5,7 @@
 
 static char *ureq_fs_read(int a, int s) {
     char *pos = (char*) UREQ_FS_START + 0x40200000;
-
-    printf("%d\n", pos);
-
     pos += a;
-
-    printf("%d\n", a);
-    printf("%d\n", s);
-    printf("%d\n", (int) pos);
-
-    /*
-
-    printf("sizeof int: %d\n", sizeof(char));
-    printf("sizeof int32_t: %d\n", sizeof(int32_t));
-    pos += 4;
-
-    char buf[4096];
-
-    printf("ADDRESS: %d\n", a);
-    printf("SIZE: %d\n", s);
-
-    os_printf("1\n");
-    os_memcpy(buf, pos, sizeof(buf));
-    os_printf("2\n");
-    os_printf("%s\n", buf);
-    os_printf("3\n");
-    */
 
     char buf[256];
     os_memcpy(buf, pos, sizeof(buf));
