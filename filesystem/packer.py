@@ -18,20 +18,22 @@ output = "output.image"
 import os, numpy, sys
 from numpy import int32
 
-files = {}
+files = []
 
 for f in os.listdir(source_dir):
     if f.startswith("."):
         continue
-    print("Adding file: %s." % f)
-    files[f] = []
 
-    files[f].append( "{:<16}".format(f + '\0') )
+    fl = []
+
+    fl.append( "{:<16}".format(f + '\0') )
 
     with open(source_dir + "/" + f, 'r') as fh:
-        files[f].append( int32( os.fstat(fh.fileno()).st_size ) )
-        files[f].append( 0 )
-        files[f].append( fh.read() )
+        fl.append( int32( os.fstat(fh.fileno()).st_size ) )
+        fl.append( 0 )
+        fl.append( fh.read() )
+
+    files.append(fl)
 
 # 4 is size of int32_t containing number of files
 header_size = 4
@@ -41,35 +43,35 @@ for h in files:
     #              1 char     2 ints
     header_size += (1 * 16) + (4 * 2)
 
-for h in files:
-    address = header_size
-    try:
-        address += files[last][1]
-    except NameError:
-        pass
+address = header_size
 
-    files[h][2] = int32( address )
-    last = h
+for i, h in enumerate(files):
+
+    if i > 0:
+        address += files[i-1][1]
+
+    h[2] = int32( address )
+
+print("Adding files:")
 
 with open(output, "w") as fh:
     # number of files
     int32( len(files) ).tofile(fh)
     for p in files:
         # filename
-        fh.write( files[p][0] )
+        fh.write( p[0] )
         # size
-        files[p][1].byteswap()
-        files[p][1].tofile(fh)
+        p[1].tofile(fh)
         # address
-        files[p][2].byteswap()
-        files[p][2].tofile(fh)
+        p[2].tofile(fh)
+        print("At address %s, with size %s, added file %s" % (p[2], p[1], p[0]) )
 
     print("Header successfully saved to file!")
 
 with open(output, "a") as fh:
     for p in files:
         # contents
-        fh.write( files[p][3] )
+        fh.write( p[3] )
 
     print("Contents successfully saved to file")
 
