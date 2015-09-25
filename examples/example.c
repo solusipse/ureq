@@ -128,20 +128,21 @@ int main() {
     Before doing anything, initialize HttpRequest struct. Then call ureq_run
     with it as the first argument. Pass there also an incoming request.
     */
-    HttpRequest req;
+    HttpRequest r = ureq_init();
     /*
     ureq_run returns some codes, for example 200 or 404. If it returns -1,
     it means that the request was incorrect.
     */
-    ureq_run(&req, request);
+    while(ureq_run(&r, request))
+        printf("%s\n", r.response);
     /*
     Do something with generated response.
     */
-    printf("%s\n", req.response);
+    //printf("%s\n", r.response);
     /*
     When you're done with this particular request, remember to call ureq_close.
     */
-    ureq_close(&req);
+    ureq_close(&r);
     /*
     When you're done with everything, call ureq_finish.
     */

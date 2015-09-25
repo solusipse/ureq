@@ -149,7 +149,17 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     
 }
 
+HttpRequest ureq_init() {
+    HttpRequest r;
+    r.complete = -1;
+
+    return r;
+}
+
 int ureq_run(HttpRequest *req, char *r ) {
+
+    if (req->complete == 1)
+        return 0;
     
     int h = ureq_parse_header(req, r);
     // TODO: response with code 400 (Bad Request)
@@ -202,6 +212,7 @@ int ureq_run(HttpRequest *req, char *r ) {
         // Generate whole response
         ureq_generate_response(req, html);
 
+        req->complete = 1;
         return req->responseCode;
     }
 
@@ -217,6 +228,7 @@ int ureq_run(HttpRequest *req, char *r ) {
     req->responseCode = 404;
     ureq_generate_response(req, "404");
 
+    req->complete = 1;
     return req->responseCode;
 }
 

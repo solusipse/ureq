@@ -53,6 +53,8 @@ typedef struct HttpRequest {
     char *responseDescription;
     char *responseHeaders;
     char *mime;
+
+    int complete;
 } HttpRequest;
 
 struct Page {
@@ -76,6 +78,8 @@ struct Page {
 
 
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
+
+HttpRequest ureq_init();
 
 void ureq_close( struct HttpRequest *req );
 void ureq_finish();
