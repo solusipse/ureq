@@ -39,7 +39,7 @@ SOFTWARE.
 #include <arpa/inet.h>
 #include <time.h>
 
-#include "ureq/ureq.c"
+#include "../ureq.c"
 
 #define BUFSIZE 1024
 #define QUEUE_SIZE 100

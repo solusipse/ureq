@@ -24,11 +24,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ureq/ureq.c"
+#include "../ureq.c"
 
 int main() {
 
-    ureq_fs_open();
+    //ureq_fs_open();
 
     return 0;
 }

@@ -33,5 +33,6 @@
 
 server
 example
+fs
 .DS_Store
 *.bin

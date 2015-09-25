@@ -11,7 +11,7 @@
 
 #define ESP8266
 
-#include "../../ureq/ureq.c"
+#include "../../ureq.c"
 
 //const char ssid[32] = "ssid";
 //const char password[32] = "password";
@@ -48,7 +48,7 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
 
     os_printf("Incoming connection\n");
 
-    ureq_fs_open("text.txt");
+    //ureq_fs_open("text.txt");
 
     HttpRequest req;
     ureq_run(&req, data);

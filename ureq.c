@@ -54,10 +54,10 @@ void ureq_free(void *p) {
 #endif
 
 // TODO: remove later
-#define UREQ_USE_FILESYSTEM 1
+#define UREQ_USE_FILESYSTEM 0
 
 #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
-    #include "../filesystem/ureq_filesystem.h"
+    #include "ureq_filesystem.h"
 #endif
 
 
