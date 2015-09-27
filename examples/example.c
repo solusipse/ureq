@@ -103,6 +103,10 @@ char *s_getpar(HttpRequest *r) {
     return "GETpar";
 }
 
+char *s_buf() {
+    return "test";
+}
+
 /* --------------------------------^ PAGES ^-------------------------------- */
 
 int main() {
@@ -117,11 +121,12 @@ int main() {
     ureq_serve("/param", s_param, GET);
     ureq_serve("/all", s_all, ALL);
     ureq_serve("/post", s_post, POST);
+    ureq_serve("/buffer", s_buf, GET);
 
     /*
     That's just an example request.
     */
-    char request[] = "GET /param?test=ok HTTP/1.1\n"
+    char request[] = "GET /buffera HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     /*

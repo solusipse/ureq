@@ -30,26 +30,26 @@ SOFTWARE.
 #ifdef ESP8266
 // These are ESP8266 specific
 
-#include <mem.h>
-#include <osapi.h>
+    #include <mem.h>
+    #include <osapi.h>
 
-#define realloc ureq_realloc
-#define malloc  ureq_malloc
-#define free    ureq_free
+    #define realloc ureq_realloc
+    #define malloc  ureq_malloc
+    #define free    ureq_free
 
-#define printf(...) os_printf( __VA_ARGS__ )
-#define sprintf(...) os_sprintf( __VA_ARGS__ )
+    #define printf(...) os_printf( __VA_ARGS__ )
+    #define sprintf(...) os_sprintf( __VA_ARGS__ )
 
-char *ureq_malloc(size_t l) {
-    return (char *) os_malloc(l);
-}
-
-void ureq_free(void *p) {
-    if (p != NULL) {
-        os_free(p);
-        p = NULL;
+    char *ureq_malloc(size_t l) {
+        return (char *) os_malloc(l);
     }
-}
+
+    void ureq_free(void *p) {
+        if (p != NULL) {
+            os_free(p);
+            p = NULL;
+        }
+    }
 
 #endif
 
@@ -169,6 +169,7 @@ int ureq_run(HttpRequest *req, char *r ) {
         // Data (if any), will be sent in next run(s).
 
         req->complete = -2;
+        req->bigFile  =  0;
 
         int h = ureq_parse_header(req, r);
         // TODO: response with code 400 (Bad Request)
@@ -228,37 +229,40 @@ int ureq_run(HttpRequest *req, char *r ) {
             // Return only header at first run
             req->response = ureq_generate_response_header(req);
 
-            return req->responseCode;
+            return req->complete;
         }
         req->responseCode = 404;
+        // TODO: move that below
         ureq_generate_response(req, "404");
-        req->complete = 1;
-        return req->responseCode;
+        return req->complete;
     }
     
-    if (req->complete < -1) {
-        free(req->response);
-        req->response = req->func(req);
+    if ((req->complete < -1) && (req->responseCode != 404)) {
+        // TODO: check if req->response contains a header
+        //       i.e.: if req->complete == -2
+        if (req->complete == -2)
+            free(req->response);
 
+        req->complete--;
+
+        if (req->bigFile) {
+            // TODO
+            req->response = req->func(req);
+            return req->complete;
+        } else {
+            req->response = req->func(req);
+            return 0;
+        }
     }
-    
 
-    /*
-    // TODO: if there is no requested url, check for file in filesystem
-    //       (future feature)
+    if ((req->complete < -1) && (req->responseCode == 404)) {
+        #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+            // TODO
+        #else
+            return 0;
+        #endif
+    }
 
-    #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
-    // Look for requested file in the filesystem
-
-    
-    #endif
-
-    req->responseCode = 404;
-    ureq_generate_response(req, "404");
-
-    req->complete = 1;
-    return req->responseCode;
-    */
     return 0;
 }
 

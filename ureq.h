@@ -55,6 +55,7 @@ typedef struct HttpRequest {
     char *mime;
 
     int complete;
+    int bigFile;
 
     char *(*func)(struct HttpRequest *);
 } HttpRequest;
