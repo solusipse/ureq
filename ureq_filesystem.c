@@ -1,32 +1,36 @@
 #include <stdio.h>
+#include "ureq_filesystem.h"
 
 // TODO: move all defines to one file
 #define UREQ_FS_START 0x12000
 
-static char *ureq_fs_read(int a, int s) {
+void memcpyAligned(char *dst, char *src, int len) {
+    // This function comes from dht-esp8266 project
+    // It was written by Jeroen Domburg <jeroen@spritesmods.com>
+    int x;
+    int w, b;
+    for (x=0; x<len; x++) {
+        b=((int)src&3);
+        w=*((int *)(src-b));
+        if (b==0) *dst=(w>>0);
+        if (b==1) *dst=(w>>8);
+        if (b==2) *dst=(w>>16);
+        if (b==3) *dst=(w>>24);
+        dst++; src++;
+    }
+}
+
+static char *ureq_fs_read(int a, int s, char *buf) {
     char *pos = (char*) UREQ_FS_START + 0x40200000;
     pos += a;
 
-    char buf[256];
-    os_memcpy(buf, pos, sizeof(buf));
+    memset(buf, 0, 1024);
+    memcpyAligned(buf, pos, s);
 
-    int i;
-    for (i=0;i<s;i++) {
-        printf("%c", buf[i]);
-    }
-    printf("\n");
-
-    // TODO: rebuild this
-    // This will of course crash in most cases
-    // it should be called every from http response mechanism
-    // so it can split file into multiple sends
-    // For text files there should be a method for getting
-    // them as chars (and use in page functions)
-    
-    return "ok";
+    return buf;
 }
 
-char *ureq_fs_open(char *rf) {
+UreqFile ureq_fs_open(char *rf) {
 
     char *pos = (char*) UREQ_FS_START + 0x40200000;
 
@@ -36,9 +40,13 @@ char *ureq_fs_open(char *rf) {
     int32_t size;
     int32_t address;
 
+    UreqFile f;
+    f.size = 0;
+    f.address = 0;
+
     // Get number of files
     os_memcpy(&amount, pos, sizeof(amount));
-    os_printf("Number of files: %d\n", amount);
+    //os_printf("Number of files: %d\n", amount);
 
     // Move to the filesystem header
     pos += sizeof(int32_t);
@@ -55,9 +63,9 @@ char *ureq_fs_open(char *rf) {
             os_memcpy(&size, pos, sizeof(int32_t));
             pos += sizeof(int32_t);
             os_memcpy(&address, pos, sizeof(int32_t));
-
-            return ureq_fs_read(address, size);
-
+            f.size = size;
+            f.address = address;
+            return f;       
         } else {
             // Move to next file
             pos += sizeof(char) * 16;   // filename
@@ -66,6 +74,5 @@ char *ureq_fs_open(char *rf) {
         }
 
     }
-
-    return 0;
+    return f;
 }

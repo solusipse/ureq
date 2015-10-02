@@ -39,6 +39,11 @@ SOFTWARE.
 #define DELETE	"DELETE"
 #define HTTP_V  "HTTP/1.1"
 
+typedef struct UreqFile {
+    int size;
+    int address;
+} UreqFile;
+
 typedef struct HttpRequest {
     char *type;
     char *url;
@@ -56,6 +61,10 @@ typedef struct HttpRequest {
 
     int complete;
     int bigFile;
+    int len;
+
+    UreqFile file;
+    char buffer[1024];
 
     char *(*func)(struct HttpRequest *);
 } HttpRequest;

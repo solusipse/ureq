@@ -46,10 +46,8 @@ for h in files:
 address = header_size
 
 for i, h in enumerate(files):
-
     if i > 0:
         address += files[i-1][1]
-
     h[2] = int32( address )
 
 print("Adding files:")

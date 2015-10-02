@@ -13,6 +13,8 @@
 
 #include "../../ureq.c"
 
+#define UREQ_USE_FILESYSTEM 1
+
 //const char ssid[32] = "ssid";
 //const char password[32] = "password";
 
@@ -50,14 +52,13 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
 
     //ureq_fs_open("text.txt");
 
-    HttpRequest req;
-    ureq_run(&req, data);
-    
-    os_printf("%s\n", req.response);
+    HttpRequest r = ureq_init();
+    while(ureq_run(&r, data)) {
+        os_printf("%s\n", r.response);
+        espconn_sent(pespconn, r.response, strlen(r.response));
+    }
 
-    espconn_sent(pespconn, req.response, strlen(req.response));
-
-    ureq_close(&req);
+    ureq_close(&r);
     
     espconn_disconnect(pespconn);
 }

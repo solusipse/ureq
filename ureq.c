@@ -54,10 +54,10 @@ SOFTWARE.
 #endif
 
 // TODO: remove later
-#define UREQ_USE_FILESYSTEM 0
+#define UREQ_USE_FILESYSTEM 1
 
 #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
-    #include "ureq_filesystem.h"
+    #include "ureq_filesystem.c"
 #endif
 
 
@@ -231,10 +231,34 @@ int ureq_run(HttpRequest *req, char *r ) {
 
             return req->complete;
         }
-        req->responseCode = 404;
-        // TODO: move that below
-        ureq_generate_response(req, "404");
-        return req->complete;
+        #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+            //printf("%s\n", req->url + 1);
+            UreqFile f = ureq_fs_open(req->url + 1);
+            if (f.address == 0) {
+                // File was not found
+                req->responseCode = 404;
+                ureq_generate_response(req, "404");
+                return req->complete;
+            } else {
+                req->bigFile  =  1;
+                req->complete = -2;
+
+                if (req->responseCode == 0)
+                    req->responseCode = 200;
+
+                req->file = f;
+
+                req->response = ureq_generate_response_header(req);
+
+                return req->complete;
+            }
+        #else
+            req->responseCode = 404;
+            // TODO: move that below
+            //       if code is 400 or 404 maybe send everything at once?
+            ureq_generate_response(req, "404");
+            return req->complete;
+        #endif
     }
     
     if ((req->complete < -1) && (req->responseCode != 404)) {
@@ -246,21 +270,27 @@ int ureq_run(HttpRequest *req, char *r ) {
         req->complete--;
 
         if (req->bigFile) {
-            // TODO
-            req->response = req->func(req);
-            return req->complete;
+            #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+                // TODO: fix that
+                if (req->file.size > 1024) {
+                    printf("SIZE: %d\n", req->file.size);
+                    req->response = ureq_fs_read(req->file.address, 1024, req->buffer);
+                    req->file.address += 1024;
+                    req->file.size -= 1024;
+                    req->complete -= 1;
+                } else {
+                    req->response = ureq_fs_read(req->file.address, req->file.size, req->buffer);
+                    req->complete = 1;
+                }
+            #else
+                // TODO: buffer read from func
+                req->response = req->func(req);
+            #endif
         } else {
             req->response = req->func(req);
-            return 0;
+            req->complete = 1;
         }
-    }
-
-    if ((req->complete < -1) && (req->responseCode == 404)) {
-        #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
-            // TODO
-        #else
-            return 0;
-        #endif
+        return req->complete;
     }
 
     return 0;
