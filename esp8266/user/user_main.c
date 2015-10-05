@@ -55,7 +55,7 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     HttpRequest r = ureq_init();
     while(ureq_run(&r, data)) {
         os_printf("%s\n", r.response);
-        espconn_sent(pespconn, r.response, strlen(r.response));
+        espconn_sent(pespconn, r.response, r.len);
     }
 
     ureq_close(&r);

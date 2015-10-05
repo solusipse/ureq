@@ -170,6 +170,7 @@ int ureq_run(HttpRequest *req, char *r ) {
 
         req->complete = -2;
         req->bigFile  =  0;
+        req->len      =  0;
 
         int h = ureq_parse_header(req, r);
         // TODO: response with code 400 (Bad Request)
@@ -228,6 +229,7 @@ int ureq_run(HttpRequest *req, char *r ) {
             //ureq_generate_response(req, html);
             // Return only header at first run
             req->response = ureq_generate_response_header(req);
+            req->len = strlen(req->response);
 
             return req->complete;
         }
@@ -249,6 +251,7 @@ int ureq_run(HttpRequest *req, char *r ) {
                 req->file = f;
 
                 req->response = ureq_generate_response_header(req);
+                req->len = strlen(req->response);
 
                 return req->complete;
             }
@@ -272,22 +275,26 @@ int ureq_run(HttpRequest *req, char *r ) {
         if (req->bigFile) {
             #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
                 // TODO: fix that
-                if (req->file.size > 1024) {
+                if (req->file.size > 512) {
                     printf("SIZE: %d\n", req->file.size);
-                    req->response = ureq_fs_read(req->file.address, 1024, req->buffer);
-                    req->file.address += 1024;
-                    req->file.size -= 1024;
+                    req->response = ureq_fs_read(req->file.address, 512, req->buffer);
+                    req->file.address += 512;
+                    req->file.size -= 512;
+                    req->len = 512;
                     req->complete -= 1;
                 } else {
+                    req->len = req->file.size;
                     req->response = ureq_fs_read(req->file.address, req->file.size, req->buffer);
                     req->complete = 1;
                 }
             #else
                 // TODO: buffer read from func
                 req->response = req->func(req);
+                req->len = strlen(req->response);
             #endif
         } else {
             req->response = req->func(req);
+            req->len = strlen(req->response);
             req->complete = 1;
         }
         return req->complete;
