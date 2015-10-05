@@ -20,6 +20,8 @@
 
 bool gpioStatus = false;
 
+HttpRequest r;
+
 // Data structure for the configuration of your wireless network.
 // Will contain ssid and password for your network.
 struct station_config stationConf;
@@ -42,38 +44,47 @@ void ICACHE_FLASH_ATTR reverseGpio() {
     }
 }
 
-
 void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     char buf[64];
     int l;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    os_printf("Incoming connection\n");
+    // TODO: make dispatching mechanism for connections, request has to be individual
+    r = ureq_init();
 
-    //ureq_fs_open("text.txt");
+    ureq_run(&r, data);
+    espconn_sent(pespconn, r.response, r.len);
+    os_printf("Request %s from %d.%d.%d.%d. Status: %d.\n",
+        r.url,
+        pespconn->proto.tcp->remote_ip[0],
+        pespconn->proto.tcp->remote_ip[1],
+        pespconn->proto.tcp->remote_ip[2],
+        pespconn->proto.tcp->remote_ip[3],
+        r.responseCode);
+}
 
-    HttpRequest r = ureq_init();
-    while(ureq_run(&r, data)) {
-        os_printf("%s\n", r.response);
-        espconn_sent(pespconn, r.response, r.len);
+void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
+    struct espconn *pespconn = (struct espconn *)arg;
+    if (r.responseCode == 404) {
+        ureq_close(&r);
+        espconn_disconnect(pespconn);
+        return;
     }
 
-    ureq_close(&r);
-    
-    espconn_disconnect(pespconn);
+    ureq_run(&r, "");
+    espconn_sent(pespconn, r.response, r.len);
+    if (r.len < 512) {
+        ureq_close(&r);
+        espconn_disconnect(pespconn);
+    }
+
 }
 
 void ICACHE_FLASH_ATTR ssConnCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
 
-    os_printf("Connection from: %d.%d.%d.%d:%d\n",
-        pespconn->proto.tcp->remote_ip[0],
-        pespconn->proto.tcp->remote_ip[1],
-        pespconn->proto.tcp->remote_ip[2],
-        pespconn->proto.tcp->remote_ip[3],
-        pespconn->proto.tcp->remote_port);
-
     espconn_regist_recvcb(pespconn, ssRecvCb);
+    espconn_regist_sentcb(pespconn, ssSentCb);
 }
 
 void ICACHE_FLASH_ATTR ssServerInit() {

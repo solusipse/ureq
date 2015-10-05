@@ -234,7 +234,6 @@ int ureq_run(HttpRequest *req, char *r ) {
             return req->complete;
         }
         #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
-            //printf("%s\n", req->url + 1);
             UreqFile f = ureq_fs_open(req->url + 1);
             if (f.address == 0) {
                 // File was not found
@@ -276,7 +275,6 @@ int ureq_run(HttpRequest *req, char *r ) {
             #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
                 // TODO: fix that
                 if (req->file.size > 512) {
-                    printf("SIZE: %d\n", req->file.size);
                     req->response = ureq_fs_read(req->file.address, 512, req->buffer);
                     req->file.address += 512;
                     req->file.size -= 512;
@@ -311,6 +309,8 @@ static void ureq_generate_response(HttpRequest *r, char *html) {
     strncat(r->response, header, strlen(header));
     strncat(r->response, html, strlen(html));
     strncat(r->response, "\r\n", 2);
+
+    r->len = strlen(r->response);
 
     free(header);
 }
