@@ -150,24 +150,19 @@ int main_b() {
 }
 
 void server(char *buffer, int socket) {
-    /*
-    That's a basic example. First, create a struct of HttpRequest type.
-    Then pass it to ureq_run function with http request.
-    If request is not valid, it'll return -1. Otherwise, you'll get
-    a corresponding response code (200 or 404 are supported at the moment).
-    */
 
     clock_t start = clock();
-    struct HttpRequest req;
-    int s = ureq_run(&req, buffer);
-    if (s == -1)
-        return;
+    
+    HttpRequest req = ureq_init();
+
+    while(ureq_run(&req, buffer)) {
+        write(socket, req.response, strlen(req.response));
+    }
 
     clock_t end = clock();
     float seconds = (float)(end - start) / CLOCKS_PER_SEC;
 
-    printf("Requested: %s (%s). Response: %d. It took: %f s.\n", req.url, req.type, s, seconds);
-    write(socket, req.response, strlen(req.response));
+    printf("Requested: %s (%s). Response: %d. It took: %f s.\n", req.url, req.type, req.responseCode, seconds);
     ureq_close(&req);
 
 }
