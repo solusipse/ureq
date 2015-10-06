@@ -14,13 +14,20 @@
 #include "../../ureq.c"
 
 #define UREQ_USE_FILESYSTEM 1
+#define MAX_CONNS 32
+
+struct HttpConnection {
+    struct espconn *c;
+    HttpRequest r;
+    int id;
+};
+
+struct HttpConnection conns[MAX_CONNS];
 
 //const char ssid[32] = "ssid";
 //const char password[32] = "password";
 
 bool gpioStatus = false;
-
-HttpRequest r;
 
 // Data structure for the configuration of your wireless network.
 // Will contain ssid and password for your network.
@@ -49,10 +56,27 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     int l;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    // TODO: make dispatching mechanism for connections, request has to be individual
-    r = ureq_init();
+    HttpRequest r = ureq_init();
 
     ureq_run(&r, data);
+
+    int i;
+    for(i=0; i<MAX_CONNS; i++) {
+        if (conns[i].c == NULL)
+            break;
+        if (i == MAX_CONNS) {
+            conns[0].c == NULL;
+            i = 0;
+            break;
+        }
+    }
+
+    printf("N: %d\n", i);
+
+    conns[i].c = pespconn;
+    conns[i].r = r;
+    conns[i].id = i;
+    
     espconn_sent(pespconn, r.response, r.len);
     os_printf("Request %s from %d.%d.%d.%d. Status: %d.\n",
         r.url,
@@ -63,19 +87,33 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
         r.responseCode);
 }
 
+struct HttpConnection *getHttpConnection(void *arg) {
+    struct espconn *c = (struct espconn *)arg;
+    int i;
+    for(i=0; i<MAX_CONNS; i++) {
+        if (conns[i].c == c)
+            return &conns[i];
+    }
+    return NULL;
+}
+
 void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
-    if (r.responseCode == 404) {
-        ureq_close(&r);
+    struct HttpConnection *c = getHttpConnection(pespconn); 
+
+    if (c->r.responseCode == 404) {
+        ureq_close(&c->r);
         espconn_disconnect(pespconn);
+        conns[c->id].c = NULL;
         return;
     }
-
-    ureq_run(&r, "");
-    espconn_sent(pespconn, r.response, r.len);
-    if (r.len < 512) {
-        ureq_close(&r);
+    
+    ureq_run(&c->r, "");
+    espconn_sent(pespconn, c->r.response, c->r.len);
+    if (c->r.len < 512) {
+        ureq_close(&c->r);
         espconn_disconnect(pespconn);
+        conns[c->id].c = NULL;
     }
 
 }
@@ -102,7 +140,7 @@ void ICACHE_FLASH_ATTR ssServerInit() {
 
     espconn_regist_connectcb(pSimpleServer, ssConnCb);
     espconn_accept(pSimpleServer);
-    espconn_regist_time(pSimpleServer, 3600, 0);
+    espconn_regist_time(pSimpleServer, 60, 0);
 }
 
 void ICACHE_FLASH_ATTR wifiInit() {
@@ -121,12 +159,16 @@ char *s_home() {
     return "Hello World!";
 }
 
-
-
 void user_init(void) {
     // Uart init
     uart_div_modify(0, UART_CLK_FREQ / 115200);
     os_printf("\nStarting...\n");
+
+    int i;
+    for(i=0; i<MAX_CONNS; i++) {
+        // c field is used as indicator for free/used connection slots
+        conns[i].c = NULL;
+    }
 
     // Add page to ureq
     ureq_serve("/", s_home, "GET");
