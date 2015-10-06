@@ -152,12 +152,13 @@ int main_b() {
 void server(char *buffer, int socket) {
 
     clock_t start = clock();
-    // TODO: parse header in init
     HttpRequest req = ureq_init(buffer);
 
     while(ureq_run(&req)) {
         write(socket, req.response, strlen(req.response));
     }
+
+    if (!req.valid) return;
 
     clock_t end = clock();
     float seconds = (float)(end - start) / CLOCKS_PER_SEC;

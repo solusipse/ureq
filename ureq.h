@@ -67,6 +67,7 @@ typedef struct HttpRequest {
     char buffer[1024];
 
     char *(*func)(struct HttpRequest *);
+    int valid;
 } HttpRequest;
 
 struct Page {

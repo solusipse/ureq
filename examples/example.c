@@ -138,8 +138,6 @@ int main() {
     ureq_run returns some codes, for example 200 or 404. If it returns -1,
     it means that the request was incorrect.
     */
-    // TODO: add also a wrapper function that takes pointer to the sending
-    //       function and calls it on its own
     while(ureq_run(&r))
         printf("%s\n", r.response);
     /*

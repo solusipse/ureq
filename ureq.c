@@ -105,6 +105,10 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     strncat(req->url, b, strlen(b));
 
     b = strtok_r(NULL, " ", &bk);
+    if (b == NULL) {
+        free(header);
+        return 1;
+    }
     if ( strncmp(b, "HTTP/1.", 7) != 0 ) {
         free(header);
         return 1;
@@ -154,11 +158,18 @@ HttpRequest ureq_init(char *ur) {
     HttpRequest r;
 
     r.complete = -1;
+    r.valid    =  0;
+
     r.bigFile  =  0;
     r.len      =  0;
 
     int h = ureq_parse_header(&r, ur);
-    if (h != 0) r.complete = 1;
+    if (h != 0) {
+        r.valid = 0;
+        r.complete = 1;
+    } else {
+        r.valid = 1;
+    }
 
     return r;
 }
