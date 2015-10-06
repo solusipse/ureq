@@ -152,17 +152,18 @@ int main_b() {
 void server(char *buffer, int socket) {
 
     clock_t start = clock();
-    
-    HttpRequest req = ureq_init();
+    // TODO: parse header in init
+    HttpRequest req = ureq_init(buffer);
 
-    while(ureq_run(&req, buffer)) {
+    while(ureq_run(&req)) {
         write(socket, req.response, strlen(req.response));
     }
 
     clock_t end = clock();
     float seconds = (float)(end - start) / CLOCKS_PER_SEC;
 
-    printf("Requested: %s (%s). Response: %d. It took: %f s.\n", req.url, req.type, req.responseCode, seconds);
+    printf("Requested: %s (%s). Response: %d. It took: %f s.\n", \
+            req.url, req.type, req.responseCode, seconds);
     ureq_close(&req);
 
 }

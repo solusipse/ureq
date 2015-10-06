@@ -91,12 +91,12 @@ struct Page {
 
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
-HttpRequest ureq_init();
+HttpRequest ureq_init(char *r);
 
 void ureq_close( struct HttpRequest *req );
 void ureq_finish();
 
-int ureq_run(struct HttpRequest *req, char *r);
+int ureq_run(struct HttpRequest *req);
 int ureq_parse_header(struct HttpRequest *req, char *r);
 
 

@@ -54,7 +54,7 @@ SOFTWARE.
 #endif
 
 // TODO: remove later
-#define UREQ_USE_FILESYSTEM 1
+//#define UREQ_USE_FILESYSTEM 1
 
 #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
     #include "ureq_filesystem.c"
@@ -85,6 +85,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     }
 
     b = strtok_r(header, " ", &bk);
+    // TODO: all other methods here (switch)
     if (( strncmp(GET, b, 3) != 0 )&&(strncmp(b, POST, 4) != 0 ))  {
         free(header);
         return 1;
@@ -149,14 +150,20 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     
 }
 
-HttpRequest ureq_init() {
+HttpRequest ureq_init(char *ur) {
     HttpRequest r;
+
     r.complete = -1;
+    r.bigFile  =  0;
+    r.len      =  0;
+
+    int h = ureq_parse_header(&r, ur);
+    if (h != 0) r.complete = 1;
 
     return r;
 }
 
-int ureq_run(HttpRequest *req, char *r ) {
+int ureq_run(HttpRequest *req) {
 
     // TODO: on first run save everything what's needed to request struct
 
@@ -169,12 +176,6 @@ int ureq_run(HttpRequest *req, char *r ) {
         // Data (if any), will be sent in next run(s).
 
         req->complete = -2;
-        req->bigFile  =  0;
-        req->len      =  0;
-
-        int h = ureq_parse_header(req, r);
-        // TODO: response with code 400 (Bad Request)
-        if (h != 0) return -1;
 
         int i;
         for (i = 0; i < pageCount; i++) {
@@ -256,18 +257,16 @@ int ureq_run(HttpRequest *req, char *r ) {
             }
         #else
             req->responseCode = 404;
-            // TODO: move that below
-            //       if code is 400 or 404 maybe send everything at once?
+            // TODO: custom 404 pages
             ureq_generate_response(req, "404");
             return req->complete;
         #endif
     }
     
     if ((req->complete < -1) && (req->responseCode != 404)) {
-        // TODO: check if req->response contains a header
-        //       i.e.: if req->complete == -2
-        if (req->complete == -2)
+        if (req->complete == -2) {
             free(req->response);
+        }
 
         req->complete--;
 

@@ -126,21 +126,21 @@ int main() {
     /*
     That's just an example request.
     */
-    char request[] = "GET /buffera HTTP/1.1\n"
+    char request[] = "GET /buffer HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     /*
     Before doing anything, initialize HttpRequest struct. Then call ureq_run
     with it as the first argument. Pass there also an incoming request.
     */
-    HttpRequest r = ureq_init();
+    HttpRequest r = ureq_init(request);
     /*
     ureq_run returns some codes, for example 200 or 404. If it returns -1,
     it means that the request was incorrect.
     */
     // TODO: add also a wrapper function that takes pointer to the sending
     //       function and calls it on its own
-    while(ureq_run(&r, request))
+    while(ureq_run(&r))
         printf("%s\n", r.response);
     /*
     Do something with generated response.
