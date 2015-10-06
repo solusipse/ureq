@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define ESP8266
+#define ESP8266 1
 
 #include "../../ureq.c"
 
@@ -70,8 +70,6 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
             break;
         }
     }
-
-    printf("N: %d\n", i);
 
     conns[i].c = pespconn;
     conns[i].r = r;
