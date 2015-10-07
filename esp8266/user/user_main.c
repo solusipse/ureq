@@ -10,11 +10,11 @@
 #include <unistd.h>
 
 #define ESP8266 1
+#define UREQ_USE_FILESYSTEM 1
 
 #include "../../ureq.c"
 
-#define UREQ_USE_FILESYSTEM 1
-#define MAX_CONNS 32
+#define MAX_CONNS 4
 
 struct HttpConnection {
     struct espconn *c;
@@ -56,9 +56,9 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     int l;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    HttpRequest r = ureq_init();
+    HttpRequest r = ureq_init(data);
 
-    ureq_run(&r, data);
+    ureq_run(&r);
 
     int i;
     for(i=0; i<MAX_CONNS; i++) {
@@ -75,14 +75,14 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     conns[i].r = r;
     conns[i].id = i;
     
-    espconn_sent(pespconn, r.response, r.len);
+    espconn_sent(pespconn, r.response.data, r.len);
     os_printf("Request %s from %d.%d.%d.%d. Status: %d.\n",
         r.url,
         pespconn->proto.tcp->remote_ip[0],
         pespconn->proto.tcp->remote_ip[1],
         pespconn->proto.tcp->remote_ip[2],
         pespconn->proto.tcp->remote_ip[3],
-        r.responseCode);
+        r.response.code);
 }
 
 struct HttpConnection *getHttpConnection(void *arg) {
@@ -99,15 +99,15 @@ void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
     struct HttpConnection *c = getHttpConnection(pespconn); 
 
-    if (c->r.responseCode == 404) {
+    if (c->r.response.code == 404) {
         ureq_close(&c->r);
         espconn_disconnect(pespconn);
         conns[c->id].c = NULL;
         return;
     }
     
-    ureq_run(&c->r, "");
-    espconn_sent(pespconn, c->r.response, c->r.len);
+    ureq_run(&c->r);
+    espconn_sent(pespconn, c->r.response.data, c->r.len);
     if (c->r.len < 512) {
         ureq_close(&c->r);
         espconn_disconnect(pespconn);
@@ -118,6 +118,12 @@ void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
 
 void ICACHE_FLASH_ATTR ssConnCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
+
+    if (pespconn->link_cnt > 0) {
+        espconn_disconnect(pespconn);
+        os_printf("Too many connections at once.\n");
+        return;
+    }
 
     espconn_regist_recvcb(pespconn, ssRecvCb);
     espconn_regist_sentcb(pespconn, ssSentCb);
