@@ -131,8 +131,8 @@ char *s_test() {
 }
 
 char *s_redirect_to_test(HttpRequest *r) {
-    r->responseCode = 302;
-    r->responseHeaders = "Location: /test";
+    r->response.code = 302;
+    r->response.header = "Location: /test";
     return "";
 }
 
@@ -154,17 +154,17 @@ void server(char *buffer, int socket) {
     clock_t start = clock();
     HttpRequest req = ureq_init(buffer);
 
-    while(ureq_run(&req)) {
-        write(socket, req.response, strlen(req.response));
-    }
-
     if (!req.valid) return;
+
+    while(ureq_run(&req)) {
+        write(socket, req.response.data, req.len);
+    }
 
     clock_t end = clock();
     float seconds = (float)(end - start) / CLOCKS_PER_SEC;
 
     printf("Requested: %s (%s). Response: %d. It took: %f s.\n", \
-            req.url, req.type, req.responseCode, seconds);
-    ureq_close(&req);
+            req.url, req.type, req.response.code, seconds);
 
+    ureq_close(&req);
 }

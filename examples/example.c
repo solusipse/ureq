@@ -54,16 +54,14 @@ char *s_home(char *request) {
 
 /* --------------------------------v PAGES v-------------------------------- */
 
-// TODO: add a functionality of returning custom headers
-
 char *s_home() {
     return "home";
 }
 
 char *s_param(HttpRequest *r) {
-    //r->responseCode = 302;
-    //r->responseHeaders = "Location: /test";
-    //r->mime = "text/plain";
+    r->response.code = 302;
+    r->response.header = "Location: /test";
+    //r->response.mime = "text/plain";
     return "off";
 }
 
@@ -88,21 +86,6 @@ char *s_post(HttpRequest *r) {
     return "OK";
 }
 
-char *s_getpar(HttpRequest *r) {
-    /*
-    char *data = ureq_get_params(r);
-    char *arg = ureq_get_param_value(data, "test2");
-
-    if ( strcmp( arg, "2ok" ) == 0 ) {
-        printf("OK!\n");
-    }
-    
-    free(data);
-    free(arg);
-    */
-    return "GETpar";
-}
-
 char *s_buf() {
     return "test";
 }
@@ -116,41 +99,20 @@ int main() {
     will come. First, set url, then corresponding function, then method
     that will be connected to that url.
     */
-
     ureq_serve("/", s_home, GET);
     ureq_serve("/param", s_param, GET);
     ureq_serve("/all", s_all, ALL);
     ureq_serve("/post", s_post, POST);
     ureq_serve("/buffer", s_buf, GET);
 
-    /*
-    That's just an example request.
-    */
-    char request[] = "GET /buffer HTTP/1.1\n"
+    char request[] = "GET /param HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
-    /*
-    Before doing anything, initialize HttpRequest struct. Then call ureq_run
-    with it as the first argument. Pass there also an incoming request.
-    */
     HttpRequest r = ureq_init(request);
-    /*
-    ureq_run returns some codes, for example 200 or 404. If it returns -1,
-    it means that the request was incorrect.
-    */
-    while(ureq_run(&r))
-        printf("%s\n", r.response);
-    /*
-    Do something with generated response.
-    */
-    //printf("%s\n", r.response);
-    /*
-    When you're done with this particular request, remember to call ureq_close.
-    */
+
+    while(ureq_run(&r)) printf("%s\n", r.response.data);
+
     ureq_close(&r);
-    /*
-    When you're done with everything, call ureq_finish.
-    */
     ureq_finish();
 
     return 0;

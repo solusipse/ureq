@@ -44,6 +44,13 @@ typedef struct UreqFile {
     int address;
 } UreqFile;
 
+struct Response {
+    int  code;
+    char *mime;
+    char *header;
+    char *data;
+};
+
 typedef struct HttpRequest {
     char *type;
     char *url;
@@ -52,12 +59,7 @@ typedef struct HttpRequest {
     char *params;
     char *body;
 
-    char *response;
-
-    int  responseCode;
-    char *responseDescription;
-    char *responseHeaders;
-    char *mime;
+    struct Response response;
 
     int complete;
     int bigFile;
