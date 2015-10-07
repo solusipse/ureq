@@ -295,11 +295,11 @@ int ureq_run(HttpRequest *req) {
             #else
                 // TODO: buffer read from func
                 respcpy.data = req->func(req);
-                req->len = strlen(req->response.data);
+                req->len = strlen(respcpy.data);
             #endif
         } else {
             respcpy.data = req->func(req);
-            req->len = strlen(req->response.data);
+            req->len = strlen(respcpy.data);
             req->complete = 1;
         }
         req->response = respcpy;
@@ -371,6 +371,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
         r->response.header = malloc( strlen(br) + strlen("\r\n") + 1 );
         strcpy( r->response.header, br );
     }
+    strcat(r->response.header, "\r\n");
     free(br);
 
     if (r->response.header == NULL)
