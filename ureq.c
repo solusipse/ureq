@@ -53,9 +53,6 @@ SOFTWARE.
 
 #endif
 
-// TODO: remove later
-//#define UREQ_USE_FILESYSTEM 1
-
 #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
     #include "ureq_filesystem.c"
 #endif
@@ -176,8 +173,6 @@ HttpRequest ureq_init(char *ur) {
 
 int ureq_run(HttpRequest *req) {
 
-    // TODO: on first run save everything what's needed to request struct
-
     if (req->complete == 1)
         return 0;
 
@@ -280,7 +275,6 @@ int ureq_run(HttpRequest *req) {
 
         if (req->bigFile) {
             #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
-                // TODO: fix that
                 if (req->file.size > 512) {
                     respcpy.data = ureq_fs_read(req->file.address, 512, req->buffer);
                     req->file.address += 512;
