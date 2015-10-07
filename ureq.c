@@ -331,12 +331,24 @@ static char *ureq_get_code_description(int c) {
     return "Not Implemented";
 }
 
+static char *ureq_set_mimetype(HttpRequest *r) {
+    const char *e = strrchr(r->url, '.');
+    if (e) e += 1;
+    else return "text/html";
+
+    int i = 0;
+    for (i=0; UreqMimeTypes[i].ext != NULL; i++)
+        if (strcmp(UreqMimeTypes[i].ext, e) == 0) break;
+
+    return (char*) UreqMimeTypes[i].mime;
+}
+
 static char *ureq_generate_response_header(HttpRequest *r) {
     char *ct = "";
     // Set default mime type if blank
     if (r->response.mime == NULL) {
         if ( r->response.code == 200 || r->response.code == 404 ) {
-            r->response.mime = "text/html";
+            r->response.mime = ureq_set_mimetype(r);
             ct = "Content-Type: ";
         } else {
             r->response.mime = "";

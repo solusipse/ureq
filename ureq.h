@@ -32,12 +32,41 @@ SOFTWARE.
 #include <stdlib.h>
 #include <unistd.h>
 
+
+// METHODS
 #define GET 	"GET"
 #define POST 	"POST"
 #define ALL 	"ALL"
 #define PUT 	"PUT"
 #define DELETE	"DELETE"
 #define HTTP_V  "HTTP/1.1"
+
+
+// MIME-TYPES
+struct UreqMimesList {
+    const char *ext;
+    const char *mime;
+};
+
+const struct UreqMimesList UreqMimeTypes[] = {
+    {"html",    "text/html"},
+    {"htm",     "text/html"},
+    {"js",      "text/javascript"},
+    {"txt",     "text/plain"},
+    {"css",     "text/css"},
+    {"xml",     "text/xml"},
+    
+    {"bmp",     "image/bmp"},
+    {"gif",     "image/gif"},
+    {"png",     "image/png"},
+    {"jpg",     "image/jpeg"},
+    {"jpeg",    "image/jpeg"},
+
+    {"json",    "application/json"},
+    // Default mime-type is text/html (urls without extensions)
+    // Use it for files with unknown extension
+    {NULL,        "text/html"}
+};
 
 typedef struct UreqFile {
     int size;

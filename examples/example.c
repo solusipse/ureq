@@ -105,7 +105,7 @@ int main() {
     ureq_serve("/post", s_post, POST);
     ureq_serve("/buffer", s_buf, GET);
 
-    char request[] = "GET /param HTTP/1.1\n"
+    char request[] = "GET / HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     HttpRequest r = ureq_init(request);
