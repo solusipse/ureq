@@ -1,3 +1,6 @@
+#ifndef UREQ_ESP8266_H
+#define UREQ_ESP8266_H
+
 #include <mem.h>
 #include <osapi.h>
 
@@ -18,3 +21,5 @@ void ureq_free(void *p) {
         p = NULL;
     }
 }
+
+#endif
