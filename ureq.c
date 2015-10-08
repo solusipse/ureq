@@ -213,31 +213,9 @@ static int ureq_first_run(HttpRequest *req) {
         return req->complete;
     }
     #if defined UREQ_USE_FILESYSTEM
-        UreqFile f = ureq_fs_open(req->url + 1);
-        if (f.address == 0) {
-            // File was not found
-            req->response.code = 404;
-            ureq_generate_response(req, "404");
-            return req->complete;
-        }
-
-        req->bigFile  =  1;
-        req->complete = -2;
-
-        if (req->response.code == 0)
-            req->response.code = 200;
-
-        req->file = f;
-
-        req->response.data = ureq_generate_response_header(req);
-        req->len = strlen(req->response.data);
-
-        return req->complete;
+        return ureq_fs_first_run(req);
     #else
-        req->response.code = 404;
-        // TODO: custom 404 pages
-        ureq_generate_response(req, "404");
-        return req->complete;
+        return ureq_set_404_response(req);
     #endif
 }
 
@@ -277,7 +255,14 @@ static int ureq_next_run(HttpRequest *req) {
 
 }
 
-int ureq_set_invalid_request(HttpRequest *r) {
+static int ureq_set_404_response(HttpRequest *r) {
+    // TODO: custom 404 pages
+    r->response.code = 404;
+    ureq_generate_response(r, "404");
+    return r->complete = 1;
+}
+
+static int ureq_set_400_response(HttpRequest *r) {
     r->response.code = 400;
     r->response.header = NULL;
     r->response.mime = NULL;
@@ -296,7 +281,7 @@ int ureq_run(HttpRequest *req) {
         // Data (if any), will be sent in next run(s).
 
         // If request was invalid, set everything to null
-        if (!req->valid) return ureq_set_invalid_request(req);
+        if (!req->valid) return ureq_set_400_response(req);
 
         return ureq_first_run(req);
     }

@@ -20,6 +20,8 @@ void memcpyAligned(char *dst, char *src, int len) {
     }
 }
 
+
+
 static char *ureq_fs_read(int a, int s, char *buf) {
     char *pos = (char*) UREQ_FS_START + 0x40200000;
     pos += a;
@@ -75,4 +77,25 @@ UreqFile ureq_fs_open(char *rf) {
 
     }
     return f;
+}
+
+int ureq_fs_first_run(HttpRequest *r) {
+        UreqFile f = ureq_fs_open(r->url + 1);
+        if (f.address == 0) {
+            // File was not found
+            return ureq_set_404_response(r);
+        }
+
+        r->bigFile  =  1;
+        r->complete = -2;
+
+        if (r->response.code == 0)
+            r->response.code = 200;
+
+        r->file = f;
+
+        r->response.data = ureq_generate_response_header(r);
+        r->len = strlen(r->response.data);
+
+        return r->complete;
 }

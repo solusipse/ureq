@@ -142,4 +142,7 @@ static void ureq_generate_response(HttpRequest *r, char *html);
 static char *ureq_get_params(char *r);
 static char *ureq_generate_response_header(HttpRequest *r);
 
+static int ureq_set_400_response(HttpRequest *r);
+static int ureq_set_404_response(HttpRequest *r);
+
 #endif
