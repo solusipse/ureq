@@ -142,13 +142,16 @@ HttpRequest ureq_init(char *ur) {
     r.bigFile  =  0;
     r.len      =  0;
 
+    r.type       = NULL;
+    r.url        = NULL;
+    r.version    = NULL;
+    r.message    = NULL;
+    r.params     = NULL;
+    r.body       = NULL;
+
     int h = ureq_parse_header(&r, ur);
-    if (h != 0) {
-        r.valid = 0;
-        r.complete = 1;
-    } else {
-        r.valid = 1;
-    }
+    if (h != 0) r.valid = 0;
+    else r.valid = 1;
 
     return r;
 }
@@ -274,6 +277,14 @@ static int ureq_next_run(HttpRequest *req) {
 
 }
 
+int ureq_set_invalid_request(HttpRequest *r) {
+    r->response.code = 400;
+    r->response.header = NULL;
+    r->response.mime = NULL;
+    ureq_generate_response(r, "");
+    return r->complete = 1;
+}
+
 int ureq_run(HttpRequest *req) {
 
     if (req->complete == 1)
@@ -283,6 +294,10 @@ int ureq_run(HttpRequest *req) {
         // If code equals to -1, it's the very first run,
         // parameters are set there and header is sent.
         // Data (if any), will be sent in next run(s).
+
+        // If request was invalid, set everything to null
+        if (!req->valid) return ureq_set_invalid_request(req);
+
         return ureq_first_run(req);
     }
     
@@ -442,12 +457,14 @@ static void ureq_get_query(char *b, char *u) {
 }
 
 void ureq_close( HttpRequest *req ) {
-    free(req->type);
-    free(req->url);
-    free(req->version);
-    free(req->message);
-    if (req->params != NULL)    free(req->params);
-    if (req->body != NULL)      free(req->body);
+    if (req->type)      free(req->type);
+    if (req->url)       free(req->url);
+    if (req->version)   free(req->version);
+    if (req->message)   free(req->message);
+    if (req->params)    free(req->params);
+    if (req->body)      free(req->body);
+
+    if (!req->valid || req->response.code == 404)    free(req->response.data);
 
     if (req->response.header != NULL)
         if ( strlen(req->response.header) > 1 ) { 

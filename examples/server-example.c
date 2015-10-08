@@ -154,8 +154,6 @@ void server(char *buffer, int socket) {
     clock_t start = clock();
     HttpRequest req = ureq_init(buffer);
 
-    if (!req.valid) return;
-
     while(ureq_run(&req)) {
         write(socket, req.response.data, req.len);
     }
