@@ -70,6 +70,14 @@ static int ureq_get_header(char *h, char *r) {
     return 0;
 }
 
+int ureq_check_method_validity(char *m) {
+    int i;
+    for(i = 0; UreqMethods[i] != NULL; i++)
+        if (strcmp(UreqMethods[i], m) == 0)
+            return 1;
+    return 0;
+}
+
 int ureq_parse_header(HttpRequest *req, char *r) {
 
     char *header = malloc( strlen(r) + 1 );
@@ -82,14 +90,12 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     }
 
     b = strtok_r(header, " ", &bk);
-    // TODO: all other methods here (switch)
-    if (( strncmp(GET, b, 3) != 0 )&&(strncmp(b, POST, 4) != 0 ))  {
+    if (ureq_check_method_validity(b) == 0) {
         free(header);
         return 1;
     }
     req->type = malloc( strlen(b) + 1 );
-    req->type[0] = '\0';
-    strncat(req->type, b, strlen(b));
+    strcpy(req->type, b);
 
     b = strtok_r(NULL, " ", &bk);
     if (b == NULL) {
@@ -98,8 +104,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     }
 
     req->url = malloc( strlen(b) + 1 );
-    req->url[0] = '\0';
-    strncat(req->url, b, strlen(b));
+    strcpy(req->url, b);
 
     b = strtok_r(NULL, " ", &bk);
     if (b == NULL) {
@@ -111,8 +116,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
         return 1;
     }
     req->version = malloc( strlen(b) + 1 );
-    req->version[0] = '\0';
-    strncat(req->version, b, strlen(b));
+    strcpy(req->version, b);
 
     b = strtok_r(NULL, " ", &bk);
     if (b != NULL) {
@@ -121,8 +125,7 @@ int ureq_parse_header(HttpRequest *req, char *r) {
     }
 
     req->message = malloc( strlen(r) + 1 );
-    req->message[0] = '\0';
-    strcat(req->message, r);
+    strcpy(req->message, r);
     free(header);
 
     req->params             = NULL;
@@ -306,10 +309,9 @@ int ureq_run(HttpRequest *req) {
 static void ureq_generate_response(HttpRequest *r, char *html) {
     char *header = ureq_generate_response_header(r);
     r->response.data = malloc(strlen(header) + strlen(html) + 3);
-    r->response.data[0] = '\0';
 
-    strncat(r->response.data, header, strlen(header));
-    strncat(r->response.data, html, strlen(html));
+    strcpy(r->response.data, header);
+    strcat(r->response.data, html);
     strncat(r->response.data, "\r\n", 2);
 
     r->len = strlen(r->response.data);
@@ -397,7 +399,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 static char *ureq_get_params(char *r) {
     char *data = malloc(strlen(r) + 1);
     char *out = malloc(strlen(r) + 1);
-    strncat(data, r, strlen(r));
+    strcpy(data, r);
 
     char *bk;
     char *buf;
@@ -446,7 +448,7 @@ static void ureq_get_query(char *b, char *u) {
     if (strchr(u, '?') == NULL )
         return;
     char *bk;
-    strncpy(b, u, strlen(u));
+    strcpy(b, u);
     b = strtok_r(b, "?", &bk);
     char *buf = strtok_r(NULL, "\n", &bk);
     strcpy(b, buf);

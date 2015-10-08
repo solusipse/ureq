@@ -41,6 +41,14 @@ SOFTWARE.
 #define DELETE	"DELETE"
 #define HTTP_V  "HTTP/1.1"
 
+const char *UreqMethods[] = {
+    GET,
+    POST,
+    ALL,
+    PUT,
+    DELETE,
+    NULL
+};
 
 // MIME-TYPES
 struct UreqMimesList {
