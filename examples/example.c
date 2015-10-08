@@ -30,48 +30,47 @@ SOFTWARE.
 
 /*
 These functions are called when corresponding request is issued by a client.
-
-Bind these functions with ureq_serve function:
-void ureq_serve(char *url, char *(func)(char *), char *method );
+Connect these functions with methods using ureq_serve function:
 e.g.: ureq_serve("/", s_home, GET);
-
-These function have to return strings which are basically html code added
-to a header when ureq_run function is called, e.g.:
-
-char *s_on() {
-    return "on";
-}
-
-If you want to get some data from the request, add a char* argument to
-function's definition, e.g.:
-
-char *s_home(char *request) {
-    printf("%s\n", request);
-    return "home";
-}
-
 */
 
-/* --------------------------------v PAGES v-------------------------------- */
-
 char *s_home() {
+    /* That's the most basic example. In this case, client will recieve
+     * text/html response containing only "home" string. */
     return "home";
+}
+
+char *s_home_plain(HttpRequest *r) {
+    /* This works like s_home except string is sent as text/plain.
+     * Please note, that this function takes HttpRequest as an argument. */
+    r->response.mime = "text/plain";
+    return "home";
+}
+
+char *s_header(HttpRequest *r) {
+    /* This will redirect client to /test */
+    r->response.code = 302;
+    r->response.header = "Location: /test";
+    return "";
 }
 
 char *s_param(HttpRequest *r) {
-    r->response.code = 302;
-    r->response.header = "Location: /test";
-    //r->response.mime = "text/plain";
-    return "off";
+    /* This one shows how to handle GET parameters. */
+    printf("PARAMS: %s\n", r->params);
+
+
+    return "Params";
 }
 
 char *s_all() {
-    return "all";
+    /* No mater which method client used, if he requested this one,
+     * he'll always get it */
+    return "All requests welcomed";
 }
 
 char *s_post(HttpRequest *r) {
-    printf("%s\n", r->params);
-    printf("%s\n", r->body);
+    printf("PARAMS: %s\n", r->params);
+    printf("BODY: %s\n", r->body);
 
     /*
     char *arg = ureq_get_param_value(r->params, "test2");
@@ -100,12 +99,14 @@ int main() {
     that will be connected to that url.
     */
     ureq_serve("/", s_home, GET);
+    ureq_serve("/header", s_header, GET);
     ureq_serve("/param", s_param, GET);
     ureq_serve("/all", s_all, ALL);
     ureq_serve("/post", s_post, POST);
     ureq_serve("/buffer", s_buf, GET);
 
-    char request[] = "GET / HTTP/1.1\n"
+    // TODO: fix crash (free error) on wrong method
+    char request[] = "GET /param?test=ok HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     HttpRequest r = ureq_init(request);
