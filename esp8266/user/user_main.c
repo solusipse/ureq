@@ -14,7 +14,11 @@
 
 #include "../../ureq.c"
 
-#define MAX_CONNS 4
+// TODO: this makes program crash on esp8266
+// but only when connection isn't terminated
+// by client (for example when request is sended
+// with netcat). FIX THAT
+#define MAX_CONNS 32
 
 struct HttpConnection {
     struct espconn *c;
@@ -55,6 +59,8 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     char buf[64];
     int l;
     struct espconn *pespconn = (struct espconn *)arg;
+
+    printf("DATA: %s\n", data);
 
     HttpRequest r = ureq_init(data);
 
