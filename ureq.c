@@ -251,11 +251,11 @@ static int ureq_next_run(HttpRequest *req) {
 
     if (req->bigFile) {
         #if defined UREQ_USE_FILESYSTEM
-            if (req->file.size > 512) {
-                respcpy.data = ureq_fs_read(req->file.address, 512, req->buffer);
-                req->file.address += 512;
-                req->file.size -= 512;
-                req->len = 512;
+            if (req->file.size > 1024) {
+                respcpy.data = ureq_fs_read(req->file.address, 1024, req->buffer);
+                req->file.address += 1024;
+                req->file.size -= 1024;
+                req->len = 1024;
                 req->complete -= 1;
             } else {
                 req->len = req->file.size;
@@ -464,7 +464,8 @@ void ureq_close( HttpRequest *req ) {
     if (req->params)    free(req->params);
     if (req->body)      free(req->body);
 
-    if (!req->valid || req->response.code == 404)    free(req->response.data);
+    if (!req->valid || req->response.code == 404)
+        free(req->response.data);
 
     if (req->response.header != NULL)
         if ( strlen(req->response.header) > 1 ) { 
