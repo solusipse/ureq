@@ -110,12 +110,11 @@ static int ureq_parse_header(HttpRequest *req, char *r) {
     free(header);
 
     req->params             = NULL;
-    req->response.data           = NULL;
+    req->response.data      = NULL;
     req->body               = NULL;
     req->response.header    = NULL;
-    req->response.mime               = NULL;
-
-    req->response.code       = 0;
+    req->response.mime      = NULL;
+    req->response.code      = 0;
 
     return 0;
 }
