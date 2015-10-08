@@ -31,7 +31,7 @@ SOFTWARE.
 #include "ureq.h"
 
 #ifdef UREQ_ESP8266
-    #include "hardware/ureq_esp8266.c"
+    #include "hardware/ureq_esp8266.h"
 #endif
 
 #ifdef UREQ_USE_FILESYSTEM
@@ -51,7 +51,7 @@ static int ureq_get_header(char *h, char *r) {
     return 0;
 }
 
-int ureq_check_method_validity(char *m) {
+static int ureq_check_method_validity(char *m) {
     int i;
     for(i = 0; UreqMethods[i] != NULL; i++)
         if (strcmp(UreqMethods[i], m) == 0)
@@ -59,7 +59,7 @@ int ureq_check_method_validity(char *m) {
     return 0;
 }
 
-int ureq_parse_header(HttpRequest *req, char *r) {
+static int ureq_parse_header(HttpRequest *req, char *r) {
 
     char *header = malloc( strlen(r) + 1 );
     char *b = NULL;
@@ -140,7 +140,6 @@ HttpRequest ureq_init(char *ur) {
 
     r.complete = -1;
     r.valid    =  0;
-
     r.bigFile  =  0;
     r.len      =  0;
 
@@ -155,6 +154,127 @@ HttpRequest ureq_init(char *ur) {
     return r;
 }
 
+static int ureq_first_run(HttpRequest *req) {
+    req->complete = -2;
+
+    int i;
+    for (i = 0; i < pageCount; i++) {
+        /*
+        This loop iterates through a pages list and compares
+        urls and methods to requested ones. If there's a match,
+        it calls a corresponding function and saves http
+        response to req.response.
+        */
+        char *plain_url = malloc( strlen(req->url) + 1 );
+        ureq_remove_parameters(plain_url, req->url);
+
+        // If there's no match between this, skip to next iteration.
+        if ( strcmp(plain_url, pages[i].url) != 0 ) {
+            free(plain_url);
+            continue;
+        }
+        free(plain_url);
+
+        // If request type is ALL, corresponding function is always called,
+        // no matter which method type was used.
+        if ( strcmp(ALL, pages[i].method) != 0 ) {
+            // If there's no match between an url and method, skip
+            // to next iteration.
+            if ( strcmp(req->type, pages[i].method) != 0 ) {
+                continue;
+            }
+        }
+
+        req->params = malloc( strlen(req->url) + 1 );
+        req->params[0] = '\0';
+        // Save get parameters to r->params
+        ureq_get_query( req->params, req->url );
+
+        // If method was POST, save body to r->message
+        if ( strcmp (POST, req->type ) == 0 ) {
+            req->body = malloc( strlen(req->message) + 1 );
+            req->body = ureq_get_params(req->message);
+        }
+        // Run page function but don't save data from it
+        // at first run (use it now only to set some things).
+        pages[i].func( req );
+        // Save pointer to page's func for later use
+        req->func = pages[i].func;
+
+        if (req->response.code == 0)
+            req->response.code = 200;
+
+        // Return only header at first run
+        req->response.data = ureq_generate_response_header(req);
+        req->len = strlen(req->response.data);
+
+        return req->complete;
+    }
+    #if defined UREQ_USE_FILESYSTEM
+        UreqFile f = ureq_fs_open(req->url + 1);
+        if (f.address == 0) {
+            // File was not found
+            req->response.code = 404;
+            ureq_generate_response(req, "404");
+            return req->complete;
+        }
+
+        req->bigFile  =  1;
+        req->complete = -2;
+
+        if (req->response.code == 0)
+            req->response.code = 200;
+
+        req->file = f;
+
+        req->response.data = ureq_generate_response_header(req);
+        req->len = strlen(req->response.data);
+
+        return req->complete;
+    #else
+        req->response.code = 404;
+        // TODO: custom 404 pages
+        ureq_generate_response(req, "404");
+        return req->complete;
+    #endif
+}
+
+static int ureq_next_run(HttpRequest *req) {
+    if (req->complete == -2) {
+        free(req->response.data);
+    }
+
+    struct Response respcpy = req->response;
+    req->complete--;
+
+    if (req->bigFile) {
+        #if defined UREQ_USE_FILESYSTEM
+            if (req->file.size > 512) {
+                respcpy.data = ureq_fs_read(req->file.address, 512, req->buffer);
+                req->file.address += 512;
+                req->file.size -= 512;
+                req->len = 512;
+                req->complete -= 1;
+            } else {
+                req->len = req->file.size;
+                respcpy.data = ureq_fs_read(req->file.address, req->file.size, req->buffer);
+                req->complete = 1;
+            }
+        #else
+            // TODO: buffer read from func
+            respcpy.data = req->func(req);
+            req->len = strlen(respcpy.data);
+        #endif
+    } else {
+        respcpy.data = req->func(req);
+        req->len = strlen(respcpy.data);
+        req->complete = 1;
+    }
+    req->response = respcpy;
+    return req->complete;
+
+}
+
 int ureq_run(HttpRequest *req) {
 
     if (req->complete == 1)
@@ -164,124 +284,11 @@ int ureq_run(HttpRequest *req) {
         // If code equals to -1, it's the very first run,
         // parameters are set there and header is sent.
         // Data (if any), will be sent in next run(s).
-
-        req->complete = -2;
-
-        int i;
-        for (i = 0; i < pageCount; i++) {
-            /*
-            This loop iterates through a pages list and compares
-            urls and methods to requested ones. If there's a match,
-            it calls a corresponding function and saves http
-            response to req.response.
-            */
-            char *plain_url = malloc( strlen(req->url) + 1 );
-            ureq_remove_parameters(plain_url, req->url);
-
-            // If there's no match between this, skip to next iteration.
-            if ( strcmp(plain_url, pages[i].url) != 0 ) {
-                free(plain_url);
-                continue;
-            }
-            free(plain_url);
-
-            // If request type is ALL, corresponding function is always called,
-            // no matter which method type was used.
-            if ( strcmp(ALL, pages[i].method) != 0 ) {
-                // If there's no match between an url and method, skip
-                // to next iteration.
-                if ( strcmp(req->type, pages[i].method) != 0 ) {
-                    continue;
-                }
-            }
-
-            req->params = malloc( strlen(req->url) + 1 );
-            req->params[0] = '\0';
-            // Save get parameters to r->params
-            ureq_get_query( req->params, req->url );
-
-            // If method was POST, save body to r->message
-            if ( strcmp (POST, req->type ) == 0 ) {
-                req->body = malloc( strlen(req->message) + 1 );
-                req->body = ureq_get_params(req->message);
-            }
-            // Run page function but don't save data from it
-            // at first run (use it now only to set some things).
-            pages[i].func( req );
-            // Save pointer to page's func for later use
-            req->func = pages[i].func;
-
-            if (req->response.code == 0)
-                req->response.code = 200;
-
-            // Return only header at first run
-            req->response.data = ureq_generate_response_header(req);
-            req->len = strlen(req->response.data);
-
-            return req->complete;
-        }
-        #if defined UREQ_USE_FILESYSTEM
-            UreqFile f = ureq_fs_open(req->url + 1);
-            if (f.address == 0) {
-                // File was not found
-                req->response.code = 404;
-                ureq_generate_response(req, "404");
-                return req->complete;
-            } else {
-                req->bigFile  =  1;
-                req->complete = -2;
-
-                if (req->response.code == 0)
-                    req->response.code = 200;
-
-                req->file = f;
-
-                req->response.data = ureq_generate_response_header(req);
-                req->len = strlen(req->response.data);
-
-                return req->complete;
-            }
-        #else
-            req->response.code = 404;
-            // TODO: custom 404 pages
-            ureq_generate_response(req, "404");
-            return req->complete;
-        #endif
+        return ureq_first_run(req);
     }
     
     if ((req->complete < -1) && (req->response.code != 404)) {
-        if (req->complete == -2) {
-            free(req->response.data);
-        }
-
-        struct Response respcpy = req->response;
-        req->complete--;
-
-        if (req->bigFile) {
-            #if defined UREQ_USE_FILESYSTEM
-                if (req->file.size > 512) {
-                    respcpy.data = ureq_fs_read(req->file.address, 512, req->buffer);
-                    req->file.address += 512;
-                    req->file.size -= 512;
-                    req->len = 512;
-                    req->complete -= 1;
-                } else {
-                    req->len = req->file.size;
-                    respcpy.data = ureq_fs_read(req->file.address, req->file.size, req->buffer);
-                    req->complete = 1;
-                }
-            #else
-                // TODO: buffer read from func
-                respcpy.data = req->func(req);
-                req->len = strlen(respcpy.data);
-            #endif
-        } else {
-            respcpy.data = req->func(req);
-            req->len = strlen(respcpy.data);
-            req->complete = 1;
-        }
-        req->response = respcpy;
-        return req->complete;
+        return ureq_next_run(req);
     }
 
     return 0;

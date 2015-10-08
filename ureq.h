@@ -116,18 +116,13 @@ struct Page {
 };
 
 #ifndef UREQ_STATIC_LIST
-
     static struct Page *pages = NULL;
     static int pageCount = 0;
-
 #else
-
     static struct Page pages[16];
     static int pageCount = 0;
-
 #endif
-
-
+    
 
 void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
 
@@ -137,10 +132,9 @@ void ureq_close( struct HttpRequest *req );
 void ureq_finish();
 
 int ureq_run(struct HttpRequest *req);
-int ureq_parse_header(struct HttpRequest *req, char *r);
-
 
 static int  ureq_get_header(char *h, char *r);
+static int ureq_parse_header(struct HttpRequest *req, char *r);
 static void ureq_remove_parameters(char *b, char *u);
 static void ureq_get_query(char *b, char *u);
 static void ureq_generate_response(HttpRequest *r, char *html);
