@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define ESP8266 1
-#define UREQ_USE_FILESYSTEM 1
+#define UREQ_ESP8266
+#define UREQ_USE_FILESYSTEM
 
 #include "../../ureq.c"
 

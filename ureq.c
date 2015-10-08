@@ -24,36 +24,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ureq.h"
-
-
-#ifdef ESP8266
-// These are ESP8266 specific
-
-    #include <mem.h>
-    #include <osapi.h>
-
-    #define realloc ureq_realloc
-    #define malloc  ureq_malloc
-    #define free    ureq_free
-
-    #define printf(...) os_printf( __VA_ARGS__ )
-    #define sprintf(...) os_sprintf( __VA_ARGS__ )
-
-    char *ureq_malloc(size_t l) {
-        return (char *) os_malloc(l);
-    }
-
-    void ureq_free(void *p) {
-        if (p != NULL) {
-            os_free(p);
-            p = NULL;
-        }
-    }
-
+#ifdef UREQ_ESP8266
+    #define UREQ_STATIC_LIST
 #endif
 
-#if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+#include "ureq.h"
+
+#ifdef UREQ_ESP8266
+    #include "hardware/ureq_esp8266.c"
+#endif
+
+#ifdef UREQ_USE_FILESYSTEM
     #include "ureq_filesystem.c"
 #endif
 
@@ -145,7 +126,7 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     page.func = func;
     page.method = method;
 
-    #ifndef ESP8266
+    #ifndef UREQ_STATIC_LIST
         pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
         pages[pageCount-1] = page;
     #else
@@ -239,7 +220,7 @@ int ureq_run(HttpRequest *req) {
 
             return req->complete;
         }
-        #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+        #if defined UREQ_USE_FILESYSTEM
             UreqFile f = ureq_fs_open(req->url + 1);
             if (f.address == 0) {
                 // File was not found
@@ -277,7 +258,7 @@ int ureq_run(HttpRequest *req) {
         req->complete--;
 
         if (req->bigFile) {
-            #if defined UREQ_USE_FILESYSTEM && UREQ_USE_FILESYSTEM == 1
+            #if defined UREQ_USE_FILESYSTEM
                 if (req->file.size > 512) {
                     respcpy.data = ureq_fs_read(req->file.address, 512, req->buffer);
                     req->file.address += 512;
@@ -469,7 +450,7 @@ void ureq_close( HttpRequest *req ) {
 }
 
 void ureq_finish() {
-    #ifndef ESP8266
+    #ifndef UREQ_STATIC_LIST
     free(pages);
     #endif
 }

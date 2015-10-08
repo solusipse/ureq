@@ -115,7 +115,7 @@ struct Page {
     char *method;
 };
 
-#ifndef ESP8266
+#ifndef UREQ_STATIC_LIST
 
     static struct Page *pages = NULL;
     static int pageCount = 0;
