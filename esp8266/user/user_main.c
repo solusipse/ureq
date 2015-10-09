@@ -14,14 +14,9 @@
 
 #include "../../ureq.c"
 
-// TODO: this makes program crash on esp8266
-// but only when connection isn't terminated
-// by client (for example when request is sended
-// with netcat). FIX THAT
 #define MAX_CONNS 32
 
 struct HttpConnection {
-    struct espconn *c;
     HttpRequest r;
     int id;
 };
@@ -60,42 +55,40 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     int l;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    printf("DATA: %s\n", data);
-
     HttpRequest r = ureq_init(data);
 
     ureq_run(&r);
 
     int i;
-    for(i=0; i<MAX_CONNS; i++) {
-        if (conns[i].c == NULL)
+    for(i=0; i<MAX_CONNS-1; i++) {
+        if (conns[i].id == 0)
             break;
         if (i == MAX_CONNS) {
-            conns[0].c == NULL;
+            conns[0].id == 0;
             i = 0;
             break;
         }
     }
 
-    conns[i].c = pespconn;
     conns[i].r = r;
-    conns[i].id = i;
+    conns[i].id = pespconn->proto.tcp->remote_port;
     
     espconn_sent(pespconn, r.response.data, r.len);
-    os_printf("Request %s from %d.%d.%d.%d. Status: %d.\n",
+    os_printf("Request %s from %d.%d.%d.%d. Status: %d. ID: %d.\n",
         r.url,
         pespconn->proto.tcp->remote_ip[0],
         pespconn->proto.tcp->remote_ip[1],
         pespconn->proto.tcp->remote_ip[2],
         pespconn->proto.tcp->remote_ip[3],
-        r.response.code);
+        r.response.code,
+        conns[i].id);
 }
 
 struct HttpConnection *getHttpConnection(void *arg) {
     struct espconn *c = (struct espconn *)arg;
     int i;
     for(i=0; i<MAX_CONNS; i++) {
-        if (conns[i].c == c)
+        if (conns[i].id == c->proto.tcp->remote_port)
             return &conns[i];
     }
     return NULL;
@@ -108,7 +101,7 @@ void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
     if (c->r.response.code == 404) {
         ureq_close(&c->r);
         espconn_disconnect(pespconn);
-        conns[c->id].c = NULL;
+        conns[c->id].id = 0;
         return;
     }
     
@@ -117,9 +110,14 @@ void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
     if (c->r.len < 512) {
         ureq_close(&c->r);
         espconn_disconnect(pespconn);
-        conns[c->id].c = NULL;
+        conns[c->id].id = 0;
     }
 
+}
+
+void ICACHE_FLASH_ATTR ssDiscCb(void *arg) {
+    struct espconn *pespconn = (struct espconn *)arg;
+    struct HttpConnection *c = getHttpConnection(pespconn); 
 }
 
 void ICACHE_FLASH_ATTR ssConnCb(void *arg) {
@@ -133,6 +131,7 @@ void ICACHE_FLASH_ATTR ssConnCb(void *arg) {
 
     espconn_regist_recvcb(pespconn, ssRecvCb);
     espconn_regist_sentcb(pespconn, ssSentCb);
+    espconn_regist_disconcb(pespconn, ssDiscCb);
 }
 
 void ICACHE_FLASH_ATTR ssServerInit() {
@@ -177,7 +176,7 @@ void user_init(void) {
     int i;
     for(i=0; i<MAX_CONNS; i++) {
         // c field is used as indicator for free/used connection slots
-        conns[i].c = NULL;
+        conns[i].id = 0;
     }
 
     // Add page to ureq
