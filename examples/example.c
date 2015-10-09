@@ -105,8 +105,7 @@ int main() {
     ureq_serve("/post", s_post, POST);
     ureq_serve("/buffer", s_buf, GET);
 
-    // TODO: fix crash (free error) on wrong method
-    char request[] = "GET /paraam?test=ok HTTP/1.1\n"
+    char request[] = "GET / HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     HttpRequest r = ureq_init(request);
