@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "ureq_filesystem.h"
 
 // TODO: move all defines to one file
 #define UREQ_FS_START 0x12000
@@ -80,22 +79,29 @@ UreqFile ureq_fs_open(char *rf) {
 }
 
 int ureq_fs_first_run(HttpRequest *r) {
-        UreqFile f = ureq_fs_open(r->url + 1);
-        if (f.address == 0) {
-            // File was not found
-            return ureq_set_404_response(r);
-        }
+    // If there's no function bound to /, then try
+    // to read index.html
+    UreqFile f;
+    if ( strcmp(r->url, "/") == 0)
+        f = ureq_fs_open("index.html");
+    else
+        f = ureq_fs_open(r->url + 1);
 
-        r->bigFile  =  1;
-        r->complete = -2;
+    if (f.address == 0) {
+        // File was not found
+        return ureq_set_404_response(r);
+    }
 
-        if (r->response.code == 0)
-            r->response.code = 200;
+    r->bigFile  =  1;
+    r->complete = -2;
 
-        r->file = f;
+    if (r->response.code == 0)
+        r->response.code = 200;
 
-        r->response.data = ureq_generate_response_header(r);
-        r->len = strlen(r->response.data);
+    r->file = f;
 
-        return r->complete;
+    r->response.data = ureq_generate_response_header(r);
+    r->len = strlen(r->response.data);
+
+    return r->complete;
 }
