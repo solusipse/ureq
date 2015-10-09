@@ -12,7 +12,7 @@
 #define UREQ_ESP8266
 #define UREQ_USE_FILESYSTEM
 
-#include "../../ureq.c"
+#include "../../../ureq.c"
 
 #define MAX_CONNS 8
 
@@ -179,7 +179,7 @@ void user_init(void) {
     }
 
     // Add page to ureq
-    ureq_serve("/", s_home, "GET");
+    //ureq_serve("/", s_home, "GET");
 
     // Some gpio-related stuff
     gpio_init();
