@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ureq - esp8266</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="m">
+            <h1>Hello there.</h1>
+            <p>
+                This page is entirely served from <b>ESP8266</b> chip thanks to <a href="https://github.com/solusipse/ureq">ureq</a> - <b>micro-framework</b> for <b>handling HTTP requests</b> on <b>low resource systems</b>.
+                For more details, see <a href="https://github.com/solusipse/ureq">repository page</a> on Github.
+            </p>
+            <h2>What can it do?</h2>
+            <p>
+                Before we start, just keep in mind that <b>ESP8266</b> has <b>64KB DRAM</b>, <b>96KB SRAM</b>, <b>32-bit RISC CPU</b> running at <b>80Mhz</b> and it has to handle also a wireless traffic. Despite this it's still able to dispatch more than <b>50 reqs/s</b> on Hello World.
+            </p>
+            <h2>And what can it do now?</h2>
+            <p>
+                This set of pages was placed on <b>ESP8266</b> to <b>test ureq and chip capabilities</b>. Is it able to sucesfully serve pages under small traffic? Will it handle moderate traffic? I'd like you to help me checking that out. And actually, you're already doing this right now. <b>Thank You!</b>
+            </p>
+            <h3>
+                There's the list of example requests
+            </h3>
+            <p>
+                <ul>
+                    <li><a href="/post">/post</a></li>
+                    <li><a href="/get?data=test&amp;data2=test2">/get?data=test&amp;data2=test2</a></li>
+                    <li><a href="/redirect">/redirect (302)</a></li>
+                    <li><a href="/nonexistent">/nonexistent (404)</a></li><br>
+
+                    <li><a href="4kb.txt">4KB text file</a></li>
+                    <li><a href="2kb.jpg">2KB jpeg image</a></li>
+                    <li><a href="2kb.png">2KB png &nbsp;image</a></li><br>
+
+                    <li><a href="test.json">110B json file</a></li>
+                    <li><a href="test.xml">210B xml &nbsp;file</a></li><br>
+
+                </ul>
+            </p>
+            <h2>Some statistics</h2>
+                There were <a href="/requests">CHECK</a> requests till now. This page is about 4KB. It takes two requests to load it (/index.html, /style.css).
+            <h1>Thank you.</h1>
+        </div>
+        <a href="https://github.com/solusipse/ureq"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    </body>
+</html>
