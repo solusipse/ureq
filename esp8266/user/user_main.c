@@ -14,7 +14,7 @@
 
 #include "../../ureq.c"
 
-#define MAX_CONNS 32
+#define MAX_CONNS 8
 
 struct HttpConnection {
     HttpRequest r;
@@ -60,7 +60,7 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     ureq_run(&r);
 
     int i;
-    for(i=0; i<MAX_CONNS-1; i++) {
+    for(i=0; i< MAX_CONNS-1; i++) {
         if (conns[i].id == 0)
             break;
         if (i == MAX_CONNS) {
@@ -98,32 +98,31 @@ void ICACHE_FLASH_ATTR ssSentCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
     struct HttpConnection *c = getHttpConnection(pespconn); 
 
-    if (c->r.response.code == 404) {
-        ureq_close(&c->r);
+    if (c->r.complete == 1) {
         espconn_disconnect(pespconn);
-        conns[c->id].id = 0;
         return;
     }
     
     ureq_run(&c->r);
     espconn_sent(pespconn, c->r.response.data, c->r.len);
-    if (c->r.len < 512) {
-        ureq_close(&c->r);
+    if (c->r.len < 1024) {
         espconn_disconnect(pespconn);
-        conns[c->id].id = 0;
     }
 
 }
 
 void ICACHE_FLASH_ATTR ssDiscCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
-    struct HttpConnection *c = getHttpConnection(pespconn); 
+    struct HttpConnection *c = getHttpConnection(pespconn);
+    if (!c) return;
+    ureq_close(&c->r);
+    c->id = 0;
 }
 
 void ICACHE_FLASH_ATTR ssConnCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
 
-    if (pespconn->link_cnt > 0) {
+    if (pespconn->link_cnt > MAX_CONNS) {
         espconn_disconnect(pespconn);
         os_printf("Too many connections at once.\n");
         return;
