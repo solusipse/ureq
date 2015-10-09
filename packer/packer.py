@@ -1,5 +1,7 @@
-'''
+# Use this script to upload output image to device
+# Currently only esp8266 is supported
 
+'''
 typedef struct UreqFilesystem {
     char filename[16];
     int  size;
@@ -9,16 +11,28 @@ typedef struct UreqFilesystem {
 #ifdef ESP8266
     #define UREQ_FS_START 0x12000
 #endif
-
 '''
 
-source_dir = "test"
-output = "output.image"
+source_dir = "input"
 
-import os, numpy, sys
+import os, numpy, sys, argparse
 from numpy import int32
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", help="input directory")
+parser.add_argument("--port", help="serial port of device")
+args = parser.parse_args()
+
 files = []
+output = "output.image"
+
+if args.input:
+    source_dir = args.input
+else:
+    if not os.path.isdir(source_dir):
+        print("Please provide input directory or use default one (./input/). "
+              "Run with -h parameter for more info.")
+        exit()
 
 for f in os.listdir(source_dir):
     if f.startswith("."):
@@ -75,6 +89,6 @@ with open(output, "a") as fh:
 
 print("Image is ready! Saved to %s." % output)
 
-if (len(sys.argv)) > 1:
+if args.port:
     print("Uploading to device!")
-    os.system("esptool.py --port " + sys.argv[1] + " write_flash 0x12000 " + output)
+    os.system("esptool.py --port " + args.port + " write_flash 0x12000 " + output)
