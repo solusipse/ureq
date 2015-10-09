@@ -31,6 +31,7 @@ SOFTWARE.
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "ureq_pages.h"
 
 
 // METHODS
@@ -106,6 +107,8 @@ typedef struct HttpRequest {
     char buffer[1024];
 
     char *(*func)(struct HttpRequest *);
+    char *(*page404)(struct HttpRequest *);
+
     int valid;
 } HttpRequest;
 

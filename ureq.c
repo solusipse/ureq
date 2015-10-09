@@ -148,6 +148,7 @@ HttpRequest ureq_init(char *ur) {
     r.message    = NULL;
     r.params     = NULL;
     r.body       = NULL;
+    r.page404    = NULL;
 
     int h = ureq_parse_header(&r, ur);
     if (h != 0) r.valid = 0;
@@ -167,6 +168,12 @@ static int ureq_first_run(HttpRequest *req) {
         it calls a corresponding function and saves http
         response to req.response.
         */
+
+        // Start from checking if page's special (e.g. 404)
+        if ( !req->page404 )
+            if ( strcmp(pages[i].url, "404") == 0)
+                req->page404 = pages[i].func;
+
         char *plain_url = malloc( strlen(req->url) + 1 );
         ureq_remove_parameters(plain_url, req->url);
 
@@ -256,9 +263,15 @@ static int ureq_next_run(HttpRequest *req) {
 }
 
 static int ureq_set_404_response(HttpRequest *r) {
-    // TODO: custom 404 pages
+    char *page;
     r->response.code = 404;
-    ureq_generate_response(r, "404");
+
+    if (r->page404)
+        page = r->page404(r);
+    else
+        page = (char *) UREQ_HTML_PAGE_404;
+    
+    ureq_generate_response(r, page);
     return r->complete = 1;
 }
 
