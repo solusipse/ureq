@@ -206,7 +206,10 @@ static int ureq_first_run(HttpRequest *req) {
         }
         // Run page function but don't save data from it
         // at first run (use it now only to set some things).
-        pages[i].func( req );
+        // If user returns blank string, don't send data again
+        // (complete code 2)
+        if (strlen(pages[i].func( req )) == 0)
+            req->complete = 2;
         // Save pointer to page's func for later use
         req->func = pages[i].func;
 
@@ -284,9 +287,19 @@ static int ureq_set_400_response(HttpRequest *r) {
 }
 
 int ureq_run(HttpRequest *req) {
-
+    /* Code meanings:
+     * 1:   everything went smooth
+     * 2:   user provided blank string, don't send data
+     *      for the second time (and free header)
+     * <-1: still running, on -2 free header which is
+     *      dynamically alloced */
     if (req->complete == 1)
         return 0;
+
+    if (req->complete == 2) {
+        free(req->response.data);
+        return 0;
+    }
 
     if (req->complete == -1) {
         // If code equals to -1, it's the very first run,
