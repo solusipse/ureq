@@ -42,6 +42,10 @@ SOFTWARE.
 #define DELETE	"DELETE"
 #define HTTP_V  "HTTP/1.1"
 
+// This may be redefined on your device,
+// check corresponding file in hardware directory
+#define MAX_REQUEST_SIZE 1024
+
 const char *UreqMethods[] = {
     GET,
     POST,
@@ -144,8 +148,9 @@ static void ureq_generate_response(HttpRequest *r, char *html);
 
 static char *ureq_get_params(char *r);
 static char *ureq_generate_response_header(HttpRequest *r);
+static char *ureq_get_code_description(int c);
 
-static int ureq_set_400_response(HttpRequest *r);
+static int ureq_set_error_response(HttpRequest *r);
 static int ureq_set_404_response(HttpRequest *r);
 
 #endif

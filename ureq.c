@@ -150,6 +150,12 @@ HttpRequest ureq_init(char *ur) {
     r.body       = NULL;
     r.page404    = NULL;
 
+    if ( strlen(ur) > MAX_REQUEST_SIZE ) {
+        r.response.code  = 413;
+        r.valid = 0;
+        return r;
+    }
+
     int h = ureq_parse_header(&r, ur);
     if (h != 0) r.valid = 0;
     else r.valid = 1;
@@ -278,11 +284,20 @@ static int ureq_set_404_response(HttpRequest *r) {
     return r->complete = 1;
 }
 
-static int ureq_set_400_response(HttpRequest *r) {
-    r->response.code = 400;
-    r->response.header = NULL;
-    r->response.mime = NULL;
-    ureq_generate_response(r, "");
+static char *ureq_get_error_page(HttpRequest *r) {
+    char *desc = ureq_get_code_description(r->response.code);
+    sprintf(r->buffer, "%s%d %s%s%d %s%s", \
+            UREQ_HTML_HEADER, r->response.code, desc, \
+            UREQ_HTML_BODY, r->response.code, desc, \
+            UREQ_HTML_FOOTER);
+    return r->buffer;
+}
+
+static int ureq_set_error_response(HttpRequest *r) {
+    if (!r->response.code) r->response.code = 400;
+    r->response.mime = "text/html";
+    r->response.header = "";
+    ureq_generate_response(r, ureq_get_error_page(r));
     return r->complete = 1;
 }
 
@@ -307,7 +322,7 @@ int ureq_run(HttpRequest *req) {
         // Data (if any), will be sent in next run(s).
 
         // If request was invalid, set everything to null
-        if (!req->valid) return ureq_set_400_response(req);
+        if (!req->valid) return ureq_set_error_response(req);
 
         return ureq_first_run(req);
     }
@@ -340,6 +355,7 @@ static char *ureq_get_code_description(int c) {
     if (c == 403) return "Forbidden";
     if (c == 404) return "Not Found";
     if (c == 408) return "Request Timeout";
+    if (c == 413) return "Request-URI Too Long";
     if (c == 500) return "Internal Error";
     if (c == 503) return "Service Temporarily Overloaded";
 
