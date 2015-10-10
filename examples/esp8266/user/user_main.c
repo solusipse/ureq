@@ -167,6 +167,24 @@ char *s_home() {
     return "Hello World!";
 }
 
+char *s_get() {
+    return "GET";
+}
+
+char *s_post() {
+    return "POST";
+}
+
+char *s_redirect(HttpRequest *r) {
+    r->response.code = 302;
+    r->response.header = "Location: /redirected";
+    return "";
+}
+
+char *s_redirected() {
+    return "Redirected from /redirect";
+}
+
 void user_init(void) {
     // Uart init
     uart_div_modify(0, UART_CLK_FREQ / 115200);
@@ -180,6 +198,10 @@ void user_init(void) {
 
     // Add page to ureq
     //ureq_serve("/", s_home, "GET");
+    ureq_serve("/get", s_get, "GET");
+    ureq_serve("/post", s_post, "ALL");
+    ureq_serve("/redirect", s_redirect, "GET");
+    ureq_serve("/redirected", s_redirected, "GET");
 
     // Some gpio-related stuff
     gpio_init();
