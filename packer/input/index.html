@@ -14,7 +14,7 @@
             </p>
             <h2>What can it do?</h2>
             <p>
-                Before we start, just keep in mind that <b>ESP8266</b> has <b>64KB DRAM</b>, <b>96KB SRAM</b>, <b>32-bit RISC CPU</b> running at <b>80Mhz</b> and it has to handle also a wireless traffic. Despite this it's still able to dispatch more than <b>50 reqs/s</b> on Hello World.
+                Before we start, just keep in mind that <b>ESP8266</b> has <b>64KB DRAM</b>, <b>96KB SRAM</b>, <b>32-bit RISC CPU</b> running at <b>80Mhz</b> and it has to handle also a wireless traffic. Despite this it's still able to dispatch more than <b>50 reqs/s</b> on Hello World. And serious optimization hasn't started yet.
             </p>
             <h2>And what can it do now?</h2>
             <p>
@@ -40,8 +40,12 @@
                 </ul>
             </p>
             <h2>Some statistics</h2>
-                There were <a href="/requests">CHECK</a> requests till now. This page is about 4KB. It takes two requests to load it (/index.html, /style.css).
-            <h1>Thank you.</h1>
+            <p>
+                <a href="/requests">CHECK</a> number of requests till now. This page is about 4KB. It takes two requests to load it (/index.html, /style.css).
+            </p>
+            <p>P.S. Normally you probably shouldn't make your ESP8266 accessible from outside world. This library wasn't built for this. But if it can hold moderate traffic from multiple strangers, it's for sure suitable for your closed-network applications.
+            </p>
+            <h1>200 OK</h1>
         </div>
         <a href="https://github.com/solusipse/ureq"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
     </body>
