@@ -150,12 +150,40 @@ HttpRequest ureq_init(char *ur) {
     r.body       = NULL;
     r.page404    = NULL;
 
+    // These basic checks protect against buffer overflow
     if ( strlen(ur) > MAX_REQUEST_SIZE ) {
         r.response.code  = 413;
         r.valid = 0;
         return r;
     }
 
+    if (strlen(ur) < 14) {
+        r.response.code = 400;
+        r.valid = 0;
+        return r;
+    }
+
+    if(strstr(ur, "HTTP/1.") == NULL) {
+        r.response.code = 400;
+        r.valid = 0;
+        return r;
+    }
+
+    char bh[16];
+    strncpy(bh, ur, 16);
+
+    int i, v=0;
+    for(i = 0; UreqMethods[i] != NULL; i++)
+        if (strstr(bh, UreqMethods[i]) != 0)
+            v=1;
+
+    if (!v) {
+        r.response.code = 400;
+        r.valid = 0;
+        return r;
+    }
+
+    // Actual parsing
     int h = ureq_parse_header(&r, ur);
     if (h != 0) r.valid = 0;
     else r.valid = 1;

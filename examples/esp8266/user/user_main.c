@@ -55,6 +55,13 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     int l;
     struct espconn *pespconn = (struct espconn *)arg;
 
+    if (strlen(data) >= 1024) {
+        // This is esp8266 specific, it just has too little memory
+        // to answer all big requests with 413
+        espconn_disconnect(pespconn);
+        return;
+    }
+
     HttpRequest r = ureq_init(data);
 
     ureq_run(&r);
@@ -122,6 +129,8 @@ void ICACHE_FLASH_ATTR ssDiscCb(void *arg) {
 void ICACHE_FLASH_ATTR ssConnCb(void *arg) {
     struct espconn *pespconn = (struct espconn *)arg;
 
+    //printf("HEAP SIZE: %d\n", system_get_free_heap_size());
+
     if (pespconn->link_cnt > MAX_CONNS) {
         espconn_disconnect(pespconn);
         os_printf("Too many connections at once.\n");
@@ -146,9 +155,11 @@ void ICACHE_FLASH_ATTR ssServerInit() {
     pSimpleServer->proto.tcp = (esp_tcp *)os_zalloc(sizeof(esp_tcp));
     pSimpleServer->proto.tcp->local_port = 80;
 
+    //espconn_set_opt(pSimpleServer, ESPCONN_REUSEADDR);
+
     espconn_regist_connectcb(pSimpleServer, ssConnCb);
     espconn_accept(pSimpleServer);
-    espconn_regist_time(pSimpleServer, 60, 0);
+    espconn_regist_time(pSimpleServer, 0, 0);
 }
 
 void ICACHE_FLASH_ATTR wifiInit() {
@@ -185,7 +196,7 @@ char *s_get(HttpRequest *r) {
     return r->buffer;
 }
 
-char *s_post() {
+char *s_post(HttpRequest *r) {
     if ( strcmp(POST, r->type) != 0 )
         return  "Try requesting this page with POST method!<br>"
                 "Feel free to use this form:<br>"
