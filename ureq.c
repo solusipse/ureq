@@ -200,10 +200,8 @@ static int ureq_first_run(HttpRequest *req) {
             }
         }
 
-        req->params = malloc( strlen(req->url) + 1 );
-        req->params[0] = '\0';
         // Save get parameters to r->params
-        ureq_get_query( req->params, req->url );
+        ureq_get_query( req );
 
         // If method was POST, save body to r->message
         if ( strcmp (POST, req->type ) == 0 ) {
@@ -440,31 +438,33 @@ static char *ureq_get_params(char *r) {
     return out;
 }
 
-char *ureq_get_param_value(char *r, char *arg) {
-    char *data = malloc(strlen(r) + 1);
-    char *out = malloc(strlen(r) + 1);
-    strcpy(data, r);
+char *ureq_get_param_value(HttpRequest *r, char *arg) {
+    char *data = malloc(strlen(r->params) + 1);
+    strcpy(data, r->params);
 
-    char *bk;
-    char *buf;
+    char *bk, *buf;
     for (buf = strtok_r(data,"&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
 
-        if (strstr(buf, arg) == NULL)
+        if (strstr(buf, arg) == NULL) {
+            r->_buffer[0] = '\0';
             continue;
+        }
 
         char *sptr = NULL;
         buf = strtok_r(buf, "=", &sptr);
 
         if ( strcmp(buf, arg) == 0 ) {
-            strcpy(out, sptr);
+            strcpy(r->_buffer, sptr);
+            break;
         }
         else {
-            out[0] = '\0';
+            r->_buffer[0] = '\0';
         }
+
     }
     free(data);
 
-    return out;
+    return r->_buffer;
 }
 
 static void ureq_remove_parameters(char *b, char *u) {
@@ -473,14 +473,11 @@ static void ureq_remove_parameters(char *b, char *u) {
     b = strtok_r(b, "?", &bk);
 }
 
-static void ureq_get_query(char *b, char *u) {
-    if (strchr(u, '?') == NULL )
-        return;
-    char *bk;
-    strcpy(b, u);
-    b = strtok_r(b, "?", &bk);
-    char *buf = strtok_r(NULL, "\n", &bk);
-    strcpy(b, buf);
+static void ureq_get_query(HttpRequest *r) {
+    char *q = strchr(r->url, '?');
+    if (q == NULL) return;
+
+    r->params = r->url + (int)(q - r->url) + 1;
 }
 
 void ureq_close( HttpRequest *req ) {
@@ -488,7 +485,6 @@ void ureq_close( HttpRequest *req ) {
     if (req->url)       free(req->url);
     if (req->version)   free(req->version);
     if (req->message)   free(req->message);
-    if (req->params)    free(req->params);
     if (req->body)      free(req->body);
 
     if (!req->valid || req->response.code == 404)

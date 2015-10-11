@@ -108,7 +108,10 @@ typedef struct HttpRequest {
     int len;
 
     UreqFile file;
+    // TODO: use another buffer for backend operations
+    // leave this one for user
     char buffer[1024];
+    char _buffer[1024];
 
     char *(*func)(struct HttpRequest *);
     char *(*page404)(struct HttpRequest *);
@@ -143,7 +146,7 @@ int ureq_run(struct HttpRequest *req);
 static int  ureq_get_header(char *h, char *r);
 static int ureq_parse_header(struct HttpRequest *req, char *r);
 static void ureq_remove_parameters(char *b, char *u);
-static void ureq_get_query(char *b, char *u);
+static void ureq_get_query(HttpRequest *r);
 static void ureq_generate_response(HttpRequest *r, char *html);
 
 static char *ureq_get_params(char *r);
