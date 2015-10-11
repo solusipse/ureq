@@ -148,6 +148,20 @@ char *s_param(HttpRequest *r) {
     return r->buffer;
 }
 
+char *s_post(HttpRequest *r) {
+    char *arg;
+
+    strcpy(r->buffer, "data: ");
+    arg = ureq_post_param_value(r, "data");
+    strcat(r->buffer, arg);
+
+    strcat(r->buffer, "<br>data2: ");
+    arg = ureq_post_param_value(r, "data2");
+    strcat(r->buffer, arg);
+
+    return r->buffer;
+}
+
 char *s_redirect_to_test(HttpRequest *r) {
     r->response.code = 302;
     r->response.header = "Location: /test";
@@ -168,6 +182,7 @@ int main_b() {
 
     ureq_serve("/", s_home, GET);
     ureq_serve("/test", s_test, GET);
+    ureq_serve("/post", s_post, POST);
     ureq_serve("/param", s_param, GET);
     ureq_serve("/redirect", s_redirect_to_test, GET);
 

@@ -204,10 +204,8 @@ static int ureq_first_run(HttpRequest *req) {
         ureq_get_query( req );
 
         // If method was POST, save body to r->message
-        if ( strcmp (POST, req->type ) == 0 ) {
-            req->body = malloc( strlen(req->message) + 1 );
-            req->body = ureq_get_params(req->message);
-        }
+        if ( strcmp (POST, req->type ) == 0 )
+            ureq_set_post_data(req);
         // Run page function but don't save data from it
         // at first run (use it now only to set some things).
         // If user returns blank string, don't send data again
@@ -426,30 +424,19 @@ static char *ureq_generate_response_header(HttpRequest *r) {
     return h;
 }
 
-static char *ureq_get_params(char *r) {
-    char *data = malloc(strlen(r) + 1);
-    char *out = malloc(strlen(r) + 1);
-    strcpy(data, r);
+static void ureq_set_post_data(HttpRequest *r) {
+    char *n = strstr(r->message, "\r\n\r\n");
+    if (n == NULL) return;
 
-    char *bk;
-    char *buf;
-    for (buf = strtok_r(data,"\n", &bk); buf != NULL; buf = strtok_r(NULL, "\n", &bk)) {
-        strcpy(out, buf);
-    }
-    free(data);
-
-    return out;
+    r->body = n + 4;
 }
 
-char *ureq_get_param_value(HttpRequest *r, char *arg) {
-    char *data = malloc(strlen(r->params) + 1);
-    strcpy(data, r->params);
-
+static void ureq_param_to_value(char *data, char *buffer, char *arg) {
     char *bk, *buf;
     for (buf = strtok_r(data,"&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
 
         if (strstr(buf, arg) == NULL) {
-            r->_buffer[0] = '\0';
+            buffer[0] = '\0';
             continue;
         }
 
@@ -457,14 +444,28 @@ char *ureq_get_param_value(HttpRequest *r, char *arg) {
         buf = strtok_r(buf, "=", &sptr);
 
         if ( strcmp(buf, arg) == 0 ) {
-            strcpy(r->_buffer, sptr);
-            break;
+            strcpy(buffer, sptr);
+            return;
         }
         else {
-            r->_buffer[0] = '\0';
+            buffer[0] = '\0';
         }
-
     }
+}
+
+char *ureq_get_param_value(HttpRequest *r, char *arg) {
+    char *data = malloc(strlen(r->params) + 1);
+    strcpy(data, r->params);
+    ureq_param_to_value(data, r->_buffer, arg);
+    free(data);
+
+    return r->_buffer;
+}
+
+char *ureq_post_param_value(HttpRequest *r, char *arg) {
+    char *data = malloc(strlen(r->body) + 1);
+    strcpy(data, r->body);
+    ureq_param_to_value(data, r->_buffer, arg);
     free(data);
 
     return r->_buffer;
@@ -488,7 +489,6 @@ void ureq_close( HttpRequest *req ) {
     if (req->url)       free(req->url);
     if (req->version)   free(req->version);
     if (req->message)   free(req->message);
-    if (req->body)      free(req->body);
 
     if (!req->valid || req->response.code == 404)
         free(req->response.data);

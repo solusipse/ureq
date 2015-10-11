@@ -144,12 +144,12 @@ void ureq_finish();
 int ureq_run(struct HttpRequest *req);
 
 static int  ureq_get_header(char *h, char *r);
-static int ureq_parse_header(struct HttpRequest *req, char *r);
+static int  ureq_parse_header(struct HttpRequest *req, char *r);
 static void ureq_remove_parameters(char *b, char *u);
 static void ureq_get_query(HttpRequest *r);
 static void ureq_generate_response(HttpRequest *r, char *html);
+static void ureq_set_post_data(HttpRequest *r);
 
-static char *ureq_get_params(char *r);
 static char *ureq_generate_response_header(HttpRequest *r);
 static char *ureq_get_code_description(int c);
 
