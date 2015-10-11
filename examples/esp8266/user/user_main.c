@@ -193,7 +193,7 @@ char *s_post() {
                 "Data: <input type='text' name='data'><br>"
                 "Data2: <input type='text' name='data2'><br>"
                 "<input type='submit' value='Submit'>"
-                "</form";
+                "</form>";
 
     char *arg;
 
