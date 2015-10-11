@@ -454,6 +454,7 @@ static void ureq_param_to_value(char *data, char *buffer, char *arg) {
 }
 
 char *ureq_get_param_value(HttpRequest *r, char *arg) {
+    if (!r->params) return "\0";
     char *data = malloc(strlen(r->params) + 1);
     strcpy(data, r->params);
     ureq_param_to_value(data, r->_buffer, arg);
@@ -463,6 +464,7 @@ char *ureq_get_param_value(HttpRequest *r, char *arg) {
 }
 
 char *ureq_post_param_value(HttpRequest *r, char *arg) {
+    if (!r->body) return "\0";
     char *data = malloc(strlen(r->body) + 1);
     strcpy(data, r->body);
     ureq_param_to_value(data, r->_buffer, arg);
