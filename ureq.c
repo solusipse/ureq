@@ -283,6 +283,9 @@ static int ureq_set_404_response(HttpRequest *r) {
 }
 
 static char *ureq_get_error_page(HttpRequest *r) {
+    /* TODO:
+     * This method probably causes leaking, check that
+     */
     char *desc = ureq_get_code_description(r->response.code);
     sprintf(r->buffer, "%s%d %s%s%d %s%s", \
             UREQ_HTML_HEADER, r->response.code, desc, \

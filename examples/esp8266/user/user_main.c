@@ -167,8 +167,22 @@ char *s_home() {
     return "Hello World!";
 }
 
-char *s_get() {
-    return "GET";
+char *s_get(HttpRequest *r) {
+    /* This one shows how to handle GET parameters.
+     * Please note, that ureq_get_param_value uses
+     * common buffer for all operations, so store
+     * copy data from it before calling it again */
+    char *arg;
+
+    strcpy(r->buffer, "data: ");
+    arg = ureq_get_param_value(r, "data");
+    strcat(r->buffer, arg);
+
+    strcat(r->buffer, "<br>data2: ");
+    arg = ureq_get_param_value(r, "data2");
+    strcat(r->buffer, arg);
+
+    return r->buffer;
 }
 
 char *s_post() {

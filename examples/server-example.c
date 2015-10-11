@@ -130,9 +130,33 @@ char *s_test() {
     return "test";
 }
 
+char *s_param(HttpRequest *r) {
+    /* This one shows how to handle GET parameters.
+     * Please note, that ureq_get_param_value uses
+     * common buffer for all operations, so store
+     * copy data from it before calling it again */
+    char *arg;
+
+    strcpy(r->buffer, "data: ");
+    arg = ureq_get_param_value(r, "data");
+    strcat(r->buffer, arg);
+
+    strcat(r->buffer, "<br>data2: ");
+    arg = ureq_get_param_value(r, "data2");
+    strcat(r->buffer, arg);
+
+    return r->buffer;
+}
+
 char *s_redirect_to_test(HttpRequest *r) {
     r->response.code = 302;
     r->response.header = "Location: /test";
+    return "";
+}
+
+char *s_exit() {
+    // Using it only during development for memory leakage testing
+    exit(1);
     return "";
 }
 
@@ -144,7 +168,10 @@ int main_b() {
 
     ureq_serve("/", s_home, GET);
     ureq_serve("/test", s_test, GET);
+    ureq_serve("/param", s_param, GET);
     ureq_serve("/redirect", s_redirect_to_test, GET);
+
+    ureq_serve("/exit", s_exit, GET);
 
     return 0;
 }

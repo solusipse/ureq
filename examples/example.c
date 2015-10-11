@@ -55,11 +55,21 @@ char *s_header(HttpRequest *r) {
 }
 
 char *s_param(HttpRequest *r) {
-    /* This one shows how to handle GET parameters. */
-    printf("PARAMS: %s\n", r->params);
+    /* This one shows how to handle GET parameters.
+     * Please note, that ureq_get_param_value uses
+     * common buffer for all operations, so store
+     * copy data from it before calling it again */
+    char *arg;
 
+    strcpy(r->buffer, "data: ");
+    arg = ureq_get_param_value(r, "data");
+    strcat(r->buffer, arg);
 
-    return "Params";
+    strcat(r->buffer, "<br>data2: ");
+    arg = ureq_get_param_value(r, "data2");
+    strcat(r->buffer, arg);
+
+    return r->buffer;
 }
 
 char *s_all() {
@@ -89,6 +99,10 @@ char *s_buf() {
     return "test";
 }
 
+char *s_404() {
+    return "Custom 404 page!";
+}
+
 /* --------------------------------^ PAGES ^-------------------------------- */
 
 int main() {
@@ -105,7 +119,9 @@ int main() {
     ureq_serve("/post", s_post, POST);
     ureq_serve("/buffer", s_buf, GET);
 
-    char request[] = "GET / HTTP/1.1\n"
+    //ureq_serve("404", s_404, ALL);
+
+    char request[] = "GET /param?test=ok HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
     
     HttpRequest r = ureq_init(request);
