@@ -186,7 +186,26 @@ char *s_get(HttpRequest *r) {
 }
 
 char *s_post() {
-    return "POST";
+    if ( strcmp(POST, r->type) != 0 )
+        return  "Try requesting this page with POST method!<br>"
+                "Feel free to use this form:<br>"
+                "<form method='post'>"
+                "Data: <input type='text' name='data'><br>"
+                "Data2: <input type='text' name='data2'><br>"
+                "<input type='submit' value='Submit'>"
+                "</form";
+
+    char *arg;
+
+    strcpy(r->buffer, "data: ");
+    arg = ureq_post_param_value(r, "data");
+    strcat(r->buffer, arg);
+
+    strcat(r->buffer, "<br>data2: ");
+    arg = ureq_post_param_value(r, "data2");
+    strcat(r->buffer, arg);
+
+    return r->buffer;
 }
 
 char *s_redirect(HttpRequest *r) {

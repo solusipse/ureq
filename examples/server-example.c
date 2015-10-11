@@ -149,6 +149,15 @@ char *s_param(HttpRequest *r) {
 }
 
 char *s_post(HttpRequest *r) {
+    if ( strcmp(POST, r->type) != 0 )
+        return  "Try requesting this page with POST method!<br>"
+                "Feel free to use this form:<br>"
+                "<form method='post'>"
+                "Data: <input type='text' name='data'><br>"
+                "Data2: <input type='text' name='data2'><br>"
+                "<input type='submit' value='Submit'>"
+                "</form";
+
     char *arg;
 
     strcpy(r->buffer, "data: ");
@@ -182,7 +191,7 @@ int main_b() {
 
     ureq_serve("/", s_home, GET);
     ureq_serve("/test", s_test, GET);
-    ureq_serve("/post", s_post, POST);
+    ureq_serve("/post", s_post, ALL);
     ureq_serve("/param", s_param, GET);
     ureq_serve("/redirect", s_redirect_to_test, GET);
 
