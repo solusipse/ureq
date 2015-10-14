@@ -14,7 +14,9 @@
 
 #include "../../../ureq.c"
 
-#define MAX_CONNS 8
+// 6 works best
+// this value was obtained experimentally
+#define MAX_CONNS 6
 
 struct HttpConnection {
     HttpRequest r;
@@ -32,7 +34,7 @@ bool gpioStatus = false;
 // Will contain ssid and password for your network.
 struct station_config stationConf;
 
-
+/*
 void ICACHE_FLASH_ATTR setGpio( int status ) {
     if (status == 0)
         gpio_output_set(BIT0, 0, BIT0, 0);
@@ -49,6 +51,7 @@ void ICACHE_FLASH_ATTR reverseGpio() {
         gpio_output_set(BIT0, 0, BIT0, 0);
     }
 }
+*/
 
 void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
     char buf[64];
@@ -79,7 +82,7 @@ void ICACHE_FLASH_ATTR ssRecvCb(void *arg, char *data, unsigned short len) {
 
     conns[i].r = r;
     conns[i].id = pespconn->proto.tcp->remote_port;
-    
+
     espconn_sent(pespconn, r.response.data, r.len);
     os_printf("Request %s from %d.%d.%d.%d. Status: %d. ID: %d.\n",
         r.url,
@@ -166,12 +169,11 @@ void ICACHE_FLASH_ATTR wifiInit() {
     // TODO: wifi configuration via http
     //os_memcpy(&stationConf.ssid, ssid, 32);
     //os_memcpy(&stationConf.password, password, 32);
-
     // STATION_MODE, SOFTAP_MODE or STATIONAP_MODE.
+    wifi_set_opmode( STATION_MODE );
     //wifi_set_opmode( STATION_MODE );
-    wifi_set_opmode( SOFTAP_MODE );
 
-    //wifi_station_set_config(&stationConf);
+    wifi_station_set_config(&stationConf);
 }
 
 char *s_home() {
@@ -247,6 +249,7 @@ void user_init(void) {
     ureq_serve("/redirect", s_redirect, "GET");
     ureq_serve("/redirected", s_redirected, "GET");
 
+    /*
     // Some gpio-related stuff
     gpio_init();
     //Set GPIO2 to output mode
@@ -254,6 +257,7 @@ void user_init(void) {
     PIN_PULLUP_DIS(PERIPHS_IO_MUX_GPIO0_U);
     //Set GPIO2 high
     gpio_output_set(BIT0, 0, BIT0, 0);
+    */
 
     // Wifi setup
     wifiInit();
