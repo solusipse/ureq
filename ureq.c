@@ -41,13 +41,13 @@ SOFTWARE.
 
 static int ureq_get_header(char *h, char *r) {
     char *p = NULL;
-    strcpy(h, r);
+    memcpy(h, r, strlen(r));
 
     if ( strlen(r) <= 1 ) return 1;
     char *b = strtok_r(h, "\r\n", &p);
     if ( strlen(b) <= 1 ) return 1;
-
-    strcpy(h, b);
+    
+    memmove(h, b, strlen(b));
     return 0;
 }
 
