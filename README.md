@@ -122,6 +122,13 @@ r->response.header = "Location: /";
 r->reponse.mime = "text/plain";
 ```
 
+## Load test
+With the help of Reddit and Hacker News users, `ureq` was benchmarked on the `ESP8266`.
+
+![charts](https://solusipse.net/varia/esp8266/esp8266stats.png)
+
+For more data, go to: http://ureq.solusipse.net.
+
 ## Roadmap
 - minimal templating system
 - file sending on unix systems
