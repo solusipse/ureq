@@ -32,11 +32,22 @@ SOFTWARE.
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <netdb.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#else
+#include <ws2tcpip.h>
+#undef close
+#define close(s) closesocket(s)
+#undef write
+#define write(s,b,n) send(s,b,n,0)
+#undef read
+#define read(s,b,n) recv(s,b,n,0)
+#define bzero(p,n) memset(p,0,n)
+#endif
 #include <time.h>
 
 #include "../ureq.c"
@@ -63,7 +74,7 @@ void get_client_address(struct sockaddr_in client_address) {
     printf("Client: %s (%s)\n", hostaddrp, hostp->h_name);
 }
 
-void perform_connection(int connection_socket, int listen_socket, struct sockaddr_in client_address, unsigned int address_lenght) {
+void perform_connection(int connection_socket, int listen_socket, struct sockaddr_in client_address, socklen_t address_lenght) {
     char buffer[BUFSIZE];
     connection_socket = accept(listen_socket, (struct sockaddr *) &client_address, &address_lenght);
     if (connection_socket < 0) error();
@@ -75,6 +86,10 @@ void perform_connection(int connection_socket, int listen_socket, struct sockadd
 }
 
 int main(int argc, char **argv) {
+#ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2,0), &wsaData);
+#endif
     main_b();
     int listen_socket, connection_socket = 0, address_lenght, optval = 1;
     struct sockaddr_in server_address, client_address;
