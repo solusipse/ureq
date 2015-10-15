@@ -33,6 +33,10 @@ SOFTWARE.
 #include <unistd.h>
 #include "ureq_pages.h"
 
+/* Workaround for windows. DELETE is defined in winnt.h */
+#ifdef _WIN32
+#undef DELETE
+#endif
 
 // METHODS
 #define GET 	"GET"
