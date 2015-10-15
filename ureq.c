@@ -40,14 +40,12 @@ SOFTWARE.
 
 
 static int ureq_get_header(char *h, char *r) {
-    char *p = NULL;
+    char *p = strstr(r, "\r\n");
+    if (!p) return 1;
+
     strcpy(h, r);
+    h[(p-r)] = 0;
 
-    if ( strlen(r) <= 1 ) return 1;
-    char *b = strtok_r(h, "\r\n", &p);
-    if ( strlen(b) <= 1 ) return 1;
-
-    strcpy(h, b);
     return 0;
 }
 
