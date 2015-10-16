@@ -40,7 +40,7 @@ SOFTWARE.
 
 
 static int ureq_get_header(char *h, char *r) {
-    char *p = strstr(r, "\r\n");
+    char *p = strstr(r, UREQ_EOL);
     if (!p) return 1;
 
     strcpy(h, r);
@@ -307,9 +307,6 @@ static int ureq_set_404_response(HttpRequest *r) {
 }
 
 static char *ureq_get_error_page(HttpRequest *r) {
-    /* TODO:
-     * This method probably causes leaking, check that
-     */
     char *desc = ureq_get_code_description(r->response.code);
     sprintf(r->buffer, "%s%d %s%s%d %s%s", \
             UREQ_HTML_HEADER, r->response.code, desc, \
@@ -365,7 +362,7 @@ static void ureq_generate_response(HttpRequest *r, char *html) {
 
     strcpy(r->response.data, header);
     strcat(r->response.data, html);
-    strncat(r->response.data, "\r\n", 2);
+    strncat(r->response.data, UREQ_EOL, UREQ_EOL_LEN);
 
     r->len = strlen(r->response.data);
 
@@ -420,20 +417,20 @@ static char *ureq_generate_response_header(HttpRequest *r) {
     if (r->response.header != NULL) {
         char *bb = malloc( strlen(r->response.header) + 1 );
         strcpy(bb, r->response.header );
-        r->response.header = malloc( strlen(br) + strlen(bb) + strlen("\r\n") + 1 );
+        r->response.header = malloc( strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1 );
         strcpy( r->response.header, br );
 
         if (strlen(br)>0)
-            strcat( r->response.header, "\r\n" );
+            strcat( r->response.header, UREQ_EOL );
 
         strcat( r->response.header, bb );
 
         free(bb);
     } else {
-        r->response.header = malloc( strlen(br) + strlen("\r\n") + 1 );
+        r->response.header = malloc( strlen(br) + UREQ_EOL_LEN + 1 );
         strcpy( r->response.header, br );
     }
-    strcat(r->response.header, "\r\n");
+    strcat(r->response.header, UREQ_EOL);
     free(br);
 
     if (r->response.header == NULL)

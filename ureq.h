@@ -46,6 +46,9 @@ SOFTWARE.
 #define DELETE	"DELETE"
 #define HTTP_V  "HTTP/1.1"
 
+#define UREQ_EOL "\r\n"
+#define UREQ_EOL_LEN 2
+
 // This may be redefined on your device,
 // check corresponding file in hardware directory
 #define MAX_REQUEST_SIZE 1024
