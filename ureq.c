@@ -112,6 +112,7 @@ static int ureq_parse_header(HttpRequest *req, char *r) {
     req->body               = NULL;
     req->response.header    = NULL;
     req->response.mime      = NULL;
+    req->response.file      = NULL;
     req->response.code      = 0;
 
     return 0;
@@ -240,6 +241,14 @@ static int ureq_first_run(HttpRequest *req) {
             req->complete = 2;
         // Save pointer to page's func for later use
         req->func = pages[i].func;
+
+        // If user decided to bind an url to file, set mimetype
+        // here and break.
+        if ( req->response.file ) {
+            if ( !req->response.mime )
+                req->response.mime = ureq_set_mimetype(req->response.file);
+            break;
+        }
 
         if (req->response.code == 0)
             req->response.code = 200;
@@ -384,8 +393,8 @@ static char *ureq_get_code_description(int c) {
     return "Not Implemented";
 }
 
-static char *ureq_set_mimetype(HttpRequest *r) {
-    const char *e = strrchr(r->url, '.');
+static char *ureq_set_mimetype(char *r) {
+    const char *e = strrchr(r, '.');
     if (e) e += 1;
     else return "text/html";
 
@@ -401,7 +410,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
     // Set default mime type if blank
     if (r->response.mime == NULL) {
         if ( r->response.code == 200 || r->response.code == 404 ) {
-            r->response.mime = ureq_set_mimetype(r);
+            r->response.mime = ureq_set_mimetype(r->url);
             ct = "Content-Type: ";
         } else {
             r->response.mime = "";

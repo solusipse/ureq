@@ -82,10 +82,14 @@ int ureq_fs_first_run(HttpRequest *r) {
     // If there's no function bound to /, then try
     // to read index.html
     UreqFile f;
-    if ( strcmp(r->url, "/") == 0)
-        f = ureq_fs_open("index.html");
-    else
-        f = ureq_fs_open(r->url + 1);
+    if ( r->response.file ) {
+        f = ureq_fs_open(r->response.file);
+    } else {
+        if ( strcmp(r->url, "/") == 0)
+            f = ureq_fs_open("index.html");
+        else
+            f = ureq_fs_open(r->url + 1);
+    }
 
     if (f.address == 0) {
         // File was not found
