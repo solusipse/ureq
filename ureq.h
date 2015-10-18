@@ -51,7 +51,7 @@ SOFTWARE.
 
 // This may be redefined on your device,
 // check corresponding file in hardware directory
-#define MAX_REQUEST_SIZE 1024
+#define UREQ_BUFFER_SIZE 1024
 
 const char *UreqMethods[] = {
     GET,
@@ -93,12 +93,17 @@ typedef struct UreqFile {
     int address;
 } UreqFile;
 
-struct Response {
+struct UreqResponse {
     int  code;
     char *mime;
     char *header;
     char *data;
     char *file;
+};
+
+struct UreqTemplate {
+    char *destination;
+    char *value;
 };
 
 typedef struct HttpRequest {
@@ -109,7 +114,9 @@ typedef struct HttpRequest {
     char *params;
     char *body;
 
-    struct Response response;
+    struct UreqResponse response;
+    struct UreqTemplate templates[16];
+    int tmplen;
 
     int complete;
     int bigFile;
@@ -118,8 +125,8 @@ typedef struct HttpRequest {
     UreqFile file;
     // TODO: use another buffer for backend operations
     // leave this one for user
-    char buffer[1024];
-    char _buffer[1024];
+    char buffer[UREQ_BUFFER_SIZE];
+    char _buffer[UREQ_BUFFER_SIZE];
 
     char *(*func)(struct HttpRequest *);
     char *(*page404)(struct HttpRequest *);
@@ -148,6 +155,8 @@ HttpRequest ureq_init(char *r);
 
 void ureq_close( struct HttpRequest *req );
 void ureq_finish();
+
+void ureq_template(HttpRequest *r, char *dst, char *cnt);
 
 int ureq_run(struct HttpRequest *req);
 

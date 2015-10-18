@@ -24,6 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// TODO: headers cleanup
+
 #ifdef UREQ_ESP8266
     #define UREQ_STATIC_LIST
 #endif
@@ -140,6 +142,7 @@ HttpRequest ureq_init(char *ur) {
     r.valid    =  0;
     r.bigFile  =  0;
     r.len      =  0;
+    r.tmplen   =  0;
 
     r.type       = NULL;
     r.url        = NULL;
@@ -150,7 +153,7 @@ HttpRequest ureq_init(char *ur) {
     r.page404    = NULL;
 
     // These basic checks protect against buffer overflow
-    if ( strlen(ur) > MAX_REQUEST_SIZE ) {
+    if ( strlen(ur) > UREQ_BUFFER_SIZE ) {
         r.response.code  = 413;
         r.valid = 0;
         return r;
@@ -266,25 +269,79 @@ static int ureq_first_run(HttpRequest *req) {
     #endif
 }
 
+static void ureq_parse_template(char *dst, char *buf, char *from, char *to) {
+    char *p = dst, *b = dst;
+    memset(buf, 0, UREQ_BUFFER_SIZE);
+    while(p = strstr(p, from)) {
+        b[p-b] = 0;
+        strcat(buf, b);
+        strcat(buf, to);
+        strcat(buf, p+strlen(from));
+        p++;
+    }
+    memset(dst, 0, UREQ_BUFFER_SIZE);
+    strcpy(dst, buf);
+}
+
+static void ureq_render_template(HttpRequest *r) {
+    if (r->tmplen <= 0) return;
+    int i, tlen;
+    for (i=0,tlen=0; i < r->tmplen; i++) {
+        tlen += strlen(r->templates[i].value);
+        tlen -= strlen(r->templates[i].destination);
+        tlen -= 4; /* special characers - {{x}} */
+    }
+    if (tlen > 0) {
+    // if this is true, it means that rendered page
+    // will have more characters than the template
+        if (tlen > UREQ_BUFFER_SIZE) {
+        // This template cannot be rendered
+        // without buffer overflow
+            r->response.data = "Template parsing error: buffer overflow prevented.";
+            return;
+        }
+        if ((tlen + strlen(r->buffer)) > UREQ_BUFFER_SIZE) {
+        // If piece of file being rendered is bigger than
+        // the buffer, some operations have to be performed
+            if (r->bigFile) {
+                r->response.data[strlen(r->response.data)-tlen] = 0;
+                r->file.address -= tlen;
+                r->file.size += tlen;
+            } else {
+                r->complete -= 1;
+            }
+        } else {
+            r->len = strlen(r->buffer) + tlen;
+        }
+
+    }
+    // Everything's prepared for running replacing function
+    for (i=0; i < r->tmplen; i++) {
+        ureq_parse_template(r->buffer, r->_buffer, r->templates[i].destination, r->templates[i].value);
+    }
+}
+
 static int ureq_next_run(HttpRequest *req) {
     if (req->complete == -2) {
         free(req->response.data);
     }
 
-    struct Response respcpy = req->response;
+    struct UreqResponse respcpy = req->response;
     req->complete--;
 
     if (req->bigFile) {
         #if defined UREQ_USE_FILESYSTEM
-            if (req->file.size > 1024) {
-                respcpy.data = ureq_fs_read(req->file.address, 1024, req->buffer);
-                req->file.address += 1024;
-                req->file.size -= 1024;
-                req->len = 1024;
+            if (req->file.size > UREQ_BUFFER_SIZE) {
+                respcpy.data = ureq_fs_read(req->file.address, UREQ_BUFFER_SIZE, req->buffer);
+                ureq_render_template(req);
+                req->file.address += UREQ_BUFFER_SIZE;
+                req->file.size -= UREQ_BUFFER_SIZE;
+                req->len = UREQ_BUFFER_SIZE;
                 req->complete -= 1;
             } else {
                 req->len = req->file.size;
                 respcpy.data = ureq_fs_read(req->file.address, req->file.size, req->buffer);
+                ureq_render_template(req);
                 req->complete = 1;
             }
         #else
@@ -518,6 +575,14 @@ static void ureq_get_query(HttpRequest *r) {
     r->params = r->url + (int)(q - r->url) + 1;
 }
 
+void ureq_template(HttpRequest *r, char *d, char *v) {
+    if (r->complete != -2) return;
+    struct UreqTemplate t;
+    t.destination = d;
+    t.value = v;
+    r->templates[r->tmplen++] = t;
+}
+
 void ureq_close( HttpRequest *req ) {
     if (req->type)      free(req->type);
     if (req->url)       free(req->url);
@@ -542,6 +607,4 @@ void ureq_finish() {
 /*
 TODO: add methods for:
     - minimal templating
-    - loading files from page functions
-    - setting custom mime-types (for bare files responses)
 */
