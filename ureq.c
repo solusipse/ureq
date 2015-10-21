@@ -270,17 +270,17 @@ static int ureq_first_run(HttpRequest *req) {
 }
 
 static void ureq_parse_template(char *dst, char *buf, char *from, char *to) {
-    char *p = dst, *b = dst;
-    memset(buf, 0, UREQ_BUFFER_SIZE);
-    while(p = strstr(p, from)) {
-        b[p-b] = 0;
-        strcat(buf, b);
-        strcat(buf, to);
-        strcat(buf, p+strlen(from));
-        p++;
-    }
-    memset(dst, 0, UREQ_BUFFER_SIZE);
+    int s = strlen(dst);
+    if (!(dst = strstr(dst, from))) return;
+    dst[0] = 0;
+    memset(buf, 0, s);
+    strcat(buf, dst);
+    strcat(buf, to);
+    strcat(buf, dst+strlen(from));
+
     strcpy(dst, buf);
+
+    ureq_parse_template(dst,buf,from,to);
 }
 
 static void ureq_render_template(HttpRequest *r) {
