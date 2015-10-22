@@ -24,12 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// TODO: headers cleanup
-
-#ifdef UREQ_ESP8266
-    #define UREQ_STATIC_LIST
-#endif
-
 #include "ureq.h"
 
 #ifdef UREQ_ESP8266
@@ -270,6 +264,8 @@ static int ureq_first_run(HttpRequest *req) {
 }
 
 static void ureq_parse_template(char *dst, char *buf, char *from, char *to) {
+    // TODO: iterate through buffer with {{ and }}, replace inside for loop
+    // (see render template method)
     int s = strlen(dst);
     if (!(dst = strstr(dst, from))) return;
     dst[0] = 0;
@@ -609,7 +605,4 @@ void ureq_finish() {
     #endif
 }
 
-/*
-TODO: add methods for:
-    - minimal templating
-*/
+

@@ -13,6 +13,8 @@
 #undef  MAX_REQUEST_SIZE
 #define MAX_REQUEST_SIZE 768
 
+#define UREQ_STATIC_LIST
+
 char *ureq_malloc(size_t l) {
     return (char *) os_malloc(l);
 }
