@@ -297,28 +297,33 @@ static void ureq_render_template(HttpRequest *r) {
         if (tlen > UREQ_BUFFER_SIZE) {
         // This template cannot be rendered
         // without buffer overflow
+            // TODO: return 500 here
             r->response.data = "Template parsing error: buffer overflow prevented.";
             return;
         }
         if ((tlen + strlen(r->buffer)) > UREQ_BUFFER_SIZE) {
         // If piece of file being rendered is bigger than
         // the buffer, some operations have to be performed
+       
+        // TODO: this will crash when template variable is exactly
+        //       at the seam (between buffer iterations).
+        // TODO: handle special chars, eg. {{ }}
+
             if (r->bigFile) {
-                r->response.data[strlen(r->response.data)-tlen] = 0;
+                r->buffer[strlen(r->buffer)-tlen] = 0;
                 r->file.address -= tlen;
                 r->file.size += tlen;
             } else {
                 r->complete -= 1;
             }
-        } else {
-            r->len = strlen(r->buffer) + tlen;
         }
-
     }
     // Everything's prepared for running replacing function
     for (i=0; i < r->tmplen; i++) {
         ureq_parse_template(r->buffer, r->_buffer, r->templates[i].destination, r->templates[i].value);
     }
+
+    if (r->len != UREQ_BUFFER_SIZE) r->len = strlen(r->buffer);
 }
 
 static int ureq_next_run(HttpRequest *req) {
@@ -333,10 +338,10 @@ static int ureq_next_run(HttpRequest *req) {
         #if defined UREQ_USE_FILESYSTEM
             if (req->file.size > UREQ_BUFFER_SIZE) {
                 respcpy.data = ureq_fs_read(req->file.address, UREQ_BUFFER_SIZE, req->buffer);
-                ureq_render_template(req);
                 req->file.address += UREQ_BUFFER_SIZE;
                 req->file.size -= UREQ_BUFFER_SIZE;
                 req->len = UREQ_BUFFER_SIZE;
+                ureq_render_template(req);
                 req->complete -= 1;
             } else {
                 req->len = req->file.size;
