@@ -24,6 +24,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// TODO: headers cleanup
+
+#ifdef UREQ_ESP8266
+    #define UREQ_STATIC_LIST
+#endif
+
 #include "ureq.h"
 
 #ifdef UREQ_ESP8266
