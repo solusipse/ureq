@@ -112,11 +112,8 @@ static int ureq_parse_header(HttpRequest *req, const char *r) {
     return 0;
 }
 
-void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
-    struct Page page;
-    page.url = url;
-    page.func = func;
-    page.method = method;
+void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method) {
+    struct Page page = {url, func, method};
 
     #ifndef UREQ_STATIC_LIST
         pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
@@ -124,7 +121,6 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     #else
         pages[pageCount++] = page;
     #endif
-    
 }
 
 HttpRequest ureq_init(char *ur) {
