@@ -149,7 +149,7 @@ struct Page {
 #endif
     
 
-void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
+void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
 
 HttpRequest ureq_init(const char *r);
 
