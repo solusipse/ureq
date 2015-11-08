@@ -92,7 +92,7 @@ int main() {
 ## Detailed usage
 This part of `README` needs to be improved, please treat it as an early draft.
 
-To take **precise control of server's response**, modify **HttpRequest** struct's fields **inside page connected to framwork via `ureq_serve`**. Reading `ureq.h` file may provide many useful informations.
+To take **precise control of server's response**, modify **HttpRequest** struct's fields **inside page connected to framework via `ureq_serve`**. Reading `ureq.h` file may provide many useful informations.
 
 Let's take a look at `Response` struct, which is initialized in every request struct:
 
