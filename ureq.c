@@ -41,13 +41,10 @@ SOFTWARE.
 #endif
 
 
-static int ureq_get_header(char *h, char *r) {
-    char *p = strstr(r, UREQ_EOL);
+static int ureq_get_header(char *h, const char *r) {
+    const char *p = strstr(r, UREQ_EOL);
     if (!p) return 1;
-
-    strcpy(h, r);
-    h[(p-r)] = 0;
-
+    strncpy(h, r, (p-r));
     return 0;
 }
 
