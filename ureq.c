@@ -48,9 +48,9 @@ static int ureq_get_header(char *h, const char *r) {
     return 0;
 }
 
-static int ureq_check_method_validity(char *m) {
+static int ureq_check_method_validity(const char *m) {
     int i;
-    for(i = 0; UreqMethods[i] != NULL; i++)
+    for(i = 0; UreqMethods[i] != NULL; ++i)
         if (strcmp(UreqMethods[i], m) == 0)
             return 1;
     return 0;
