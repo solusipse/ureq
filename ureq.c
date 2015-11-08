@@ -123,22 +123,10 @@ void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method) {
     #endif
 }
 
-HttpRequest ureq_init(char *ur) {
-    HttpRequest r;
+HttpRequest ureq_init(const char *ur) {
+    HttpRequest r = {};
 
     r.complete = -1;
-    r.valid    =  0;
-    r.bigFile  =  0;
-    r.len      =  0;
-    r.tmplen   =  0;
-
-    r.type       = NULL;
-    r.url        = NULL;
-    r.version    = NULL;
-    r.message    = NULL;
-    r.params     = NULL;
-    r.body       = NULL;
-    r.page404    = NULL;
 
     // These basic checks protect against buffer overflow
     if ( strlen(ur) > UREQ_BUFFER_SIZE ) {
@@ -164,8 +152,10 @@ HttpRequest ureq_init(char *ur) {
 
     int i, v=0;
     for(i = 0; UreqMethods[i] != NULL; i++)
-        if (strstr(bh, UreqMethods[i]) != 0)
+        if (strstr(bh, UreqMethods[i]) != 0) {
             v=1;
+            break;
+        }
 
     if (!v) {
         r.response.code = 400;
@@ -174,9 +164,10 @@ HttpRequest ureq_init(char *ur) {
     }
 
     // Actual parsing
-    int h = ureq_parse_header(&r, ur);
-    if (h != 0) r.valid = 0;
-    else r.valid = 1;
+    if (ureq_parse_header(&r, ur) != 0)
+        r.valid = 0;
+    else
+        r.valid = 1;
 
     return r;
 }
