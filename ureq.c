@@ -58,7 +58,9 @@ static int ureq_check_method_validity(const char *m) {
 
 static int ureq_parse_header(HttpRequest *req, const char *r) {
 
-    char *header = malloc( strlen(r) + 1 );
+    const size_t r_len = strlen(r) + 1;
+
+    char *header = malloc(r_len);
     char *b = NULL;
     char *bk = NULL;
 
@@ -96,7 +98,7 @@ static int ureq_parse_header(HttpRequest *req, const char *r) {
     strcpy(req->version, b);
     free(header);
 
-    req->message = malloc( strlen(r) + 1 );
+    req->message = malloc(r_len);
     strcpy(req->message, r);
 
     req->params             = NULL;
