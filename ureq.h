@@ -161,7 +161,7 @@ void ureq_template(HttpRequest *r, char *dst, char *cnt);
 int ureq_run(struct HttpRequest *req);
 
 static int  ureq_get_header(char *h, const char *r);
-static int  ureq_parse_header(struct HttpRequest *req, char *r);
+static int  ureq_parse_header(struct HttpRequest *req, const char *r);
 static void ureq_remove_parameters(char *b, char *u);
 static void ureq_get_query(HttpRequest *r);
 static void ureq_generate_response(HttpRequest *r, char *html);
