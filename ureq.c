@@ -422,18 +422,19 @@ static void ureq_generate_response(HttpRequest *r, char *html) {
 }
 
 static char *ureq_get_code_description(int c) {
-    if (c == 200) return "OK";
-    if (c == 302) return "Found";
-    if (c == 400) return "Bad Request";
-    if (c == 401) return "Unauthorized";
-    if (c == 403) return "Forbidden";
-    if (c == 404) return "Not Found";
-    if (c == 408) return "Request Timeout";
-    if (c == 413) return "Request-URI Too Long";
-    if (c == 500) return "Internal Error";
-    if (c == 503) return "Service Temporarily Overloaded";
-
-    return "Not Implemented";
+    switch (c) {
+        case 200: return "OK";
+        case 302: return "Found";
+        case 400: return "Bad Request";
+        case 401: return "Unauthorized";
+        case 403: return "Forbidden";
+        case 404: return "Not Found";
+        case 408: return "Request Timeout";
+        case 413: return "Request-URI Too Long";
+        case 500: return "Internal Error";
+        case 503: return "Service Temporarily Overloaded";
+        default:  return "Not Implemented";
+    }
 }
 
 static char *ureq_set_mimetype(char *r) {
