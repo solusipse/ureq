@@ -149,9 +149,9 @@ struct Page {
 #endif
     
 
-void ureq_serve(char *url, char *(func)(HttpRequest *), char *method );
+void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
 
-HttpRequest ureq_init(char *r);
+HttpRequest ureq_init(const char *r);
 
 void ureq_close( struct HttpRequest *req );
 void ureq_finish();
@@ -160,8 +160,8 @@ void ureq_template(HttpRequest *r, char *dst, char *cnt);
 
 int ureq_run(struct HttpRequest *req);
 
-static int  ureq_get_header(char *h, char *r);
-static int  ureq_parse_header(struct HttpRequest *req, char *r);
+static int  ureq_get_header(char *h, const char *r);
+static int  ureq_parse_header(struct HttpRequest *req, const char *r);
 static void ureq_remove_parameters(char *b, char *u);
 static void ureq_get_query(HttpRequest *r);
 static void ureq_generate_response(HttpRequest *r, char *html);

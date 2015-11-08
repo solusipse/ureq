@@ -41,27 +41,26 @@ SOFTWARE.
 #endif
 
 
-static int ureq_get_header(char *h, char *r) {
-    char *p = strstr(r, UREQ_EOL);
+static int ureq_get_header(char *h, const char *r) {
+    const char *p = strstr(r, UREQ_EOL);
     if (!p) return 1;
-
-    strcpy(h, r);
-    h[(p-r)] = 0;
-
+    strncpy(h, r, (p-r));
     return 0;
 }
 
-static int ureq_check_method_validity(char *m) {
+static int ureq_check_method_validity(const char *m) {
     int i;
-    for(i = 0; UreqMethods[i] != NULL; i++)
+    for(i = 0; UreqMethods[i] != NULL; ++i)
         if (strcmp(UreqMethods[i], m) == 0)
             return 1;
     return 0;
 }
 
-static int ureq_parse_header(HttpRequest *req, char *r) {
+static int ureq_parse_header(HttpRequest *req, const char *r) {
 
-    char *header = malloc( strlen(r) + 1 );
+    const size_t r_len = strlen(r) + 1;
+
+    char *header = malloc(r_len);
     char *b = NULL;
     char *bk = NULL;
 
@@ -83,7 +82,6 @@ static int ureq_parse_header(HttpRequest *req, char *r) {
         free(header);
         return 1;
     }
-
     req->url = malloc( strlen(b) + 1 );
     strcpy(req->url, b);
 
@@ -98,16 +96,10 @@ static int ureq_parse_header(HttpRequest *req, char *r) {
     }
     req->version = malloc( strlen(b) + 1 );
     strcpy(req->version, b);
-
-    b = strtok_r(NULL, " ", &bk);
-    if (b != NULL) {
-        free(header);
-        return 1;
-    }
-
-    req->message = malloc( strlen(r) + 1 );
-    strcpy(req->message, r);
     free(header);
+
+    req->message = malloc(r_len);
+    strcpy(req->message, r);
 
     req->params             = NULL;
     req->response.data      = NULL;
@@ -120,11 +112,8 @@ static int ureq_parse_header(HttpRequest *req, char *r) {
     return 0;
 }
 
-void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
-    struct Page page;
-    page.url = url;
-    page.func = func;
-    page.method = method;
+void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method) {
+    struct Page page = {url, func, method};
 
     #ifndef UREQ_STATIC_LIST
         pages = (struct Page *) realloc(pages, ++pageCount * sizeof(struct Page) );
@@ -132,25 +121,12 @@ void ureq_serve(char *url, char *(func)(HttpRequest *), char *method ) {
     #else
         pages[pageCount++] = page;
     #endif
-    
 }
 
-HttpRequest ureq_init(char *ur) {
-    HttpRequest r;
+HttpRequest ureq_init(const char *ur) {
+    HttpRequest r = {};
 
     r.complete = -1;
-    r.valid    =  0;
-    r.bigFile  =  0;
-    r.len      =  0;
-    r.tmplen   =  0;
-
-    r.type       = NULL;
-    r.url        = NULL;
-    r.version    = NULL;
-    r.message    = NULL;
-    r.params     = NULL;
-    r.body       = NULL;
-    r.page404    = NULL;
 
     // These basic checks protect against buffer overflow
     if ( strlen(ur) > UREQ_BUFFER_SIZE ) {
@@ -176,8 +152,10 @@ HttpRequest ureq_init(char *ur) {
 
     int i, v=0;
     for(i = 0; UreqMethods[i] != NULL; i++)
-        if (strstr(bh, UreqMethods[i]) != 0)
+        if (strstr(bh, UreqMethods[i]) != 0) {
             v=1;
+            break;
+        }
 
     if (!v) {
         r.response.code = 400;
@@ -186,9 +164,10 @@ HttpRequest ureq_init(char *ur) {
     }
 
     // Actual parsing
-    int h = ureq_parse_header(&r, ur);
-    if (h != 0) r.valid = 0;
-    else r.valid = 1;
+    if (ureq_parse_header(&r, ur) != 0)
+        r.valid = 0;
+    else
+        r.valid = 1;
 
     return r;
 }
@@ -443,18 +422,19 @@ static void ureq_generate_response(HttpRequest *r, char *html) {
 }
 
 static char *ureq_get_code_description(int c) {
-    if (c == 200) return "OK";
-    if (c == 302) return "Found";
-    if (c == 400) return "Bad Request";
-    if (c == 401) return "Unauthorized";
-    if (c == 403) return "Forbidden";
-    if (c == 404) return "Not Found";
-    if (c == 408) return "Request Timeout";
-    if (c == 413) return "Request-URI Too Long";
-    if (c == 500) return "Internal Error";
-    if (c == 503) return "Service Temporarily Overloaded";
-
-    return "Not Implemented";
+    switch (c) {
+        case 200: return "OK";
+        case 302: return "Found";
+        case 400: return "Bad Request";
+        case 401: return "Unauthorized";
+        case 403: return "Forbidden";
+        case 404: return "Not Found";
+        case 408: return "Request Timeout";
+        case 413: return "Request-URI Too Long";
+        case 500: return "Internal Error";
+        case 503: return "Service Temporarily Overloaded";
+        default:  return "Not Implemented";
+    }
 }
 
 static char *ureq_set_mimetype(char *r) {
@@ -584,9 +564,7 @@ static void ureq_get_query(HttpRequest *r) {
 
 void ureq_template(HttpRequest *r, char *d, char *v) {
     if (r->complete != -2) return;
-    struct UreqTemplate t;
-    t.destination = d;
-    t.value = v;
+    struct UreqTemplate t = {d, v};
     r->templates[r->tmplen++] = t;
 }
 
