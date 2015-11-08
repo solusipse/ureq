@@ -563,9 +563,7 @@ static void ureq_get_query(HttpRequest *r) {
 
 void ureq_template(HttpRequest *r, char *d, char *v) {
     if (r->complete != -2) return;
-    struct UreqTemplate t;
-    t.destination = d;
-    t.value = v;
+    struct UreqTemplate t = {d, v};
     r->templates[r->tmplen++] = t;
 }
 
