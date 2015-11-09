@@ -31,26 +31,6 @@ SOFTWARE.
 #include "internal/ureq_pages.h"
 #include "internal/http_types.h"
 
-/* Workaround for windows. DELETE is defined in winnt.h */
-#ifdef _WIN32
-#undef DELETE
-#endif
-
-// METHODS
-#define GET 	"GET"
-#define POST 	"POST"
-#define ALL 	"ALL"
-#define PUT 	"PUT"
-#define DELETE	"DELETE"
-#define HTTP_V  "HTTP/1.1"
-
-#define UREQ_EOL "\r\n"
-#define UREQ_EOL_LEN 2
-
-// This may be redefined on your device,
-// check corresponding file in hardware directory
-#define UREQ_BUFFER_SIZE 1024
-
 const char *UreqMethods[] = {
     GET,
     POST,
