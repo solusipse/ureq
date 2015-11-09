@@ -32,33 +32,27 @@ static char *ureq_fs_read(const int a, const int s, char *buf) {
 }
 
 UreqFile ureq_fs_open(char *rf) {
-
-    char *pos = (char*) UREQ_FS_START + 0x40200000;
-
-    int32_t amount;
-
+    char *pos = (char*)(UREQ_FS_START + 0x40200000);
     char    name[16];
     int32_t size;
     int32_t address;
 
-    UreqFile f;
-    f.size = 0;
-    f.address = 0;
+    UreqFile f = {0, 0};
 
-    // Get number of files
+    /* Get number of files */
+    int32_t amount;
     os_memcpy(&amount, pos, sizeof(amount));
-    //os_printf("Number of files: %d\n", amount);
 
-    // Move to the filesystem header
+    /* Move to the filesystem header */
     pos += sizeof(int32_t);
 
     int i;
-    for (i = 0; i < amount; i++) {
+    for (i = 0; i < amount; ++i) {
         memset(name, 0, sizeof(name));
         os_memcpy(name, pos, sizeof(name));
 
         if (strcmp(name, rf) == 0) {
-            // Requested file was found
+            /* Requested file was found */
             pos += sizeof(char) * 16;
             int size, address;
             os_memcpy(&size, pos, sizeof(int32_t));
@@ -66,14 +60,13 @@ UreqFile ureq_fs_open(char *rf) {
             os_memcpy(&address, pos, sizeof(int32_t));
             f.size = size;
             f.address = address;
-            return f;       
+            return f;
         } else {
-            // Move to next file
-            pos += sizeof(char) * 16;   // filename
-            pos += sizeof(int32_t);     // size
-            pos += sizeof(int32_t);     // address
+            /* Move to next file */
+            pos += sizeof(char) * 16;   /* filename */
+            pos += sizeof(int32_t);     /* size */
+            pos += sizeof(int32_t);     /* address */
         }
-
     }
     return f;
 }
