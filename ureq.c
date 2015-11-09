@@ -437,13 +437,13 @@ static char *ureq_get_code_description(int c) {
     }
 }
 
-static char *ureq_set_mimetype(char *r) {
+static char *ureq_set_mimetype(const char *r) {
     const char *e = strrchr(r, '.');
-    if (e) e += 1;
-    else return "text/html";
+    if (!e) return "text/html";
+    e += 1;
 
-    int i = 0;
-    for (i=0; UreqMimeTypes[i].ext != NULL; i++)
+    int i;
+    for (i=0; UreqMimeTypes[i].ext != NULL; ++i)
         if (strcmp(UreqMimeTypes[i].ext, e) == 0) break;
 
     return (char*) UreqMimeTypes[i].mime;
