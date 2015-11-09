@@ -71,7 +71,7 @@ UreqFile ureq_fs_open(const char *rf) {
     return f;
 }
 
-int ureq_fs_first_run(HttpRequest *r) {
+static int ureq_fs_first_run(HttpRequest *r) {
     /* 
        If there's no function bound to /, then try
        to read index.html
