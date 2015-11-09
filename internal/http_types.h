@@ -24,8 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef HTTP_TYPES_H
-#define HTTP_TYPES_H
+#ifndef UREQ_HTTP_TYPES_H
+#define UREQ_HTTP_TYPES_H
 
 /*
 */
@@ -100,4 +100,4 @@ typedef struct page_t {
     char *(*func)();
 } Page;
 
-#endif /* HTTP_TYPES_H */
+#endif /* UREQ_HTTP_TYPES_H */
