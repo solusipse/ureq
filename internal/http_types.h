@@ -32,7 +32,7 @@ SOFTWARE.
 typedef struct ureq_mime_t {
     const char *ext;
     const char *mime;
-} UreqMine;
+} UreqMime;
 
 /*
 */
