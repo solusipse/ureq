@@ -86,8 +86,8 @@ typedef struct ureq_http_request_t {
     int valid;
 
     /* Type Methods */
-    char *(*func)(struct http_request_t*);
-    char *(*page404)(struct http_request_t*);
+    char *(*func)(struct ureq_http_request_t*);
+    char *(*page404)(struct ureq_http_request_t*);
 } HttpRequest;
 
 /*
