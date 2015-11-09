@@ -72,33 +72,33 @@ UreqFile ureq_fs_open(const char *rf) {
 }
 
 int ureq_fs_first_run(HttpRequest *r) {
-    // If there's no function bound to /, then try
-    // to read index.html
+    /* 
+       If there's no function bound to /, then try
+       to read index.html
+    */
     UreqFile f;
-    if ( r->response.file ) {
+
+    if (r->response.file) {
         f = ureq_fs_open(r->response.file);
     } else {
-        if ( strcmp(r->url, "/") == 0)
+        if (strcmp(r->url, "/") == 0)
             f = ureq_fs_open("index.html");
         else
             f = ureq_fs_open(r->url + 1);
     }
 
     if (f.address == 0) {
-        // File was not found
+        /* File was not found */
         return ureq_set_404_response(r);
     }
-
-    r->bigFile  =  1;
-    r->complete = -2;
 
     if (r->response.code == 0)
         r->response.code = 200;
 
-    r->file = f;
-
+    r->file     =  f;
+    r->bigFile  =  1;
+    r->complete = -2;
     r->response.data = ureq_generate_response_header(r);
     r->len = strlen(r->response.data);
-
     return r->complete;
 }
