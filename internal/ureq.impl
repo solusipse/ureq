@@ -31,14 +31,20 @@ SOFTWARE.
     #define UREQ_STATIC_LIST
 #endif
 
-#include "ureq.h"
+#ifdef UREQ_STATIC_LIST
+    static Page pages[16];
+    static int pageCount = 0;
+#else
+    static Page *pages = NULL;
+    static int pageCount = 0;
+#endif
 
 #ifdef UREQ_ESP8266
-    #include "hardware/ureq_esp8266.h"
+    #include "../hardware/ureq_esp8266.h"
 #endif
 
 #ifdef UREQ_USE_FILESYSTEM
-    #include "ureq_filesystem.c"
+    #include "ureq_filesystem.h"
 #endif
 
 const char **ureq_methods = {
@@ -50,7 +56,7 @@ const char **ureq_methods = {
     NULL
 };
 
-const UreqMime UreqMimeTypes[] = {
+const UreqMime ureq_mime_types[] = {
     /* Text mimes */
     {"html",    "text/html"},
     {"htm",     "text/html"},
@@ -75,16 +81,6 @@ const UreqMime UreqMimeTypes[] = {
     */
     {NULL,      "text/html"}
 };
-
-
-#ifndef UREQ_STATIC_LIST
-    static struct Page *pages = NULL;
-    static int pageCount = 0;
-#else
-    static struct Page pages[16];
-    static int pageCount = 0;
-#endif
-
 
 static int ureq_get_header(char *h, const char *r) {
     const char *p = strstr(r, UREQ_EOL);
