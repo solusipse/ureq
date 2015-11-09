@@ -24,7 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// TODO: headers cleanup
+#ifndef UREQ_IMPL_H
+#define UREQ_IMPL_H
 
 #ifdef UREQ_ESP8266
     #define UREQ_STATIC_LIST
@@ -38,6 +39,50 @@ SOFTWARE.
 
 #ifdef UREQ_USE_FILESYSTEM
     #include "ureq_filesystem.c"
+#endif
+
+const char **ureq_methods = {
+    UREQ_GET,
+    UREQ_POST,
+    UREQ_ALL,
+    UREQ_PUT,
+    UREQ_DELETE,
+    NULL
+};
+
+const UreqMime UreqMimeTypes[] = {
+    /* Text mimes */
+    {"html",    "text/html"},
+    {"htm",     "text/html"},
+    {"js",      "text/javascript"},
+    {"txt",     "text/plain"},
+    {"css",     "text/css"},
+    {"xml",     "text/xml"},
+    
+    /* Image mimes */
+    {"bmp",     "image/bmp"},
+    {"gif",     "image/gif"},
+    {"png",     "image/png"},
+    {"jpg",     "image/jpeg"},
+    {"jpeg",    "image/jpeg"},
+
+    /* Application mimes */
+    {"json",    "application/json"},
+
+    /*
+       The default mime-type is text/html (urls without extensions)
+       Use it for files with unknown extensions
+    */
+    {NULL,      "text/html"}
+};
+
+
+#ifndef UREQ_STATIC_LIST
+    static struct Page *pages = NULL;
+    static int pageCount = 0;
+#else
+    static struct Page pages[16];
+    static int pageCount = 0;
 #endif
 
 
@@ -571,4 +616,4 @@ void ureq_finish() {
     #endif
 }
 
-
+#endif /* UREQ_IMPL_H */
