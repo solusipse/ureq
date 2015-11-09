@@ -167,7 +167,7 @@ static void ureq_get_query(HttpRequest *r);
 static void ureq_generate_response(HttpRequest *r, char *html);
 static void ureq_set_post_data(HttpRequest *r);
 
-static char *ureq_set_mimetype(char *r);
+static char *ureq_set_mimetype(const char *r);
 static char *ureq_generate_response_header(HttpRequest *r);
 static char *ureq_get_code_description(int c);
 
