@@ -29,46 +29,7 @@ SOFTWARE.
 
 #include "internal/env_dep.h"
 #include "internal/ureq_pages.h"
-#include "internal/http_types.h"
-
-const char *UreqMethods[] = {
-    GET,
-    POST,
-    ALL,
-    PUT,
-    DELETE,
-    NULL
-};
-
-const UreqMime UreqMimeTypes[] = {
-    {"html",    "text/html"},
-    {"htm",     "text/html"},
-    {"js",      "text/javascript"},
-    {"txt",     "text/plain"},
-    {"css",     "text/css"},
-    {"xml",     "text/xml"},
-    
-    {"bmp",     "image/bmp"},
-    {"gif",     "image/gif"},
-    {"png",     "image/png"},
-    {"jpg",     "image/jpeg"},
-    {"jpeg",    "image/jpeg"},
-
-    {"json",    "application/json"},
-    // Default mime-type is text/html (urls without extensions)
-    // Use it for files with unknown extension
-    {NULL,        "text/html"}
-};
-
-
-#ifndef UREQ_STATIC_LIST
-    static struct Page *pages = NULL;
-    static int pageCount = 0;
-#else
-    static struct Page pages[16];
-    static int pageCount = 0;
-#endif
-    
+#include "internal/http_types.h"    
 
 void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
 
