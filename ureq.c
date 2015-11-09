@@ -507,26 +507,21 @@ static void ureq_set_post_data(HttpRequest *r) {
     r->body = n + 4;
 }
 
-static void ureq_param_to_value(char *data, char *buffer, char *arg) {
+static void ureq_param_to_value(char *data, char *buffer, const char *arg) {
     char *bk, *buf;
-    for (buf = strtok_r(data,"&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
+    for (buf = strtok_r(data, "&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
 
-        if (strstr(buf, arg) == NULL) {
-            buffer[0] = '\0';
-            continue;
-        }
+        if (strstr(buf, arg) == NULL) continue;
 
-        char *sptr = NULL;
+        char *sptr;
         buf = strtok_r(buf, "=", &sptr);
 
-        if ( strcmp(buf, arg) == 0 ) {
+        if (strcmp(buf, arg) == 0) {
             strcpy(buffer, sptr);
             return;
         }
-        else {
-            buffer[0] = '\0';
-        }
     }
+    *buffer = '\0';
 }
 
 char *ureq_get_param_value(HttpRequest *r, char *arg) {
