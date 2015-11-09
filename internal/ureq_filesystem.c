@@ -1,7 +1,5 @@
-#include <stdio.h>
-
-// TODO: move all defines to one file
-#define UREQ_FS_START 0x12000
+#ifndef UREQ_FILESYSTEM_H
+#define UREQ_FILESYSTEM_H
 
 /*
    This function comes from dht-esp8266 project
@@ -102,3 +100,5 @@ static int ureq_fs_first_run(HttpRequest *r) {
     r->len = strlen(r->response.data);
     return r->complete;
 }
+
+#endif /* UREQ_FILESYSTEM_H */
