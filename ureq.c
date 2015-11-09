@@ -524,13 +524,12 @@ static void ureq_param_to_value(char *data, char *buffer, const char *arg) {
     *buffer = '\0';
 }
 
-char *ureq_get_param_value(HttpRequest *r, char *arg) {
+char *ureq_get_param_value(HttpRequest *r, const char *arg) {
     if (!r->params) return "\0";
     char *data = malloc(strlen(r->params) + 1);
     strcpy(data, r->params);
     ureq_param_to_value(data, r->_buffer, arg);
     free(data);
-
     return r->_buffer;
 }
 
