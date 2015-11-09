@@ -3,23 +3,25 @@
 // TODO: move all defines to one file
 #define UREQ_FS_START 0x12000
 
-void memcpyAligned(char *dst, char *src, int len) {
-    // This function comes from dht-esp8266 project
-    // It was written by Jeroen Domburg <jeroen@spritesmods.com>
-    int x;
-    int w, b;
-    for (x=0; x<len; x++) {
-        b=((int)src&3);
-        w=*((int *)(src-b));
-        if (b==0) *dst=(w>>0);
-        if (b==1) *dst=(w>>8);
-        if (b==2) *dst=(w>>16);
-        if (b==3) *dst=(w>>24);
-        dst++; src++;
+/*
+   This function comes from dht-esp8266 project
+   It was written by Jeroen Domburg <jeroen@spritesmods.com>
+
+   Slightly modified for this project
+*/
+void memcpy_aligned(char *dst, char *src, const int len) {
+    int x, w, b;
+    for (x = 0; x < len; ++x, ++dst, ++src) {
+        b = ((int)src & 3);
+        w = *((int *)(src - b));
+        switch (b) {
+            case 0 : *dst=(w>>0);  break;
+            case 1 : *dst=(w>>8);  break;
+            case 2 : *dst=(w>>16); break;
+            case 3 : *dst=(w>>24); break;
+        }
     }
 }
-
-
 
 static char *ureq_fs_read(int a, int s, char *buf) {
     char *pos = (char*) UREQ_FS_START + 0x40200000;
