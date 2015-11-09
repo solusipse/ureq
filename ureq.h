@@ -27,10 +27,7 @@ SOFTWARE.
 #ifndef UREQ_H
 #define UREQ_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "internal/env_dep.h"
 #include "ureq_pages.h"
 
 /* Workaround for windows. DELETE is defined in winnt.h */
