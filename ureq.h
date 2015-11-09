@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include "internal/env_dep.h"
 #include "internal/ureq_pages.h"
+#include "internal/http_types.h"
 
 /* Workaround for windows. DELETE is defined in winnt.h */
 #ifdef _WIN32
@@ -59,12 +60,6 @@ const char *UreqMethods[] = {
     NULL
 };
 
-// MIME-TYPES
-struct UreqMimesList {
-    const char *ext;
-    const char *mime;
-};
-
 const struct UreqMimesList UreqMimeTypes[] = {
     {"html",    "text/html"},
     {"htm",     "text/html"},
@@ -85,57 +80,6 @@ const struct UreqMimesList UreqMimeTypes[] = {
     {NULL,        "text/html"}
 };
 
-typedef struct UreqFile {
-    int size;
-    int address;
-} UreqFile;
-
-struct UreqResponse {
-    int  code;
-    char *mime;
-    char *header;
-    char *data;
-    char *file;
-};
-
-struct UreqTemplate {
-    char *destination;
-    char *value;
-};
-
-typedef struct HttpRequest {
-    char *type;
-    char *url;
-    char *version;
-    char *message;
-    char *params;
-    char *body;
-
-    struct UreqResponse response;
-    struct UreqTemplate templates[16];
-    int tmplen;
-
-    int complete;
-    int bigFile;
-    int len;
-
-    UreqFile file;
-    // TODO: use another buffer for backend operations
-    // leave this one for user
-    char buffer[UREQ_BUFFER_SIZE];
-    char _buffer[UREQ_BUFFER_SIZE];
-
-    char *(*func)(struct HttpRequest *);
-    char *(*page404)(struct HttpRequest *);
-
-    int valid;
-} HttpRequest;
-
-struct Page {
-    char *url;
-    char *(*func)();
-    char *method;
-};
 
 #ifndef UREQ_STATIC_LIST
     static struct Page *pages = NULL;
