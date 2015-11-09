@@ -437,64 +437,54 @@ static char *ureq_get_code_description(int c) {
     }
 }
 
-static char *ureq_set_mimetype(char *r) {
+static char *ureq_set_mimetype(const char *r) {
     const char *e = strrchr(r, '.');
-    if (e) e += 1;
-    else return "text/html";
+    if (!e) return "text/html";
+    e += 1;
 
-    int i = 0;
-    for (i=0; UreqMimeTypes[i].ext != NULL; i++)
+    int i;
+    for (i=0; UreqMimeTypes[i].ext != NULL; ++i)
         if (strcmp(UreqMimeTypes[i].ext, e) == 0) break;
 
     return (char*) UreqMimeTypes[i].mime;
 }
 
 static char *ureq_generate_response_header(HttpRequest *r) {
-    char *ct = "";
     // Set default mime type if blank
     if (r->response.mime == NULL) {
-        if ( r->response.code == 200 || r->response.code == 404 ) {
+        if (r->response.code == 200 || r->response.code == 404) {
             r->response.mime = ureq_set_mimetype(r->url);
-            ct = "Content-Type: ";
         } else {
             r->response.mime = "";
         }
-    } else {
-        ct = "Content-Type: ";
-    }
+    } 
 
-    char *br = malloc( strlen(r->response.mime) + strlen(ct) + 1 );
-    strcpy( br, ct );
-    strcat( br, r->response.mime );
+    char *br = malloc(strlen(r->response.mime) + 15);
+    strcpy(br, "Content-Type: ");
+    strcat(br, r->response.mime);
 
     if (r->response.header != NULL) {
-        char *bb = malloc( strlen(r->response.header) + 1 );
-        strcpy(bb, r->response.header );
-        r->response.header = malloc( strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1 );
-        strcpy( r->response.header, br );
-
-        if (strlen(br)>0)
-            strcat( r->response.header, UREQ_EOL );
-
-        strcat( r->response.header, bb );
-
+        char *bb = malloc(strlen(r->response.header) + 1);
+        strcpy(bb, r->response.header);
+        r->response.header = malloc(strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1);
+        strcpy(r->response.header, br);
+        strcat(r->response.header, UREQ_EOL);
+        strcat(r->response.header, bb);
         free(bb);
     } else {
-        r->response.header = malloc( strlen(br) + UREQ_EOL_LEN + 1 );
-        strcpy( r->response.header, br );
+        r->response.header = malloc(strlen(br) + UREQ_EOL_LEN + 1);
+        strcpy(r->response.header, br);
+        strcat(r->response.header, UREQ_EOL);
     }
-    strcat(r->response.header, UREQ_EOL);
-    free(br);
 
-    if (r->response.header == NULL)
-        r->response.header = "";
+    free(br);
 
     char *desc = ureq_get_code_description(r->response.code);
 
     size_t hlen = strlen(HTTP_V) + 4 /*response code*/ + strlen(desc) + \
                   strlen(r->response.header) + 8/*spaces,specialchars*/;
 
-    char *h = malloc( hlen + 1 );
+    char *h = malloc(hlen + 1);
     sprintf(h, "%s %d %s\r\n%s\r\n", HTTP_V, r->response.code, desc, r->response.header);
     
     return h;
@@ -507,49 +497,42 @@ static void ureq_set_post_data(HttpRequest *r) {
     r->body = n + 4;
 }
 
-static void ureq_param_to_value(char *data, char *buffer, char *arg) {
+static void ureq_param_to_value(char *data, char *buffer, const char *arg) {
     char *bk, *buf;
-    for (buf = strtok_r(data,"&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
+    for (buf = strtok_r(data, "&", &bk); buf != NULL; buf = strtok_r(NULL, "&", &bk)) {
 
-        if (strstr(buf, arg) == NULL) {
-            buffer[0] = '\0';
-            continue;
-        }
+        if (strstr(buf, arg) == NULL) continue;
 
-        char *sptr = NULL;
+        char *sptr;
         buf = strtok_r(buf, "=", &sptr);
 
-        if ( strcmp(buf, arg) == 0 ) {
+        if (strcmp(buf, arg) == 0) {
             strcpy(buffer, sptr);
             return;
         }
-        else {
-            buffer[0] = '\0';
-        }
     }
+    *buffer = '\0';
 }
 
-char *ureq_get_param_value(HttpRequest *r, char *arg) {
+char *ureq_get_param_value(HttpRequest *r, const char *arg) {
     if (!r->params) return "\0";
     char *data = malloc(strlen(r->params) + 1);
     strcpy(data, r->params);
     ureq_param_to_value(data, r->_buffer, arg);
     free(data);
-
     return r->_buffer;
 }
 
-char *ureq_post_param_value(HttpRequest *r, char *arg) {
+char *ureq_post_param_value(HttpRequest *r, const char *arg) {
     if (!r->body) return "\0";
     char *data = malloc(strlen(r->body) + 1);
     strcpy(data, r->body);
     ureq_param_to_value(data, r->_buffer, arg);
     free(data);
-
     return r->_buffer;
 }
 
-static void ureq_remove_parameters(char *b, char *u) {
+static void ureq_remove_parameters(char *b, const char *u) {
     char *bk;
     strcpy(b, u);
     b = strtok_r(b, "?", &bk);
@@ -558,8 +541,7 @@ static void ureq_remove_parameters(char *b, char *u) {
 static void ureq_get_query(HttpRequest *r) {
     char *q = strchr(r->url, '?');
     if (q == NULL) return;
-
-    r->params = r->url + (int)(q - r->url) + 1;
+    r->params = q + 1;
 }
 
 void ureq_template(HttpRequest *r, char *d, char *v) {
