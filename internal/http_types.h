@@ -60,7 +60,7 @@ typedef struct ureq_template_t {
 
 /*
 */
-typedef struct http_request_t {
+typedef struct ureq_http_request_t {
     char *type;
     char *url;
     char *version;
