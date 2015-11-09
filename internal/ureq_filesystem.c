@@ -9,7 +9,7 @@
 
    Slightly modified for this project
 */
-void memcpy_aligned(char *dst, char *src, const int len) {
+static void memcpy_aligned(char *dst, char *src, const int len) {
     int x, w, b;
     for (x = 0; x < len; ++x, ++dst, ++src) {
         b = ((int)src & 3);
