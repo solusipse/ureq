@@ -23,13 +23,11 @@ void memcpy_aligned(char *dst, char *src, const int len) {
     }
 }
 
-static char *ureq_fs_read(int a, int s, char *buf) {
-    char *pos = (char*) UREQ_FS_START + 0x40200000;
+static char *ureq_fs_read(const int a, const int s, char *buf) {
+    char *pos = (char*)(UREQ_FS_START + 0x40200000);
     pos += a;
-
     memset(buf, 0, 1024);
-    memcpyAligned(buf, pos, s);
-
+    memcpy_aligned(buf, pos, s);
     return buf;
 }
 
