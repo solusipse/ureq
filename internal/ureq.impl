@@ -32,10 +32,10 @@ SOFTWARE.
 #endif
 
 #ifdef UREQ_STATIC_LIST
-    static Page pages[16];
+    static UreqPage pages[16];
     static int pageCount = 0;
 #else
-    static Page *pages = NULL;
+    static UreqPage *pages = NULL;
     static int pageCount = 0;
 #endif
 
