@@ -60,7 +60,7 @@ const char *UreqMethods[] = {
     NULL
 };
 
-const struct UreqMimesList UreqMimeTypes[] = {
+const UreqMime UreqMimeTypes[] = {
     {"html",    "text/html"},
     {"htm",     "text/html"},
     {"js",      "text/javascript"},
