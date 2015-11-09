@@ -542,7 +542,7 @@ char *ureq_post_param_value(HttpRequest *r, const char *arg) {
     return r->_buffer;
 }
 
-static void ureq_remove_parameters(char *b, char *u) {
+static void ureq_remove_parameters(char *b, const char *u) {
     char *bk;
     strcpy(b, u);
     b = strtok_r(b, "?", &bk);
