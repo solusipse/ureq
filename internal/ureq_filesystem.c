@@ -31,7 +31,7 @@ static char *ureq_fs_read(const int a, const int s, char *buf) {
     return buf;
 }
 
-UreqFile ureq_fs_open(const char *rf) {
+static UreqFile ureq_fs_open(const char *rf) {
     char *pos = (char*)(UREQ_FS_START + 0x40200000);
     char    name[16];
     int32_t size;
