@@ -78,7 +78,6 @@ static UreqFile ureq_fs_open(const char *rf) {
         if (strcmp(name, rf) == 0) {
             /* Requested file was found */
             pos += sizeof(char) * 16;
-            int size, address;
             os_memcpy(&size, pos, sizeof(int32_t));
             pos += sizeof(int32_t);
             os_memcpy(&address, pos, sizeof(int32_t));
