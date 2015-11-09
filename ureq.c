@@ -450,51 +450,41 @@ static char *ureq_set_mimetype(const char *r) {
 }
 
 static char *ureq_generate_response_header(HttpRequest *r) {
-    char *ct = "";
     // Set default mime type if blank
     if (r->response.mime == NULL) {
-        if ( r->response.code == 200 || r->response.code == 404 ) {
+        if (r->response.code == 200 || r->response.code == 404) {
             r->response.mime = ureq_set_mimetype(r->url);
-            ct = "Content-Type: ";
         } else {
             r->response.mime = "";
         }
-    } else {
-        ct = "Content-Type: ";
-    }
+    } 
 
-    char *br = malloc( strlen(r->response.mime) + strlen(ct) + 1 );
-    strcpy( br, ct );
-    strcat( br, r->response.mime );
+    char *br = malloc(strlen(r->response.mime) + 15);
+    strcpy(br, "Content-Type: ");
+    strcat(br, r->response.mime);
 
     if (r->response.header != NULL) {
-        char *bb = malloc( strlen(r->response.header) + 1 );
-        strcpy(bb, r->response.header );
-        r->response.header = malloc( strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1 );
-        strcpy( r->response.header, br );
-
-        if (strlen(br)>0)
-            strcat( r->response.header, UREQ_EOL );
-
-        strcat( r->response.header, bb );
-
+        char *bb = malloc(strlen(r->response.header) + 1);
+        strcpy(bb, r->response.header);
+        r->response.header = malloc(strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1);
+        strcpy(r->response.header, br);
+        strcat(r->response.header, UREQ_EOL);
+        strcat(r->response.header, bb);
         free(bb);
     } else {
-        r->response.header = malloc( strlen(br) + UREQ_EOL_LEN + 1 );
-        strcpy( r->response.header, br );
+        r->response.header = malloc(strlen(br) + UREQ_EOL_LEN + 1);
+        strcpy(r->response.header, br);
+        strcat(r->response.header, UREQ_EOL);
     }
-    strcat(r->response.header, UREQ_EOL);
-    free(br);
 
-    if (r->response.header == NULL)
-        r->response.header = "";
+    free(br);
 
     char *desc = ureq_get_code_description(r->response.code);
 
     size_t hlen = strlen(HTTP_V) + 4 /*response code*/ + strlen(desc) + \
                   strlen(r->response.header) + 8/*spaces,specialchars*/;
 
-    char *h = malloc( hlen + 1 );
+    char *h = malloc(hlen + 1);
     sprintf(h, "%s %d %s\r\n%s\r\n", HTTP_V, r->response.code, desc, r->response.header);
     
     return h;
