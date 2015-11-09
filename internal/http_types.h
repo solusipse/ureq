@@ -92,12 +92,12 @@ typedef struct http_request_t {
 
 /*
 */
-typedef struct page_t {
+typedef struct ureq_page_t {
     char *url;
     char *method;
 
     /* Type Methods */
     char *(*func)();
-} Page;
+} UreqPage;
 
 #endif /* UREQ_HTTP_TYPES_H */
