@@ -89,9 +89,9 @@ const UreqMime ureq_mime_types[] = {
 
 static int ureq_get_header(char *h, const char *r) {
     const char *p = strstr(r, UREQ_EOL);
-    if (!p) return 1;
+    if (!p) return 0;
     strncpy(h, r, (p-r));
-    return 0;
+    return 1;
 }
 
 static int ureq_check_method_validity(const char *m) {
