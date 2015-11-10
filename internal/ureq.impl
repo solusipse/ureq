@@ -222,58 +222,68 @@ static int ureq_first_run(HttpRequest *req) {
     req->complete = -2;
 
     int i;
-    for (i = 0; i < pageCount; i++) {
+    for (i = 0; i < pageCount; ++i) {
         /*
-        This loop iterates through a pages list and compares
-        urls and methods to requested ones. If there's a match,
-        it calls a corresponding function and saves http
-        response to req.response.
+           This loop iterates through a pages list and compares
+           urls and methods to requested ones. If there's a match,
+           it calls a corresponding function and saves http
+           response to req.response.
         */
 
-        // Start from checking if page's special (e.g. 404)
-        if ( !req->page404 )
-            if ( strcmp(pages[i].url, "404") == 0)
+        /* Start from checking if page's special (e.g. 404) */
+        if (!req->page404)
+            if (!strcmp(pages[i].url, "404"))
                 req->page404 = pages[i].func;
 
-        char *plain_url = malloc( strlen(req->url) + 1 );
+        char *plain_url = malloc(strlen(req->url) + 1);
         ureq_remove_parameters(plain_url, req->url);
 
-        // If there's no match between this, skip to next iteration.
-        if ( strcmp(plain_url, pages[i].url) != 0 ) {
+        /* If there's no match between this, skip to next iteration. */
+        if (strcmp(plain_url, pages[i].url)) {
             free(plain_url);
             continue;
         }
         free(plain_url);
 
-        // If request type is ALL, corresponding function is always called,
-        // no matter which method type was used.
-        if ( strcmp(ALL, pages[i].method) != 0 ) {
-            // If there's no match between an url and method, skip
-            // to next iteration.
-            if ( strcmp(req->type, pages[i].method) != 0 ) {
+        /*
+           If request type is ALL, corresponding function is always called,
+           no matter which method type was used.
+        */
+        if (!strcmp(ALL, pages[i].method)) {
+            /*
+               If there's no match between an url and method, skip
+               to next iteration.
+            */
+            if (strcmp(req->type, pages[i].method)) {
                 continue;
             }
         }
 
-        // Save get parameters to r->params
-        ureq_get_query( req );
+        /* Save get parameters to r->params */
+        ureq_get_query(req);
 
-        // If method was POST, save body to r->message
-        if ( strcmp (POST, req->type ) == 0 )
+        /* If method was POST, save body to r->message */
+        if (!strcmp(UREQ_POST, req->type))
             ureq_set_post_data(req);
-        // Run page function but don't save data from it
-        // at first run (use it now only to set some things).
-        // If user returns blank string, don't send data again
-        // (complete code 2)
-        if (strlen(pages[i].func( req )) == 0)
+
+        /*
+           Run page function but don't save data from it
+           at first run (use it now only to set some things).
+           If user returns blank string, don't send data again
+           (complete code 2)
+        */
+        if (!strlen(pages[i].func(req)))
             req->complete = 2;
-        // Save pointer to page's func for later use
+
+        /* Save pointer to page's func for later use */
         req->func = pages[i].func;
 
-        // If user decided to bind an url to file, set mimetype
-        // here and break.
-        if ( req->response.file ) {
-            if ( !req->response.mime )
+        /*
+           If user decided to bind an url to file, set mimetype
+           here and break.
+        */
+        if (req->response.file) {
+            if (!req->response.mime )
                 req->response.mime = ureq_set_mimetype(req->response.file);
             break;
         }
@@ -281,13 +291,13 @@ static int ureq_first_run(HttpRequest *req) {
         if (req->response.code == 0)
             req->response.code = 200;
 
-        // Return only header at first run
+        /* Return only header at first run */
         req->response.data = ureq_generate_response_header(req);
         req->len = strlen(req->response.data);
 
         return req->complete;
     }
-    #if defined UREQ_USE_FILESYSTEM
+    #ifdef UREQ_USE_FILESYSTEM
         return ureq_fs_first_run(req);
     #else
         return ureq_set_404_response(req);
