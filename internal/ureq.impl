@@ -248,7 +248,7 @@ static int ureq_first_run(HttpRequest *req) {
            If request type is ALL, corresponding function is always called,
            no matter which method type was used.
         */
-        if (!strcmp(ALL, pages[i].method)) {
+        if (!strcmp(UREQ_ALL, pages[i].method)) {
             /*
                If there's no match between an url and method, skip
                to next iteration.
