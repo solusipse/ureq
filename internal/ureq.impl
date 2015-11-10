@@ -110,37 +110,37 @@ static int ureq_parse_header(HttpRequest *req, const char *r) {
     char *b = NULL;
     char *bk = NULL;
 
-    if ( ureq_get_header(header, r) != 0 ) {
+    if (!ureq_get_header(header, r)) {
         free(header);
-        return 1;
+        return 0;
     }
 
     b = strtok_r(header, " ", &bk);
-    if (ureq_check_method_validity(b) == 0) {
+    if (!ureq_check_method_validity(b)) {
         free(header);
-        return 1;
+        return 0;
     }
-    req->type = malloc( strlen(b) + 1 );
+    req->type = malloc(strlen(b) + 1);
     strcpy(req->type, b);
 
     b = strtok_r(NULL, " ", &bk);
-    if (b == NULL) {
+    if (!b) {
         free(header);
-        return 1;
+        return 0;
     }
-    req->url = malloc( strlen(b) + 1 );
+    req->url = malloc(strlen(b) + 1);
     strcpy(req->url, b);
 
     b = strtok_r(NULL, " ", &bk);
-    if (b == NULL) {
+    if (!b) {
         free(header);
-        return 1;
+        return 0;
     }
-    if ( strncmp(b, "HTTP/1.", 7) != 0 ) {
+    if (strncmp(b, "HTTP/1.", 7)) {
         free(header);
-        return 1;
+        return 0;
     }
-    req->version = malloc( strlen(b) + 1 );
+    req->version = malloc(strlen(b) + 1);
     strcpy(req->version, b);
     free(header);
 
@@ -155,7 +155,7 @@ static int ureq_parse_header(HttpRequest *req, const char *r) {
     req->response.file      = NULL;
     req->response.code      = 0;
 
-    return 0;
+    return 1;
 }
 
 void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method) {
