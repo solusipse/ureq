@@ -35,6 +35,8 @@ SOFTWARE.
 #define UREQ_DELETE	     "DELETE"
 #define UREQ_HTTP_V      "HTTP/1.1"
 
+#define UREQ_HTTP_REQ_LEN 14
+
 #define UREQ_EOL         "\r\n"
 #define UREQ_EOL_LEN     2
 
