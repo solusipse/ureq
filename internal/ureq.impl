@@ -320,9 +320,9 @@ static void ureq_parse_template(char *dst, char *buf, char *from, char *to) {
 }
 
 static void ureq_render_template(HttpRequest *r) {
-    if (r->tmplen <= 0) return;
+    if (r->tmp_len <= 0) return;
     int i, tlen;
-    for (i=0,tlen=0; i < r->tmplen; i++) {
+    for (i=0,tlen=0; i < r->tmp_len; i++) {
         tlen += strlen(r->templates[i].value);
         tlen -= strlen(r->templates[i].destination);
         tlen -= 4; /* special characers - {{x}} */
@@ -345,7 +345,7 @@ static void ureq_render_template(HttpRequest *r) {
         //       at the seam (between buffer iterations).
         // TODO: handle special chars, eg. {{ }}
 
-            if (r->bigFile) {
+            if (r->big_file) {
                 r->buffer[strlen(r->buffer)-tlen] = 0;
                 r->file.address -= tlen;
                 r->file.size += tlen;
@@ -355,7 +355,7 @@ static void ureq_render_template(HttpRequest *r) {
         }
     }
     // Everything's prepared for running replacing function
-    for (i=0; i < r->tmplen; i++) {
+    for (i=0; i < r->tmp_len; i++) {
         ureq_parse_template(r->buffer, r->_buffer, r->templates[i].destination, r->templates[i].value);
     }
 
