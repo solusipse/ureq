@@ -27,9 +27,7 @@ SOFTWARE.
 #ifndef UREQ_H
 #define UREQ_H
 
-#include "internal/env_dep.h"
-#include "internal/ureq_pages.h"
-#include "internal/http_types.h"    
+#include "internal/http_types.h"
 
 void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
 
@@ -55,5 +53,7 @@ static char *ureq_get_code_description(int c);
 
 static int ureq_set_error_response(HttpRequest *r);
 static int ureq_set_404_response(HttpRequest *r);
+
+#include "internal/ureq.impl"
 
 #endif
