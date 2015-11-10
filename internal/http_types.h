@@ -78,10 +78,9 @@ typedef struct ureq_http_request_t {
     int len;
 
     UreqFile file;
-    // TODO: use another buffer for backend operations
-    // leave this one for user
-    char buffer[UREQ_BUFFER_SIZE];
-    char _buffer[UREQ_BUFFER_SIZE];
+    
+    char buffer[UREQ_BUFFER_SIZE];  /* Buffer for user operations */
+    char _buffer[UREQ_BUFFER_SIZE]; /* Buffer for backend operations */
 
     int valid;
 
