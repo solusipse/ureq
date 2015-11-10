@@ -547,8 +547,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 
 static void ureq_set_post_data(HttpRequest *r) {
     char *n = strstr(r->message, "\r\n\r\n");
-    if (n == NULL) return;
-
+    if (!n) return;
     r->body = n + 4;
 }
 
