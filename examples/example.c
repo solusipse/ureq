@@ -112,12 +112,12 @@ int main() {
     will come. First, set url, then corresponding function, then method
     that will be connected to that url.
     */
-    ureq_serve("/", s_home, GET);
-    ureq_serve("/header", s_header, GET);
-    ureq_serve("/param", s_param, GET);
-    ureq_serve("/all", s_all, ALL);
-    ureq_serve("/post", s_post, POST);
-    ureq_serve("/buffer", s_buf, GET);
+    ureq_serve("/", s_home, UREQ_GET);
+    ureq_serve("/header", s_header, UREQ_GET);
+    ureq_serve("/param", s_param, UREQ_GET);
+    ureq_serve("/all", s_all, UREQ_ALL);
+    ureq_serve("/post", s_post, UREQ_POST);
+    ureq_serve("/buffer", s_buf, UREQ_GET);
 
     //ureq_serve("404", s_404, ALL);
 
