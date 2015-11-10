@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef UREQ_IMPL_H
 #define UREQ_IMPL_H
 
-#include "env_dep.h"
+#include "ureq_env_dep.h"
 #include "ureq_fwd.h"
 #include "ureq_pages.h"
 
