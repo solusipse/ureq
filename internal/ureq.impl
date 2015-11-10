@@ -602,7 +602,7 @@ static void ureq_get_query(HttpRequest *r) {
 void ureq_template(HttpRequest *r, char *d, char *v) {
     if (r->complete != -2) return;
     UreqTemplate t = {d, v};
-    r->templates[r->tmplen++] = t;
+    r->templates[r->tmp_len++] = t;
 }
 
 void ureq_close( HttpRequest *req ) {
