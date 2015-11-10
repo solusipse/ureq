@@ -30,30 +30,24 @@ SOFTWARE.
 #include "internal/ureq_defines.h"
 #include "internal/http_types.h"
 
-void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
+void        ureq_serve    (char *url, char *(*func)(HttpRequest*), char *method);
+HttpRequest ureq_init     (const char *r);
+void        ureq_close    (HttpRequest *req);
+void        ureq_finish   ();
+void        ureq_template (HttpRequest *req, char *dst, char *cnt);
+int         ureq_run      (HttpRequest *req);
 
-HttpRequest ureq_init(const char *r);
-
-void ureq_close( struct HttpRequest *req );
-void ureq_finish();
-
-void ureq_template(HttpRequest *r, char *dst, char *cnt);
-
-int ureq_run(struct HttpRequest *req);
-
-static int  ureq_get_header(char *h, const char *r);
-static int  ureq_parse_header(struct HttpRequest *req, const char *r);
-static void ureq_remove_parameters(char *b, const char *u);
-static void ureq_get_query(HttpRequest *r);
-static void ureq_generate_response(HttpRequest *r, char *html);
-static void ureq_set_post_data(HttpRequest *r);
-
-static char *ureq_set_mimetype(const char *r);
-static char *ureq_generate_response_header(HttpRequest *r);
-static char *ureq_get_code_description(int c);
-
-static int ureq_set_error_response(HttpRequest *r);
-static int ureq_set_404_response(HttpRequest *r);
+static int   ureq_get_header               (char *h, const char *r);
+static int   ureq_parse_header             (HttpRequest *req, const char *r);
+static void  ureq_remove_parameters        (char *b, const char *u);
+static void  ureq_get_query                (HttpRequest *req);
+static void  ureq_generate_response        (HttpRequest *req, char *html);
+static void  ureq_set_post_data            (HttpRequest *req);
+static char *ureq_set_mimetype             (const char *r);
+static char *ureq_generate_response_header (HttpRequest *req);
+static char *ureq_get_code_description     (const int c);
+static int   ureq_set_error_response       (HttpRequest *req);
+static int   ureq_set_404_response         (HttpRequest *req);
 
 #include "internal/ureq.impl"
 
