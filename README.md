@@ -5,19 +5,19 @@ Micro C library for handling HTTP requests on low resource systems. Please note 
 
 ## How does it work?
 
-ureq is a middleware that sits between any kind of tcp server and the core of your application. Use it to **dispatch urls to functions**, like this: `ureq_serve("/", my_function, GET);`. It supports **basic http functionality** and can be used anywhere **system resources are low** (it was built for embedded systems, e.g. ESP8266) or where sophisticated http features aren't needed. And yes, **it understands RESTful**.
+ureq is a middleware that sits between any kind of tcp server and the core of your application. Use it to **dispatch urls to functions**, like this: `ureq_serve("/", my_function, UREQ_GET);`. It supports **basic http functionality** and can be used anywhere **system resources are low** (it was built for embedded systems, e.g. ESP8266) or where sophisticated http features aren't needed. And yes, **it understands RESTful**.
 
 ## Basic usage
 
 As said before, `ureq` is used for dispatching. **Let's add a couple of urls then**:
 ```
-ureq_serve("/", s_home, GET);
-ureq_serve("/post", s_post, POST);
+ureq_serve("/", s_home, UREQ_GET);
+ureq_serve("/post", s_post, UREQ_POST);
 ...
-ureq_serve("/all", s_all, ALL);
+ureq_serve("/all", s_all, UREQ_ALL);
 
 ```
-How does it work? **When there's a request for an url** (`/`, `/all`, `/post`), **with corresponding method** (`GET`, `POST`, `PUT`, `DELETE`,  `ALL`), **ureq calls the corresponding function** (`s_home()`, `s_post()`, ...,  `s_all()`). What's `ALL` method? It calls a function connected to the url, no matter which type of method was used.
+How does it work? **When there's a request for an url** (`/`, `/all`, `/post`), **with corresponding method** (`UREQ_GET`, `UREQ_POST`, `UREQ_PUT`, `UREQ_DELETE`,  `UREQ_ALL`), **ureq calls the corresponding function** (`s_home()`, `s_post()`, ...,  `s_all()`). What's `UREQ_ALL` method? It calls a function connected to the url, no matter which type of method was used.
 
 But wait, how should such function look like? The only requirement is that **it has to return a string** that will be sent to a client. For example:
 
@@ -72,7 +72,7 @@ char *s_home() {
 }
 
 int main() {
-    ureq_serve("/", s_home, GET);
+    ureq_serve("/", s_home, UREQ_GET);
 
     char request[] = "GET / HTTP/1.1\n"
                      "Host: 127.0.0.1:80\n";
@@ -97,12 +97,13 @@ To take **precise control of server's response**, modify **HttpRequest** struct'
 Let's take a look at `Response` struct, which is initialized in every request struct:
 
 ```
-struct Response {
+typedef struct ureq_response_t {
     int  code;
     char *mime;
     char *header;
     char *data;
-};
+    char *file;
+} UreqResponse;
 ```
 
 Except `*data`, these parameters can be set from your page functions. Some examples:
