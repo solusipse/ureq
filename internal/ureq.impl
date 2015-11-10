@@ -367,10 +367,10 @@ static int ureq_next_run(HttpRequest *req) {
         free(req->response.data);
     }
 
-    struct UreqResponse respcpy = req->response;
+    UreqResponse respcpy = req->response;
     req->complete--;
 
-    if (req->bigFile) {
+    if (req->big_file) {
         #if defined UREQ_USE_FILESYSTEM
             if (req->file.size > UREQ_BUFFER_SIZE) {
                 respcpy.data = ureq_fs_read(req->file.address, UREQ_BUFFER_SIZE, req->buffer);
