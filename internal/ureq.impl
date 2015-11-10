@@ -431,12 +431,16 @@ static int ureq_set_error_response(HttpRequest *r) {
 }
 
 int ureq_run(HttpRequest *req) {
-    /* Code meanings:
-     * 1:   everything went smooth
-     * 2:   user provided blank string, don't send data
-     *      for the second time (and free header)
-     * <-1: still running, on -2 free header which is
-     *      dynamically alloced */
+    /*
+       Code meanings:
+        1: Everything went smooth
+
+        2: User provided blank string, don't send data
+           for the second time (and free header)
+
+      <-1: Still running, on -2 free header which is
+           dynamically alloced
+    */
     if (req->complete == 1)
         return 0;
 
@@ -445,20 +449,20 @@ int ureq_run(HttpRequest *req) {
         return 0;
     }
 
+    /*
+       If code equals to -1, it's the very first run,
+       parameters are set there and header is sent.
+
+       Data (if any), will be sent in next run(s).
+    */
     if (req->complete == -1) {
-        // If code equals to -1, it's the very first run,
-        // parameters are set there and header is sent.
-        // Data (if any), will be sent in next run(s).
-
-        // If request was invalid, set everything to null
+        /* If request was invalid, set everything to null */
         if (!req->valid) return ureq_set_error_response(req);
-
         return ureq_first_run(req);
     }
     
-    if ((req->complete < -1) && (req->response.code != 404)) {
+    if ((req->complete < -1) && (req->response.code != 404))
         return ureq_next_run(req);
-    }
 
     return 0;
 }
