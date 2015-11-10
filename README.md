@@ -65,7 +65,7 @@ To perform a **cleanup**. See `examples/example.c` for basic server-less request
 Let's summarize:
 
 ```
-#include "ureq.c"
+#include "ureq.h"
 
 char *s_home() {
     return "home";
