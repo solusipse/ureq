@@ -43,8 +43,8 @@ SOFTWARE.
 #define UREQ_FS_START    0x12000
 
 /*
-   This may be redefined on your device,
-   check corresponding file in hardware directory
+   This may be redefined on your device
+   Check corresponding file in hardware directory
 */
 #define UREQ_BUFFER_SIZE 1024
 
