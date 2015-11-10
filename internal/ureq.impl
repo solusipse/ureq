@@ -536,11 +536,11 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 
     char *desc = ureq_get_code_description(r->response.code);
 
-    size_t hlen = strlen(HTTP_V) + 4 /*response code*/ + strlen(desc) + \
+    size_t hlen = strlen(UREQ_HTTP_V) + 4 /*response code*/ + strlen(desc) + \
                   strlen(r->response.header) + 8/*spaces,specialchars*/;
 
     char *h = malloc(hlen + 1);
-    sprintf(h, "%s %d %s\r\n%s\r\n", HTTP_V, r->response.code, desc, r->response.header);
+    sprintf(h, "%s %d %s\r\n%s\r\n", UREQ_HTTP_V, r->response.code, desc, r->response.header);
     
     return h;
 }
