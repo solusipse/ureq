@@ -50,7 +50,7 @@ SOFTWARE.
 #endif
 #include <time.h>
 
-#include "../ureq.c"
+#include "../ureq.h"
 
 #define BUFSIZE 1024
 #define QUEUE_SIZE 100
