@@ -498,10 +498,10 @@ static char *ureq_set_mimetype(const char *r) {
     e += 1;
 
     int i;
-    for (i=0; UreqMimeTypes[i].ext != NULL; ++i)
-        if (strcmp(UreqMimeTypes[i].ext, e) == 0) break;
+    for (i=0; ureq_mime_types[i].ext != NULL; ++i)
+        if (strcmp(ureq_mime_types[i].ext, e) == 0) break;
 
-    return (char*) UreqMimeTypes[i].mime;
+    return (char*) ureq_mime_types[i].mime;
 }
 
 static char *ureq_generate_response_header(HttpRequest *r) {
