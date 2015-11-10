@@ -51,7 +51,7 @@ SOFTWARE.
     #include "ureq_filesystem.h"
 #endif
 
-const char **ureq_methods = {
+const char *ureq_methods[] = {
     UREQ_GET,
     UREQ_POST,
     UREQ_ALL,
