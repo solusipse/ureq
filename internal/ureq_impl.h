@@ -209,7 +209,7 @@ HttpRequest ureq_init(const char *ur) {
     }
 
     /* Actual parsing */
-    if (ureq_parse_header(&r, ur))
+    if (!ureq_parse_header(&r, ur))
         r.valid = 0;
     else
         r.valid = 1;
