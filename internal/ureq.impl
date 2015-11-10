@@ -595,7 +595,7 @@ static void ureq_remove_parameters(char *b, const char *u) {
 
 static void ureq_get_query(HttpRequest *r) {
     char *q = strchr(r->url, '?');
-    if (q == NULL) return;
+    if (!q) return;
     r->params = q + 1;
 }
 
