@@ -27,9 +27,9 @@ SOFTWARE.
 #ifndef UREQ_IMPL_H
 #define UREQ_IMPL_H
 
-#include "ureq_env_dep.h"
 #include "ureq_fwd.h"
 #include "ureq_pages.h"
+#include "ureq_env_dep.h"
 
 #ifdef UREQ_ESP8266
     #define UREQ_STATIC_LIST
