@@ -499,7 +499,7 @@ static char *ureq_set_mimetype(const char *r) {
 
     int i;
     for (i=0; ureq_mime_types[i].ext != NULL; ++i)
-        if (strcmp(ureq_mime_types[i].ext, e) == 0) break;
+        if (!strcmp(ureq_mime_types[i].ext, e)) break;
 
     return (char*) ureq_mime_types[i].mime;
 }
