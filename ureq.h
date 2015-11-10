@@ -49,6 +49,6 @@ static char *ureq_get_code_description     (const int c);
 static int   ureq_set_error_response       (HttpRequest *req);
 static int   ureq_set_404_response         (HttpRequest *req);
 
-#include "internal/ureq.impl"
+#include "internal/ureq.impl.h"
 
 #endif
