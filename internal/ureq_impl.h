@@ -158,7 +158,7 @@ static int ureq_parse_header(HttpRequest *req, const char *r) {
 }
 
 void ureq_serve(char *url, char *(*func)(HttpRequest*), char *method) {
-    UreqPage page = {url, func, method};
+    UreqPage page = {url, method, func};
 
     #ifdef UREQ_STATIC_LIST
         pages[pageCount++] = page;
