@@ -27,6 +27,7 @@ SOFTWARE.
 #ifndef UREQ_H
 #define UREQ_H
 
+#include "internal/ureq_defines.h"
 #include "internal/http_types.h"
 
 void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
