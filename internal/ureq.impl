@@ -605,7 +605,7 @@ void ureq_template(HttpRequest *r, char *d, char *v) {
     r->templates[r->tmp_len++] = t;
 }
 
-void ureq_close( HttpRequest *req ) {
+void ureq_close(HttpRequest *req) {
     if (req->type)      free(req->type);
     if (req->url)       free(req->url);
     if (req->version)   free(req->version);
@@ -614,10 +614,9 @@ void ureq_close( HttpRequest *req ) {
     if (!req->valid || req->response.code == 404)
         free(req->response.data);
 
-    if (req->response.header != NULL)
-        if ( strlen(req->response.header) > 1 ) { 
+    if (req->response.header)
+        if (strlen(req->response.header) > 1)
             free(req->response.header);
-        }
 }
 
 void ureq_finish() {
