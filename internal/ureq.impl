@@ -505,8 +505,8 @@ static char *ureq_set_mimetype(const char *r) {
 }
 
 static char *ureq_generate_response_header(HttpRequest *r) {
-    // Set default mime type if blank
-    if (r->response.mime == NULL) {
+    /* Set default mime type if blank */
+    if (!r->response.mime) {
         if (r->response.code == 200 || r->response.code == 404) {
             r->response.mime = ureq_set_mimetype(r->url);
         } else {
@@ -518,7 +518,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
     strcpy(br, "Content-Type: ");
     strcat(br, r->response.mime);
 
-    if (r->response.header != NULL) {
+    if (r->response.header) {
         char *bb = malloc(strlen(r->response.header) + 1);
         strcpy(bb, r->response.header);
         r->response.header = malloc(strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1);
