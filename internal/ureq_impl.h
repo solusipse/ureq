@@ -538,7 +538,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 
     free(br);
 
-    char *desc = ureq_get_code_description(r->response.code);
+    const char *desc = ureq_get_code_description(r->response.code);
 
     size_t hlen = strlen(UREQ_HTTP_V) + 4 /*response code*/ + strlen(desc) + \
                   strlen(r->response.header) + 8/*spaces,specialchars*/;
