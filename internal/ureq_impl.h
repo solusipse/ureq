@@ -480,7 +480,7 @@ static void ureq_generate_response(HttpRequest *r, char *html) {
     free(header);
 }
 
-static char *ureq_get_code_description(const int c) {
+static const char *ureq_get_code_description(const int c) {
     switch (c) {
         case 200: return "OK";
         case 302: return "Found";
