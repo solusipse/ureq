@@ -27,151 +27,28 @@ SOFTWARE.
 #ifndef UREQ_H
 #define UREQ_H
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "ureq_pages.h"
+#include "internal/ureq_defines.h"
+#include "internal/ureq_http_types.h"
 
-/* Workaround for windows. DELETE is defined in winnt.h */
-#ifdef _WIN32
-#undef DELETE
-#endif
+void        ureq_serve    (char *url, char *(*func)(HttpRequest*), char *method);
+HttpRequest ureq_init     (const char *r);
+void        ureq_close    (HttpRequest *req);
+void        ureq_finish   ();
+void        ureq_template (HttpRequest *req, char *dst, char *cnt);
+int         ureq_run      (HttpRequest *req);
 
-// METHODS
-#define GET 	"GET"
-#define POST 	"POST"
-#define ALL 	"ALL"
-#define PUT 	"PUT"
-#define DELETE	"DELETE"
-#define HTTP_V  "HTTP/1.1"
+static int   ureq_get_header               (char *h, const char *r);
+static int   ureq_parse_header             (HttpRequest *req, const char *r);
+static void  ureq_remove_parameters        (char *b, const char *u);
+static void  ureq_get_query                (HttpRequest *req);
+static void  ureq_generate_response        (HttpRequest *req, char *html);
+static void  ureq_set_post_data            (HttpRequest *req);
+static char *ureq_set_mimetype             (const char *r);
+static char *ureq_generate_response_header (HttpRequest *req);
+static char *ureq_get_code_description     (const int c);
+static int   ureq_set_error_response       (HttpRequest *req);
+static int   ureq_set_404_response         (HttpRequest *req);
 
-#define UREQ_EOL "\r\n"
-#define UREQ_EOL_LEN 2
-
-// This may be redefined on your device,
-// check corresponding file in hardware directory
-#define UREQ_BUFFER_SIZE 1024
-
-const char *UreqMethods[] = {
-    GET,
-    POST,
-    ALL,
-    PUT,
-    DELETE,
-    NULL
-};
-
-// MIME-TYPES
-struct UreqMimesList {
-    const char *ext;
-    const char *mime;
-};
-
-const struct UreqMimesList UreqMimeTypes[] = {
-    {"html",    "text/html"},
-    {"htm",     "text/html"},
-    {"js",      "text/javascript"},
-    {"txt",     "text/plain"},
-    {"css",     "text/css"},
-    {"xml",     "text/xml"},
-    
-    {"bmp",     "image/bmp"},
-    {"gif",     "image/gif"},
-    {"png",     "image/png"},
-    {"jpg",     "image/jpeg"},
-    {"jpeg",    "image/jpeg"},
-
-    {"json",    "application/json"},
-    // Default mime-type is text/html (urls without extensions)
-    // Use it for files with unknown extension
-    {NULL,        "text/html"}
-};
-
-typedef struct UreqFile {
-    int size;
-    int address;
-} UreqFile;
-
-struct UreqResponse {
-    int  code;
-    char *mime;
-    char *header;
-    char *data;
-    char *file;
-};
-
-struct UreqTemplate {
-    char *destination;
-    char *value;
-};
-
-typedef struct HttpRequest {
-    char *type;
-    char *url;
-    char *version;
-    char *message;
-    char *params;
-    char *body;
-
-    struct UreqResponse response;
-    struct UreqTemplate templates[16];
-    int tmplen;
-
-    int complete;
-    int bigFile;
-    int len;
-
-    UreqFile file;
-    // TODO: use another buffer for backend operations
-    // leave this one for user
-    char buffer[UREQ_BUFFER_SIZE];
-    char _buffer[UREQ_BUFFER_SIZE];
-
-    char *(*func)(struct HttpRequest *);
-    char *(*page404)(struct HttpRequest *);
-
-    int valid;
-} HttpRequest;
-
-struct Page {
-    char *url;
-    char *(*func)();
-    char *method;
-};
-
-#ifndef UREQ_STATIC_LIST
-    static struct Page *pages = NULL;
-    static int pageCount = 0;
-#else
-    static struct Page pages[16];
-    static int pageCount = 0;
-#endif
-    
-
-void ureq_serve(char *url, char *(*func)(HttpRequest *), char *method);
-
-HttpRequest ureq_init(const char *r);
-
-void ureq_close( struct HttpRequest *req );
-void ureq_finish();
-
-void ureq_template(HttpRequest *r, char *dst, char *cnt);
-
-int ureq_run(struct HttpRequest *req);
-
-static int  ureq_get_header(char *h, const char *r);
-static int  ureq_parse_header(struct HttpRequest *req, const char *r);
-static void ureq_remove_parameters(char *b, const char *u);
-static void ureq_get_query(HttpRequest *r);
-static void ureq_generate_response(HttpRequest *r, char *html);
-static void ureq_set_post_data(HttpRequest *r);
-
-static char *ureq_set_mimetype(const char *r);
-static char *ureq_generate_response_header(HttpRequest *r);
-static char *ureq_get_code_description(int c);
-
-static int ureq_set_error_response(HttpRequest *r);
-static int ureq_set_404_response(HttpRequest *r);
+#include "internal/ureq_impl.h"
 
 #endif

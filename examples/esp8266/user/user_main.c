@@ -12,7 +12,7 @@
 #define UREQ_ESP8266
 #define UREQ_USE_FILESYSTEM
 
-#include "../../../ureq.c"
+#include "../../../ureq.h"
 
 // 6 works best
 // this value was obtained experimentally

@@ -24,31 +24,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef UREQ_ESP8266_H
-#define UREQ_ESP8266_H
+#ifndef UREQ_DEFINES_H
+#define UREQ_DEFINES_H
 
-#include <mem.h>
-#include <osapi.h>
+/* HTTP SYMBOLS */
+#define UREQ_GET 	     "GET"
+#define UREQ_POST 	     "POST"
+#define UREQ_ALL 	     "ALL"
+#define UREQ_PUT 	     "PUT"
+#define UREQ_DELETE	     "DELETE"
+#define UREQ_HTTP_V      "HTTP/1.1"
 
-#define realloc ureq_realloc
-#define malloc  ureq_malloc
-#define free    ureq_free
+#define UREQ_HTTP_REQ_LEN 14
 
-#define printf(...)  os_printf(__VA_ARGS__)
-#define sprintf(...) os_sprintf(__VA_ARGS__)
+#define UREQ_EOL         "\r\n"
+#define UREQ_EOL_LEN     2
 
-#undef  MAX_REQUEST_SIZE
-#define MAX_REQUEST_SIZE 768
+#define UREQ_FS_START    0x12000
 
-char *ureq_malloc(size_t l) {
-    return (char *) os_malloc(l);
-}
+/*
+   This may be redefined on your device
+   Check corresponding file in hardware directory
+*/
+#define UREQ_BUFFER_SIZE 1024
 
-void ureq_free(void *p) {
-    if (p != NULL) {
-        os_free(p);
-        p = NULL;
-    }
-}
-
-#endif /* UREQ_ESP8266_H */
+#endif /* UREQ_DEFINES_H */
+   

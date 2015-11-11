@@ -50,7 +50,7 @@ SOFTWARE.
 #endif
 #include <time.h>
 
-#include "../ureq.c"
+#include "../ureq.h"
 
 #define BUFSIZE 1024
 #define QUEUE_SIZE 100
@@ -164,7 +164,7 @@ char *s_param(HttpRequest *r) {
 }
 
 char *s_post(HttpRequest *r) {
-    if ( strcmp(POST, r->type) != 0 )
+    if ( strcmp(UREQ_POST, r->type) != 0 )
         return  "Try requesting this page with POST method!<br>"
                 "Feel free to use this form:<br>"
                 "<form method='post'>"
@@ -204,13 +204,13 @@ int main_b() {
     before receiving any requests.
     */
 
-    ureq_serve("/", s_home, GET);
-    ureq_serve("/test", s_test, GET);
-    ureq_serve("/post", s_post, ALL);
-    ureq_serve("/param", s_param, GET);
-    ureq_serve("/redirect", s_redirect_to_test, GET);
+    ureq_serve("/", s_home, UREQ_GET);
+    ureq_serve("/test", s_test, UREQ_GET);
+    ureq_serve("/post", s_post, UREQ_ALL);
+    ureq_serve("/param", s_param, UREQ_GET);
+    ureq_serve("/redirect", s_redirect_to_test, UREQ_GET);
 
-    ureq_serve("/exit", s_exit, GET);
+    ureq_serve("/exit", s_exit, UREQ_GET);
 
     return 0;
 }

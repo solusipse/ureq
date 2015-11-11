@@ -24,31 +24,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef UREQ_ESP8266_H
-#define UREQ_ESP8266_H
+#ifndef UREQ_PAGES_H
+#define UREQ_PAGES_H
 
-#include <mem.h>
-#include <osapi.h>
+const char* UREQ_HTML_HEADER = "<html><head><title>";
 
-#define realloc ureq_realloc
-#define malloc  ureq_malloc
-#define free    ureq_free
+const char* UREQ_HTML_BODY = "</title></head><body><center><h1>";
 
-#define printf(...)  os_printf(__VA_ARGS__)
-#define sprintf(...) os_sprintf(__VA_ARGS__)
+const char* UREQ_HTML_FOOTER = "</h1><hr>ureq</center></body></html>";
 
-#undef  MAX_REQUEST_SIZE
-#define MAX_REQUEST_SIZE 768
+const char* UREQ_HTML_PAGE_404 = "<html>"
+    							 "<head><title>404 Not Found</title></head>"
+    							 "<body><center><h1>404 Not Found</h1><hr>ureq</center></body>"
+    							 "</html>";
 
-char *ureq_malloc(size_t l) {
-    return (char *) os_malloc(l);
-}
-
-void ureq_free(void *p) {
-    if (p != NULL) {
-        os_free(p);
-        p = NULL;
-    }
-}
-
-#endif /* UREQ_ESP8266_H */
+#endif /* UREQ_PAGES_H */
