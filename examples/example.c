@@ -121,8 +121,8 @@ int main() {
 
     //ureq_serve("404", s_404, ALL);
 
-    char request[] = "GET /param?test=ok HTTP/1.1\n"
-                     "Host: 127.0.0.1:80\n";
+    char request[] = "GET / HTTP/1.1\r\n"
+                     "Host: 127.0.0.1:80\r\n";
     
     HttpRequest r = ureq_init(request);
 
