@@ -199,7 +199,7 @@ char *s_get(HttpRequest *r) {
 }
 
 char *s_post(HttpRequest *r) {
-    if ( strcmp(POST, r->type) != 0 )
+    if ( strcmp(UREQ_POST, r->type) != 0 )
         return  "Try requesting this page with POST method!<br>"
                 "Feel free to use this form:<br>"
                 "<form method='post'>"

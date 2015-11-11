@@ -118,9 +118,9 @@ static int ureq_fs_first_run(HttpRequest *r) {
     if (r->response.code == 0)
         r->response.code = 200;
 
-    r->file     =  f;
-    r->bigFile  =  1;
-    r->complete = -2;
+    r->file      =  f;
+    r->big_file  =  1;
+    r->complete  = -2;
     r->response.data = ureq_generate_response_header(r);
     r->len = strlen(r->response.data);
     return r->complete;
