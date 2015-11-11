@@ -37,17 +37,17 @@ void        ureq_finish   ();
 void        ureq_template (HttpRequest *req, char *dst, char *cnt);
 int         ureq_run      (HttpRequest *req);
 
-static int   ureq_get_header               (char *h, const char *r);
-static int   ureq_parse_header             (HttpRequest *req, const char *r);
-static void  ureq_remove_parameters        (char *b, const char *u);
-static void  ureq_get_query                (HttpRequest *req);
-static void  ureq_generate_response        (HttpRequest *req, char *html);
-static void  ureq_set_post_data            (HttpRequest *req);
-static char *ureq_set_mimetype             (const char *r);
-static char *ureq_generate_response_header (HttpRequest *req);
-static char *ureq_get_code_description     (const int c);
-static int   ureq_set_error_response       (HttpRequest *req);
-static int   ureq_set_404_response         (HttpRequest *req);
+static       int   ureq_get_header               (char *h, const char *r);
+static       int   ureq_parse_header             (HttpRequest *req, const char *r);
+static       void  ureq_remove_parameters        (char *b, const char *u);
+static       void  ureq_get_query                (HttpRequest *req);
+static       void  ureq_generate_response        (HttpRequest *req, char *html);
+static       void  ureq_set_post_data            (HttpRequest *req);
+static       char *ureq_set_mimetype             (const char *r);
+static       char *ureq_generate_response_header (HttpRequest *req);
+static const char *ureq_get_code_description     (const int c);
+static       int   ureq_set_error_response       (HttpRequest *req);
+static       int   ureq_set_404_response         (HttpRequest *req);
 
 #include "internal/ureq_impl.h"
 
