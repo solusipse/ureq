@@ -30,24 +30,57 @@ SOFTWARE.
 #include "internal/ureq_defines.h"
 #include "internal/ureq_http_types.h"
 
-void        ureq_serve    (char *url, char *(*func)(HttpRequest*), char *method);
-HttpRequest ureq_init     (const char *r);
-void        ureq_close    (HttpRequest *req);
-void        ureq_finish   ();
-void        ureq_template (HttpRequest *req, char *dst, char *cnt);
-int         ureq_run      (HttpRequest *req);
+/**
+@brief: Register a function into the system that maps to a url with
+        the corresponding http method
 
-static int   ureq_get_header               (char *h, const char *r);
-static int   ureq_parse_header             (HttpRequest *req, const char *r);
-static void  ureq_remove_parameters        (char *b, const char *u);
-static void  ureq_get_query                (HttpRequest *req);
-static void  ureq_generate_response        (HttpRequest *req, char *html);
-static void  ureq_set_post_data            (HttpRequest *req);
-static char *ureq_set_mimetype             (const char *r);
-static char *ureq_generate_response_header (HttpRequest *req);
-static char *ureq_get_code_description     (const int c);
-static int   ureq_set_error_response       (HttpRequest *req);
-static int   ureq_set_404_response         (HttpRequest *req);
+@url:    URL to associate with the specified function
+@func:   Function to register into the system that maps to the url
+@method: HTTP method
+*/
+void ureq_serve(char *url, char *(*func)(HttpRequest*), char *method);
+
+/**
+@brief: Retrieve an object from the system containing information
+        about the request
+
+@r: Character input stream containing the request
+*/
+HttpRequest ureq_init(const char *r);
+
+/**
+@brief: Process the request
+
+@req: Object containing information about the request
+
+@see: ureq_init
+*/
+int ureq_run(HttpRequest *req);
+
+/**
+@brief: Clean up system resources associated with the object
+
+@req: Processed http request object
+
+@see: ureq_run
+*/
+void ureq_close(HttpRequest *req);
+
+/**
+@brief: Shutdown the system to allow cleanup
+*/
+void ureq_finish();
+
+/**
+@brief:
+
+@req:
+
+@dst:
+
+@cnt:
+*/
+void ureq_template(HttpRequest *req, char *dst, char *cnt);
 
 #include "internal/ureq_impl.h"
 

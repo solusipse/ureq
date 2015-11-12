@@ -414,7 +414,7 @@ static int ureq_set_404_response(HttpRequest *r) {
 }
 
 static char *ureq_get_error_page(HttpRequest *r) {
-    char *desc = ureq_get_code_description(r->response.code);
+    const char *desc = ureq_get_code_description(r->response.code);
     sprintf(r->buffer, "%s%d %s%s%d %s%s", \
             UREQ_HTML_HEADER, r->response.code, desc, \
             UREQ_HTML_BODY, r->response.code, desc, \
@@ -480,7 +480,7 @@ static void ureq_generate_response(HttpRequest *r, char *html) {
     free(header);
 }
 
-static char *ureq_get_code_description(const int c) {
+static const char *ureq_get_code_description(const int c) {
     switch (c) {
         case 200: return "OK";
         case 302: return "Found";
@@ -538,7 +538,7 @@ static char *ureq_generate_response_header(HttpRequest *r) {
 
     free(br);
 
-    char *desc = ureq_get_code_description(r->response.code);
+    const char *desc = ureq_get_code_description(r->response.code);
 
     size_t hlen = strlen(UREQ_HTTP_V) + 4 /*response code*/ + strlen(desc) + \
                   strlen(r->response.header) + 8/*spaces,specialchars*/;

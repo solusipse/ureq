@@ -42,7 +42,7 @@ static void  ureq_generate_response        (HttpRequest *req, char *html);
 static void  ureq_set_post_data            (HttpRequest *req);
 static char *ureq_set_mimetype             (const char *r);
 static char *ureq_generate_response_header (HttpRequest *req);
-static char *ureq_get_code_description     (const int c);
+static const char *ureq_get_code_description     (const int c);
 static int   ureq_set_error_response       (HttpRequest *req);
 static int   ureq_set_404_response         (HttpRequest *req);
 
