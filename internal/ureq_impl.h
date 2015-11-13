@@ -304,7 +304,10 @@ static int ureq_first_run(HttpRequest *req) {
 }
 
 static void ureq_render_template(HttpRequest *r) {
+    // Abort when it's not template file
     if (r->tmp_len <= 0) return;
+    // Abort when no keywords inside file
+    if (!strstr(r->buffer, "}}")) return;
 
     /*
         This piece of code is being rewritten right now and is not
@@ -325,9 +328,7 @@ static void ureq_render_template(HttpRequest *r) {
     memset(r->buffer, 0, UREQ_BUFFER_SIZE);
     
     while ((p = strstr(p, "{{"))) {
-		
 	bbb[p-r->_buffer] = 0;
-
         if((q = strstr(p, "}}"))) {
             p[q-p] = 0;
             p += 2;
@@ -348,7 +349,7 @@ static void ureq_render_template(HttpRequest *r) {
         }
         p++;
     }
-    if (q) strcat(r->buffer, q+2);
+    if (q)  strcat(r->buffer, q+2);
 }
 
 static int ureq_next_run(HttpRequest *req) {
