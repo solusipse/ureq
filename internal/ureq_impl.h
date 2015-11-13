@@ -303,63 +303,52 @@ static int ureq_first_run(HttpRequest *req) {
     #endif
 }
 
-static void ureq_parse_template(char *dst, char *buf, char *from, char *to) {
-    // TODO: iterate through buffer with {{ and }}, replace inside for loop
-    // (see render template method)
-    int s = strlen(dst);
-    if (!(dst = strstr(dst, from))) return;
-    dst[0] = 0;
-    memset(buf, 0, s);
-    strcat(buf, dst);
-    strcat(buf, to);
-    strcat(buf, dst+strlen(from));
-
-    strcpy(dst, buf);
-
-    ureq_parse_template(dst,buf,from,to);
-}
-
 static void ureq_render_template(HttpRequest *r) {
     if (r->tmp_len <= 0) return;
-    int i, tlen;
-    for (i=0,tlen=0; i < r->tmp_len; i++) {
-        tlen += strlen(r->templates[i].value);
-        tlen -= strlen(r->templates[i].destination);
-        tlen -= 4; /* special characers - {{x}} */
-    }
-    if (tlen > 0) {
-    // if this is true, it means that rendered page
-    // will have more characters than the template
-        if (tlen > UREQ_BUFFER_SIZE) {
-        // This template cannot be rendered
-        // without buffer overflow
-            // TODO: return 500 here
-            r->response.data = "Template parsing error: buffer overflow prevented.";
-            return;
-        }
-        if ((tlen + strlen(r->buffer)) > UREQ_BUFFER_SIZE) {
-        // If piece of file being rendered is bigger than
-        // the buffer, some operations have to be performed
-       
-        // TODO: this will crash when template variable is exactly
-        //       at the seam (between buffer iterations).
-        // TODO: handle special chars, eg. {{ }}
 
-            if (r->big_file) {
-                r->buffer[strlen(r->buffer)-tlen] = 0;
-                r->file.address -= tlen;
-                r->file.size += tlen;
-            } else {
-                r->complete -= 1;
+    /*
+        This piece of code is being rewritten right now and is not
+        fully functional yet. Please, use carefully.
+        
+        Some situation handlers have to be implemented, e.g.:
+        - keyword at the seam
+        - buffer overflow caused by: rendered page size > template size >= UREQ_BUFFER_SIZE
+        - no keywords in template file
+    */
+
+    char bbb[UREQ_BUFFER_SIZE];
+    char *p = r->_buffer, *q;
+    int pos = 0, i;
+
+    memcpy(r->_buffer, r->buffer, UREQ_BUFFER_SIZE);
+    memcpy(bbb, r->buffer, UREQ_BUFFER_SIZE);
+    memset(r->buffer, 0, UREQ_BUFFER_SIZE);
+    
+    while ((p = strstr(p, "{{"))) {
+		
+	bbb[p-r->_buffer] = 0;
+
+        if((q = strstr(p, "}}"))) {
+            p[q-p] = 0;
+            p += 2;
+            memmove(bbb, bbb+pos, pos);
+
+            pos += strlen(bbb) + 4 + strlen(p);
+
+            // bbb contains text before every encountered {{
+            // p   contains keyword inside {{ and }}
+            // q+2 contains text after last }}
+            strcat(r->buffer, bbb);
+            for (i=0; i < r->tmp_len; i++) {
+                if (strcmp(p, r->templates[i].destination) == 0) {
+                    strcat(r->buffer, r->templates[i].value);
+                }
             }
+            p = q;
         }
+        p++;
     }
-    // Everything's prepared for running replacing function
-    for (i=0; i < r->tmp_len; i++) {
-        ureq_parse_template(r->buffer, r->_buffer, r->templates[i].destination, r->templates[i].value);
-    }
-
-    if (r->len != UREQ_BUFFER_SIZE) r->len = strlen(r->buffer);
+    if (q) strcat(r->buffer, q+2);
 }
 
 static int ureq_next_run(HttpRequest *req) {
