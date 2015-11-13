@@ -1,4 +1,4 @@
-# ureq ![travis](https://travis-ci.org/solusipse/ureq.svg?branch=master)
+# ureq [![Build Status](https://travis-ci.org/solusipse/ureq.svg?branch=master)](https://travis-ci.org/solusipse/ureq)
 Micro C library for handling HTTP requests on low resource systems. Please note that ureq is still in heavy development and new features are continuously added. Despite this, it behaves very well in stability tests and current user-end interface won't be probably changed.
 
 -------------------------------------------------------------------------------
