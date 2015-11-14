@@ -282,9 +282,11 @@ static int ureq_first_run(HttpRequest *req) {
            here and break.
         */
         if (req->response.file) {
-            if (!req->response.mime )
-                req->response.mime = ureq_set_mimetype(req->response.file);
-            break;
+            if (req->response.file != req->buffer) {
+                if (!req->response.mime)
+                    req->response.mime = ureq_set_mimetype(req->response.file);
+                break;
+            }
         }
 
         if (req->response.code == 0)
@@ -383,6 +385,11 @@ static int ureq_next_run(HttpRequest *req) {
     } else {
         respcpy.data = req->func(req);
         req->len = strlen(respcpy.data);
+        if (req->response.file == req->buffer) {
+            strcpy(req->buffer, respcpy.data);
+            respcpy.data = req->buffer;
+        }
+        ureq_render_template(req);
         req->complete = 1;
     }
     req->response = respcpy;

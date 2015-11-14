@@ -192,6 +192,13 @@ char *s_redirect_to_test(HttpRequest *r) {
     return "";
 }
 
+char *s_template(HttpRequest *r) {
+    r->response.file = r->buffer;
+    ureq_template(r, "first", "Yes");
+    ureq_template(r, "second", "working");
+    return "Does it work? {{first}}. Another keyword: {{second}}.";
+}
+
 char *s_exit() {
     // Using it only during development for memory leakage testing
     exit(1);
@@ -209,6 +216,7 @@ int main_b() {
     ureq_serve("/post", s_post, UREQ_ALL);
     ureq_serve("/param", s_param, UREQ_GET);
     ureq_serve("/redirect", s_redirect_to_test, UREQ_GET);
+    ureq_serve("/template", s_template, UREQ_GET);
 
     ureq_serve("/exit", s_exit, UREQ_GET);
 
