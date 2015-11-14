@@ -82,6 +82,6 @@ void ureq_finish();
 */
 void ureq_template(HttpRequest *req, char *dst, char *cnt);
 
-#include "include/ureq_impl.h"
+#include "include/ureq_core.h"
 
 #endif
