@@ -27,8 +27,8 @@ SOFTWARE.
 #ifndef UREQ_H
 #define UREQ_H
 
-#include "internal/ureq_defines.h"
-#include "internal/ureq_http_types.h"
+#include "include/ureq_defines.h"
+#include "include/ureq_http_types.h"
 
 /**
 @brief: Register a function into the system that maps to a url with
@@ -82,6 +82,6 @@ void ureq_finish();
 */
 void ureq_template(HttpRequest *req, char *dst, char *cnt);
 
-#include "internal/ureq_impl.h"
+#include "include/ureq_impl.h"
 
 #endif
