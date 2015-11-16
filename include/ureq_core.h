@@ -379,10 +379,12 @@ static int ureq_next_run(HttpRequest *req) {
             }
         #else
             // TODO: buffer read from func
+            memset(req->buffer, 0, UREQ_BUFFER_SIZE);
             respcpy.data = req->func(req);
             req->len = strlen(respcpy.data);
         #endif
     } else {
+        memset(req->buffer, 0, UREQ_BUFFER_SIZE);
         respcpy.data = req->func(req);
         req->len = strlen(respcpy.data);
         if (req->response.file == req->buffer) {
