@@ -89,6 +89,7 @@ const UreqMime ureq_mime_types[] = {
 static int ureq_get_header(char *h, const char *r) {
     const char *p = strstr(r, UREQ_EOL);
     if (!p) return 0;
+    if ((p-r) < UREQ_HTTP_REQ_LEN) return 0;
     strncpy(h, r, (p-r));
     return 1;
 }
