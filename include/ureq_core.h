@@ -24,8 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef UREQ_IMPL_H
-#define UREQ_IMPL_H
+#ifndef UREQ_CORE_H
+#define UREQ_CORE_H
 
 #include "ureq_fwd.h"
 #include "ureq_pages.h"
@@ -627,4 +627,4 @@ void ureq_finish() {
     #endif
 }
 
-#endif /* UREQ_IMPL_H */
+#endif /* UREQ_CORE_H */
