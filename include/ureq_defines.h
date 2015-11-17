@@ -74,4 +74,3 @@ SOFTWARE.
 }
 
 #endif /* UREQ_DEFINES_H */
-   
