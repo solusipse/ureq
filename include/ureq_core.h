@@ -170,50 +170,19 @@ void ureq_serve(char *url, char *(*func)(HttpRequest*), char *method) {
 }
 
 HttpRequest ureq_init(const char *ur) {
-    HttpRequest r = {};
+    HttpRequest r = UREQ_HTTP_REQ_INIT;
 
-    r.complete = -1;
-
-    /* These basic checks protect against buffer overflow */
     if (strlen(ur) > UREQ_BUFFER_SIZE) {
         r.response.code  = 413;
-        r.valid = 0;
         return r;
     }
 
-    if (strlen(ur) < UREQ_HTTP_REQ_LEN) {
-        r.response.code = 400;
-        r.valid = 0;
+    if (!ureq_parse_header(&r, ur)) {
+        r.response.code  = 400;
         return r;
     }
 
-    if(!strstr(ur, "HTTP/1.")) {
-        r.response.code = 400;
-        r.valid = 0;
-        return r;
-    }
-
-    char bh[16];
-    strncpy(bh, ur, 16);
-
-    int i, v=0;
-    for(i = 0; ureq_methods[i] != NULL; ++i)
-        if (strstr(bh, ureq_methods[i])) {
-            v=1;
-            break;
-        }
-
-    if (!v) {
-        r.response.code = 400;
-        r.valid = 0;
-        return r;
-    }
-
-    /* Actual parsing */
-    if (!ureq_parse_header(&r, ur))
-        r.valid = 0;
-    else
-        r.valid = 1;
+    r.valid = 1;
 
     return r;
 }
