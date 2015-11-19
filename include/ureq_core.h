@@ -300,7 +300,7 @@ static void ureq_render_template(HttpRequest *r) {
     memset(r->buffer, 0, UREQ_BUFFER_SIZE);
     
     while ((p = strstr(p, "{{"))) {
-	bbb[p-r->_buffer] = 0;
+    bbb[p-r->_buffer] = 0;
         if((q = strstr(p, "}}"))) {
             p[q-p] = 0;
             p += 2;
@@ -492,9 +492,10 @@ static char *ureq_generate_response_header(HttpRequest *r) {
     strcat(br, r->response.mime);
 
     if (r->response.header) {
-        char *bb = malloc(strlen(r->response.header) + 1);
+        size_t h_len = strlen(r->response.header) + 1;
+        char *bb = malloc(h_len);
         strcpy(bb, r->response.header);
-        r->response.header = malloc(strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1);
+        r->response.header = malloc(strlen(br) + h_len + UREQ_EOL_LEN + 1);
         strcpy(r->response.header, br);
         strcat(r->response.header, UREQ_EOL);
         strcat(r->response.header, bb);
