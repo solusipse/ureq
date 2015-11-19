@@ -24,8 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef UREQ_IMPL_H
-#define UREQ_IMPL_H
+#ifndef UREQ_CORE_H
+#define UREQ_CORE_H
 
 #include "ureq_fwd.h"
 #include "ureq_pages.h"
@@ -89,6 +89,7 @@ const UreqMime ureq_mime_types[] = {
 static int ureq_get_header(char *h, const char *r) {
     const char *p = strstr(r, UREQ_EOL);
     if (!p) return 0;
+    if ((p-r) < UREQ_HTTP_REQ_LEN) return 0;
     strncpy(h, r, (p-r));
     return 1;
 }
@@ -169,50 +170,19 @@ void ureq_serve(char *url, char *(*func)(HttpRequest*), char *method) {
 }
 
 HttpRequest ureq_init(const char *ur) {
-    HttpRequest r = {};
+    HttpRequest r = UREQ_HTTP_REQ_INIT;
 
-    r.complete = -1;
-
-    /* These basic checks protect against buffer overflow */
     if (strlen(ur) > UREQ_BUFFER_SIZE) {
         r.response.code  = 413;
-        r.valid = 0;
         return r;
     }
 
-    if (strlen(ur) < UREQ_HTTP_REQ_LEN) {
-        r.response.code = 400;
-        r.valid = 0;
+    if (!ureq_parse_header(&r, ur)) {
+        r.response.code  = 400;
         return r;
     }
 
-    if(!strstr(ur, "HTTP/1.")) {
-        r.response.code = 400;
-        r.valid = 0;
-        return r;
-    }
-
-    char bh[16];
-    strncpy(bh, ur, 16);
-
-    int i, v=0;
-    for(i = 0; ureq_methods[i] != NULL; ++i)
-        if (strstr(bh, ureq_methods[i])) {
-            v=1;
-            break;
-        }
-
-    if (!v) {
-        r.response.code = 400;
-        r.valid = 0;
-        return r;
-    }
-
-    /* Actual parsing */
-    if (!ureq_parse_header(&r, ur))
-        r.valid = 0;
-    else
-        r.valid = 1;
+    r.valid = 1;
 
     return r;
 }
@@ -330,7 +300,7 @@ static void ureq_render_template(HttpRequest *r) {
     memset(r->buffer, 0, UREQ_BUFFER_SIZE);
     
     while ((p = strstr(p, "{{"))) {
-	bbb[p-r->_buffer] = 0;
+        bbb[p-r->_buffer] = 0;
         if((q = strstr(p, "}}"))) {
             p[q-p] = 0;
             p += 2;
@@ -522,9 +492,10 @@ static char *ureq_generate_response_header(HttpRequest *r) {
     strcat(br, r->response.mime);
 
     if (r->response.header) {
-        char *bb = malloc(strlen(r->response.header) + 1);
+        size_t h_len = strlen(r->response.header) + 1;
+        char *bb = malloc(h_len);
         strcpy(bb, r->response.header);
-        r->response.header = malloc(strlen(br) + strlen(bb) + UREQ_EOL_LEN + 1);
+        r->response.header = malloc(strlen(br) + h_len + UREQ_EOL_LEN + 1);
         strcpy(r->response.header, br);
         strcat(r->response.header, UREQ_EOL);
         strcat(r->response.header, bb);
@@ -627,4 +598,4 @@ void ureq_finish() {
     #endif
 }
 
-#endif /* UREQ_IMPL_H */
+#endif /* UREQ_CORE_H */

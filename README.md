@@ -1,4 +1,16 @@
-# ureq [![Build Status](https://travis-ci.org/solusipse/ureq.svg?branch=master)](https://travis-ci.org/solusipse/ureq)
+### ureq
+
+--------
+
+### Status
+[![Build Status](https://travis-ci.org/solusipse/ureq.svg?branch=master)](https://travis-ci.org/solusipse/ureq)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/solusipse/ureq.svg)](http://isitmaintained.com/project/solusipse/ureq "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/solusipse/ureq.svg)](http://isitmaintained.com/project/solusipse/ureq "Percentage of issues still open")
+
+-------------------------------------------------------------------------------
+
+## Description
+
 Micro C library for handling HTTP requests on low resource systems. Please note that ureq is still in heavy development and new features are continuously added. Despite this, it behaves very well in stability tests and current user-end interface won't be probably changed.
 
 -------------------------------------------------------------------------------
@@ -124,7 +136,7 @@ r->reponse.mime = "text/plain";
 ```
 
 ## Load test
-With the help of Reddit and Hacker News users, `ureq` was benchmarked on the `ESP8266`.
+With the help of Reddit and Hacker News users, `ureq` was benchmarked on the [`ESP8266`](http://i.imgur.com/3fyAXN0.jpg).
 
 ![charts](https://solusipse.net/varia/esp8266/esp8266stats.png)
 
@@ -136,4 +148,4 @@ For more data, go to: http://ureq.solusipse.net.
 - todos from comments in files
 
 ## License
-See `LICENSE`.
+See the [LICENSE](LICENSE) file for license rights and limitations (MIT).

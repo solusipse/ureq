@@ -28,11 +28,11 @@ SOFTWARE.
 #define UREQ_DEFINES_H
 
 /* HTTP SYMBOLS */
-#define UREQ_GET 	     "GET"
-#define UREQ_POST 	     "POST"
-#define UREQ_ALL 	     "ALL"
-#define UREQ_PUT 	     "PUT"
-#define UREQ_DELETE	     "DELETE"
+#define UREQ_GET         "GET"
+#define UREQ_POST        "POST"
+#define UREQ_ALL         "ALL"
+#define UREQ_PUT         "PUT"
+#define UREQ_DELETE      "DELETE"
 #define UREQ_HTTP_V      "HTTP/1.1"
 
 #define UREQ_HTTP_REQ_LEN 14
@@ -48,5 +48,29 @@ SOFTWARE.
 */
 #define UREQ_BUFFER_SIZE 1024
 
+/*
+   This macro is used to intialize an HttpRequest
+   object
+*/
+#define UREQ_HTTP_REQ_INIT { \
+    NULL, /* type      */    \
+    NULL, /* url       */    \
+    NULL, /* version   */    \
+    NULL, /* message   */    \
+    NULL, /* param     */    \
+    NULL, /* body      */    \
+    {},   /* response  */    \
+    {},   /* templates */    \
+    0,    /* tmp_len   */    \
+    -1,   /* complete  */    \
+    0,    /* big_file  */    \
+    0,    /* len       */    \
+    {},   /* file      */    \
+    {},   /* buffer    */    \
+    {},   /* _buffer   */    \
+    0,    /* valid     */    \
+    NULL, /* func      */    \
+    NULL  /* page404   */    \
+}
+
 #endif /* UREQ_DEFINES_H */
-   
