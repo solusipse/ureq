@@ -300,7 +300,7 @@ static void ureq_render_template(HttpRequest *r) {
     memset(r->buffer, 0, UREQ_BUFFER_SIZE);
     
     while ((p = strstr(p, "{{"))) {
-    bbb[p-r->_buffer] = 0;
+        bbb[p-r->_buffer] = 0;
         if((q = strstr(p, "}}"))) {
             p[q-p] = 0;
             p += 2;
