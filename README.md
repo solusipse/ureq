@@ -104,13 +104,13 @@ int main() {
 ## Detailed usage
 This part of `README` needs to be improved, please treat it as an early draft.
 
-To take **precise control of server's response**, modify **HttpRequest** struct's fields **inside page connected to framework via `ureq_serve`**. Reading `ureq.h` file may provide many useful informations.
+To take **precise control of server's response**, modify **HttpRequest** struct's fields **inside page connected to framework via `ureq_serve`**. Reading the [interface](./ureq.h) file and the [type-definitions](./include/ureq_http_types.h) file may provide many useful information.
 
-Let's take a look at `Response` struct, which is initialized in every request struct:
+Let's take a look at `UreqResponse` struct, which is initialized in every `HttpRequest` struct:
 
 ```
 typedef struct ureq_response_t {
-    int  code;
+    int   code;
     char *mime;
     char *header;
     char *data;
