@@ -3,7 +3,7 @@ https://github.com/solusipse/ureq
 
 The MIT License (MIT)
 
-Copyright (c) 2015 solusipse
+Copyright (c) 2015-2016 solusipse
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ typedef struct ureq_file_t {
 /*
 */
 typedef struct ureq_response_t {
-    int  code;
+    int   code;
     char *mime;
     char *header;
     char *data;
@@ -79,13 +79,13 @@ typedef struct ureq_http_request_t {
 
     UreqFile file;
     
-    char buffer[UREQ_BUFFER_SIZE];  /* Buffer for user operations */
-    char _buffer[UREQ_BUFFER_SIZE]; /* Buffer for backend operations */
+    char  buffer[UREQ_BUFFER_SIZE];  /* Buffer for user operations */
+    char _buffer[UREQ_BUFFER_SIZE];  /* Buffer for backend operations */
 
     int valid;
 
     /* Type Methods */
-    char *(*func)(struct ureq_http_request_t*);
+    char *(*func)   (struct ureq_http_request_t*);
     char *(*page404)(struct ureq_http_request_t*);
 } HttpRequest;
 

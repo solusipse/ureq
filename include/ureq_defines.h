@@ -3,7 +3,7 @@ https://github.com/solusipse/ureq
 
 The MIT License (MIT)
 
-Copyright (c) 2015 solusipse
+Copyright (c) 2015-2016 solusipse
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,19 +27,24 @@ SOFTWARE.
 #ifndef UREQ_DEFINES_H
 #define UREQ_DEFINES_H
 
-/* HTTP SYMBOLS */
+/* HTTP METHODS */
 #define UREQ_GET         "GET"
 #define UREQ_POST        "POST"
 #define UREQ_ALL         "ALL"
 #define UREQ_PUT         "PUT"
 #define UREQ_DELETE      "DELETE"
+
+/* HTTP VERSION */
 #define UREQ_HTTP_V      "HTTP/1.1"
 
+/* Minimum length of a request message */
 #define UREQ_HTTP_REQ_LEN 14
 
+/* Message End-of-Line constants */
 #define UREQ_EOL         "\r\n"
 #define UREQ_EOL_LEN     2
 
+/* ESP8266 filesystem base address */
 #define UREQ_FS_START    0x12000
 
 /*

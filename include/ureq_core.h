@@ -3,7 +3,7 @@ https://github.com/solusipse/ureq
 
 The MIT License (MIT)
 
-Copyright (c) 2015 solusipse
+Copyright (c) 2015-2016 solusipse
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -147,13 +147,13 @@ static int ureq_parse_header(HttpRequest *req, const char *r) {
     req->message = malloc(r_len);
     strcpy(req->message, r);
 
+    req->body               = NULL;
     req->params             = NULL;
     req->response.data      = NULL;
-    req->body               = NULL;
-    req->response.header    = NULL;
     req->response.mime      = NULL;
     req->response.file      = NULL;
     req->response.code      = 0;
+    req->response.header    = NULL;
 
     return 1;
 }
@@ -162,6 +162,7 @@ void ureq_serve(char *url, char *(*func)(HttpRequest*), char *method) {
     UreqPage page = {url, method, func};
 
     #ifdef UREQ_STATIC_LIST
+        if (pageCount >= 16) return;
         pages[pageCount++] = page;
     #else
         pages = (UreqPage*) realloc(pages, ++pageCount * sizeof(UreqPage));
@@ -191,28 +192,27 @@ static int ureq_first_run(HttpRequest *req) {
     req->complete = -2;
 
     int i;
+
+    char *plain_url = malloc(strlen(req->url) + 1);
+    ureq_remove_parameters(plain_url, req->url);
+
+    /* Check for special 404 response */
     for (i = 0; i < pageCount; ++i) {
-        /*
-           This loop iterates through a pages list and compares
-           urls and methods to requested ones. If there's a match,
-           it calls a corresponding function and saves http
-           response to req.response.
-        */
+        if (req->page404) break;
 
-        /* Start from checking if page's special (e.g. 404) */
-        if (!req->page404)
-            if (!strcmp(pages[i].url, "404"))
-                req->page404 = pages[i].func;
+        if (!strcmp(pages[i].url, "404"))
+            req->page404 = pages[i].func;
+    }
 
-        char *plain_url = malloc(strlen(req->url) + 1);
-        ureq_remove_parameters(plain_url, req->url);
-
+    /*
+       This loop iterates through the pages list and compares
+       urls and methods to requested ones. If there's a match,
+       it calls a corresponding function and saves the HTTP
+       response to <req.response>
+    */
+    for (i = 0; i < pageCount; ++i) {
         /* If there's no match between this, skip to next iteration. */
-        if (strcmp(plain_url, pages[i].url)) {
-            free(plain_url);
-            continue;
-        }
-        free(plain_url);
+        if (strcmp(plain_url, pages[i].url)) continue;
 
         /*
            If request type is ALL, corresponding function is always called,
@@ -223,9 +223,7 @@ static int ureq_first_run(HttpRequest *req) {
                If there's no match between an url and method, skip
                to next iteration.
             */
-            if (strcmp(req->type, pages[i].method)) {
-                continue;
-            }
+            if (strcmp(req->type, pages[i].method)) continue;
         }
 
         /* Save get parameters to r->params */
@@ -386,7 +384,7 @@ static char *ureq_get_error_page(HttpRequest *r) {
     const char *desc = ureq_get_code_description(r->response.code);
     sprintf(r->buffer, "%s%d %s%s%d %s%s", \
             UREQ_HTML_HEADER, r->response.code, desc, \
-            UREQ_HTML_BODY, r->response.code, desc, \
+            UREQ_HTML_BODY,   r->response.code, desc, \
             UREQ_HTML_FOOTER);
     return r->buffer;
 }
@@ -471,10 +469,13 @@ static char *ureq_set_mimetype(const char *r) {
     e += 1;
 
     int i;
-    for (i=0; ureq_mime_types[i].ext != NULL; ++i)
-        if (!strcmp(ureq_mime_types[i].ext, e)) break;
+    for (i = 0; ureq_mime_types[i].ext != NULL; ++i) {
+        if (!strcmp(ureq_mime_types[i].ext, e)) {
+            return (char*) ureq_mime_types[i].mime;
+        }
+    }
 
-    return (char*) ureq_mime_types[i].mime;
+    return "text/html";
 }
 
 static char *ureq_generate_response_header(HttpRequest *r) {

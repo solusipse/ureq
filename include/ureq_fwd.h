@@ -3,7 +3,7 @@ https://github.com/solusipse/ureq
 
 The MIT License (MIT)
 
-Copyright (c) 2015 solusipse
+Copyright (c) 2015-2016 solusipse
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,23 +27,23 @@ SOFTWARE.
 #ifndef UREQ_FWD_DECLS_H
 #define UREQ_FWD_DECLS_H
 
-void        ureq_serve    (char *url, char *(*func)(HttpRequest*), char *method);
-HttpRequest ureq_init     (const char *r);
-void        ureq_close    (HttpRequest *req);
-void        ureq_finish   ();
-void        ureq_template (HttpRequest *req, char *dst, char *cnt);
-int         ureq_run      (HttpRequest *req);
+void               ureq_serve                    (char*, char *(*)(HttpRequest*), char*);
+HttpRequest        ureq_init                     (const char*);
+void               ureq_close                    (HttpRequest*);
+void               ureq_finish                   ();
+void               ureq_template                 (HttpRequest*, char*, char*);
+int                ureq_run                      (HttpRequest*);
 
-static int   ureq_get_header               (char *h, const char *r);
-static int   ureq_parse_header             (HttpRequest *req, const char *r);
-static void  ureq_remove_parameters        (char *b, const char *u);
-static void  ureq_get_query                (HttpRequest *req);
-static void  ureq_generate_response        (HttpRequest *req, char *html);
-static void  ureq_set_post_data            (HttpRequest *req);
-static char *ureq_set_mimetype             (const char *r);
-static char *ureq_generate_response_header (HttpRequest *req);
-static const char *ureq_get_code_description     (const int c);
-static int   ureq_set_error_response       (HttpRequest *req);
-static int   ureq_set_404_response         (HttpRequest *req);
+static int         ureq_get_header               (char*, const char*);
+static int         ureq_parse_header             (HttpRequest*, const char*);
+static void        ureq_remove_parameters        (char*, const char*);
+static void        ureq_get_query                (HttpRequest*);
+static void        ureq_generate_response        (HttpRequest*, char*);
+static void        ureq_set_post_data            (HttpRequest*);
+static char       *ureq_set_mimetype             (const char*);
+static char       *ureq_generate_response_header (HttpRequest*);
+static const char *ureq_get_code_description     (const int);
+static int         ureq_set_error_response       (HttpRequest*);
+static int         ureq_set_404_response         (HttpRequest*);
 
 #endif /* UREQ_FWD_DECLS_H */
