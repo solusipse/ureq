@@ -35,7 +35,7 @@ e.g.: ureq_serve("/", s_home, GET);
 */
 
 char *s_home() {
-    /* That's the most basic example. In this case, client will recieve
+    /* That's the most basic example. In this case, client will receive
      * text/html response containing only "home" string. */
     return "home";
 }
