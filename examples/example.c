@@ -59,7 +59,7 @@ char *s_param(HttpRequest *r) {
      * Please note, that ureq_get_param_value uses
      * common buffer for all operations, so store
      * copy data from it before calling it again */
-    char *arg;
+    char *arg = NULL;
 
     strcpy(r->buffer, "data: ");
     arg = ureq_get_param_value(r, "data");
@@ -123,7 +123,7 @@ int main() {
 
     char request[] = "GET / HTTP/1.1\r\n"
                      "Host: 127.0.0.1:80\r\n";
-    
+
     HttpRequest r = ureq_init(request);
 
     while(ureq_run(&r)) printf("%s\n", r.response.data);

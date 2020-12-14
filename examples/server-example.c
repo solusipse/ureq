@@ -34,7 +34,7 @@ SOFTWARE.
 #include <string.h>
 #ifndef _WIN32
 #include <netdb.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -65,8 +65,8 @@ void bind_to_port(int listen_socket, struct sockaddr_in serveraddr);
 
 
 void get_client_address(struct sockaddr_in client_address) {
-    struct hostent *hostp;
-    char *hostaddrp;
+    struct hostent *hostp = NULL;
+    char *hostaddrp = NULL;
     hostp = gethostbyaddr((const char *)&client_address.sin_addr.s_addr, sizeof(client_address.sin_addr.s_addr), AF_INET);
     if (hostp == NULL) error();
     hostaddrp = inet_ntoa(client_address.sin_addr);
@@ -122,7 +122,7 @@ struct sockaddr_in set_address(struct sockaddr_in server_address) {
 }
 
 void bind_to_port(int listen_socket, struct sockaddr_in server_address) {
-    if (bind(listen_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0) 
+    if (bind(listen_socket, (struct sockaddr *) &server_address, sizeof(server_address)) < 0)
         error();
     if (listen(listen_socket, QUEUE_SIZE) < 0)
         error();
@@ -150,7 +150,7 @@ char *s_param(HttpRequest *r) {
      * Please note, that ureq_get_param_value uses
      * common buffer for all operations, so store
      * copy data from it before calling it again */
-    char *arg;
+    char *arg = NULL;
 
     strcpy(r->buffer, "data: ");
     arg = ureq_get_param_value(r, "data");
@@ -173,7 +173,7 @@ char *s_post(HttpRequest *r) {
                 "<input type='submit' value='Submit'>"
                 "</form>";
 
-    char *arg;
+    char *arg = NULL;
 
     strcpy(r->buffer, "data: ");
     arg = ureq_post_param_value(r, "data");
